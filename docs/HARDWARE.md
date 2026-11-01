@@ -36,7 +36,7 @@ A successful cross-build must include:
 - Independent package identity, loader marker and UFW/part CRC validation, including corrupted-package rejection.
 - Source/dependency identity, SHA-256 hashes and licence notices. The initial output is explicitly experimental, with `hardware_validated: false`.
 
-The draft `flash.html` offers a Chrome/Edge desktop route to the pinned `firmware/releases/undergrowth-0.1.0-hw1.fwsc`. It checks SHA-256, FM1 identity and UFW CRCs before requesting USB MIDI SysEx access. Device identification and backup acknowledgement precede the install command. Its updater is the pinned fm1-base Web MIDI implementation; a port shown under another name can be selected explicitly. The browser gate tests verification and confirmation with simulated MIDI only. The page must be served over HTTPS or localhost; opening it as a local file is not supported. It is not yet on the published Pages site.
+The `flash.html` page offers a Chrome/Edge desktop route to the pinned `firmware/releases/undergrowth-0.1.0-hw1.fwsc`. It checks SHA-256, FM1 identity and UFW CRCs before requesting USB MIDI SysEx access. Device identification and backup acknowledgement precede the install command. Its updater is the pinned fm1-base Web MIDI implementation; a port shown under another name can be selected explicitly. The browser gate tests verification and confirmation with simulated MIDI only. The page must be served over HTTPS or localhost; opening it as a local file is not supported. The hosted page is https://stephencarr.github.io/UNDERGROWTH/flash.html; no local server is needed.
 
 ## Caravel 0.6.0 to UNDERGROWTH: preparation, not an instruction to flash yet
 
