@@ -165,8 +165,14 @@ for (const k of Object.values(knobs)) {
 
 
 for(const [name,b] of Object.entries(buttons)){
- b.hit.addEventListener('click',()=>callbacks.button(name));
- b.hit.addEventListener('keydown',e=>{if((e.code==='Enter'||e.code==='Space')&&!e.repeat){e.preventDefault();e.stopPropagation();callbacks.button(name);}});
+ // The template suppresses touchstart's compatibility click. Handle the physical
+ // press directly; keep click only for assistive activation without a press.
+ let directAt=-Infinity;
+ const activate=()=>{directAt=performance.now();callbacks.button(name);};
+ b.hit.addEventListener('pointerdown',e=>{e.preventDefault();b.hit.setPointerCapture(e.pointerId);b.g.classList.add('held');activate();});
+ for(const event of ['pointerup','pointercancel','lostpointercapture','blur'])b.hit.addEventListener(event,()=>b.g.classList.remove('held'));
+ b.hit.addEventListener('click',()=>{if(performance.now()-directAt>500)activate();});
+ b.hit.addEventListener('keydown',e=>{if((e.code==='Enter'||e.code==='Space')&&!e.repeat){e.preventDefault();e.stopPropagation();activate();}});
  if(name==='HOME'){let timer;const clear=()=>clearTimeout(timer);b.hit.addEventListener('pointerdown',()=>timer=setTimeout(()=>callbacks.panic(),650));for(const e of ['pointerup','pointercancel','lostpointercapture','pointerleave'])b.hit.addEventListener(e,clear);}
 }
 keys.forEach((k,i)=>{

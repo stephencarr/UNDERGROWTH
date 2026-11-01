@@ -65,6 +65,11 @@ function draw(){const u=ug();if(!u)return;const s=u.state,v=u.voice,st=s?.voices
  ctx.fillStyle='#b8d0bd';ctx.fillRect(0,0,240,240);ctx.fillStyle='#142e23';ctx.font='bold 17px monospace';ctx.fillText(title+' / '+pages[page],8,24);ctx.fillRect(8,32,224,2);ctx.font='13px monospace';lines.forEach((l,i)=>ctx.fillText(l,8,56+i*23));ctx.font='bold 12px monospace';ctx.fillText(footer,8,205);
  for(let i=0;i<16;i++){ctx.fillStyle=s?.voices[v].steps[i].on?'#254e37':'#91ab97';ctx.fillRect(8+i*14,218,11,12);if(s?.playing&&s.step===i){ctx.strokeStyle='#fff';ctx.strokeRect(8+i*14,218,11,12);}}
  document.getElementById('panel-readout').textContent=title+' · '+pages[page]+' · '+lines.join(' · ');lcd.setAttribute('aria-label',title+' '+pages[page]+': '+lines.join(', '));
+ const pageButton=['HOME','SEQ','EDIT','GLO','LFO','FX','ARP','SAVE'][page];
+ for(const [name,b] of Object.entries(hardware.buttons)){
+  const on=name===pageButton||(name==='PLAY'&&s?.playing)||(name==='REC'&&(s?.recording||s?.motion));
+  b.g.classList.toggle('lit',!!on);b.hit.setAttribute('aria-pressed',String(!!on));
+ }
  hardware.keys.forEach((k,i)=>{const outside=v===2&&page!==1&&page!==2&&(29+i+octave*12<24||29+i+octave*12>60);k.g.style.opacity=outside?'.35':'1';k.hit.setAttribute('aria-disabled',String(outside));});
  hardware.whiteKeys.forEach((key,i)=>{hardware.keys[key].g.classList.toggle('lit',!!s?.voices[v].steps[i].on);hardware.keys[key].g.classList.toggle('held',!!s?.playing&&s.step===i);});
  document.getElementById('device-status').textContent=document.getElementById('audio-status').textContent;

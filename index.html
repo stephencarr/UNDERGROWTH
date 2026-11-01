@@ -475,8 +475,14 @@ for (const k of Object.values(knobs)) {
 
 
 for(const [name,b] of Object.entries(buttons)){
- b.hit.addEventListener('click',()=>callbacks.button(name));
- b.hit.addEventListener('keydown',e=>{if((e.code==='Enter'||e.code==='Space')&&!e.repeat){e.preventDefault();e.stopPropagation();callbacks.button(name);}});
+ // The template suppresses touchstart's compatibility click. Handle the physical
+ // press directly; keep click only for assistive activation without a press.
+ let directAt=-Infinity;
+ const activate=()=>{directAt=performance.now();callbacks.button(name);};
+ b.hit.addEventListener('pointerdown',e=>{e.preventDefault();b.hit.setPointerCapture(e.pointerId);b.g.classList.add('held');activate();});
+ for(const event of ['pointerup','pointercancel','lostpointercapture','blur'])b.hit.addEventListener(event,()=>b.g.classList.remove('held'));
+ b.hit.addEventListener('click',()=>{if(performance.now()-directAt>500)activate();});
+ b.hit.addEventListener('keydown',e=>{if((e.code==='Enter'||e.code==='Space')&&!e.repeat){e.preventDefault();e.stopPropagation();activate();}});
  if(name==='HOME'){let timer;const clear=()=>clearTimeout(timer);b.hit.addEventListener('pointerdown',()=>timer=setTimeout(()=>callbacks.panic(),650));for(const e of ['pointerup','pointercancel','lostpointercapture','pointerleave'])b.hit.addEventListener(e,clear);}
 }
 keys.forEach((k,i)=>{
@@ -558,6 +564,11 @@ function draw(){const u=ug();if(!u)return;const s=u.state,v=u.voice,st=s?.voices
  ctx.fillStyle='#b8d0bd';ctx.fillRect(0,0,240,240);ctx.fillStyle='#142e23';ctx.font='bold 17px monospace';ctx.fillText(title+' / '+pages[page],8,24);ctx.fillRect(8,32,224,2);ctx.font='13px monospace';lines.forEach((l,i)=>ctx.fillText(l,8,56+i*23));ctx.font='bold 12px monospace';ctx.fillText(footer,8,205);
  for(let i=0;i<16;i++){ctx.fillStyle=s?.voices[v].steps[i].on?'#254e37':'#91ab97';ctx.fillRect(8+i*14,218,11,12);if(s?.playing&&s.step===i){ctx.strokeStyle='#fff';ctx.strokeRect(8+i*14,218,11,12);}}
  document.getElementById('panel-readout').textContent=title+' · '+pages[page]+' · '+lines.join(' · ');lcd.setAttribute('aria-label',title+' '+pages[page]+': '+lines.join(', '));
+ const pageButton=['HOME','SEQ','EDIT','GLO','LFO','FX','ARP','SAVE'][page];
+ for(const [name,b] of Object.entries(hardware.buttons)){
+  const on=name===pageButton||(name==='PLAY'&&s?.playing)||(name==='REC'&&(s?.recording||s?.motion));
+  b.g.classList.toggle('lit',!!on);b.hit.setAttribute('aria-pressed',String(!!on));
+ }
  hardware.keys.forEach((k,i)=>{const outside=v===2&&page!==1&&page!==2&&(29+i+octave*12<24||29+i+octave*12>60);k.g.style.opacity=outside?'.35':'1';k.hit.setAttribute('aria-disabled',String(outside));});
  hardware.whiteKeys.forEach((key,i)=>{hardware.keys[key].g.classList.toggle('lit',!!s?.voices[v].steps[i].on);hardware.keys[key].g.classList.toggle('held',!!s?.playing&&s.step===i);});
  document.getElementById('device-status').textContent=document.getElementById('audio-status').textContent;
