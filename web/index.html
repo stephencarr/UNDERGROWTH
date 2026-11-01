@@ -21,6 +21,12 @@
     <button id="panic" class="quiet danger" title="Immediately silence all sound and delay tails">Silence</button>
   </section>
 
+  <section class="groove" aria-label="Global groove">
+    <label class="macro" for="swing"><span class="macro-top"><span>Swing</span><output id="swing-value" for="swing">50.0%</output></span><input id="swing" type="range" min="0" max="1" step="0.01" value="0" aria-describedby="groove-help"><span class="macro-ends"><span>Straight</span><span>Shuffle</span></span></label>
+    <label class="macro" for="human"><span class="macro-top"><span>Human</span><output id="human-value" for="human">0%</output></span><input id="human" type="range" min="0" max="1" step="0.01" value="0" aria-describedby="groove-help"><span class="macro-ends"><span>Exact</span><span>Laid back</span></span></label>
+    <p id="groove-help">Swing sets the pocket. Human softens and delays chatter a little, with the same feel each loop. Kick stays firm. Live taps stay immediate.</p>
+  </section>
+
   <div class="performance">
     <section class="voices" aria-labelledby="voices-heading">
       <div class="section-label"><span class="eyebrow" id="voices-heading">01 / Choose an organism</span><span class="small-note">Two voices. One ecosystem.</span></div>

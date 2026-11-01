@@ -65,11 +65,18 @@ for(const [p,id] of params.entries()){
  };
  el.onchange=()=>{dragging=null;};el.addEventListener('blur',()=>dragging=null);
 }
+const grooveText=(id,value)=>id==='swing'?`${(50+value*100/6).toFixed(1)}%`:`${Math.round(value*100)}%`;
+for(const [p,id] of ['swing','human'].entries()){
+ const el=$(id);
+ el.oninput=()=>{if(dragging!==id){command('begin');dragging=id;}const val=Number(el.value);$(`${id}-value`).textContent=grooveText(id,val);command('groove',p,val);};
+ el.onchange=()=>{dragging=null;};el.addEventListener('blur',()=>dragging=null);
+}
 function paint(){
  for(const b of document.querySelectorAll('[data-voice]')){const on=Number(b.dataset.voice)===voice;b.classList.toggle('active',on);b.setAttribute('aria-pressed',String(on));}
  $('selected-voice').textContent=names[voice];
  const lock=$('lock-mode').checked;
  if(!state){$('edit-status').textContent='Enable audio to begin. Your canvas is empty.';return;}
+ for(const [p,id] of ['swing','human'].entries())if(dragging!==id){$(id).value=state.groove[p];$(`${id}-value`).textContent=grooveText(id,state.groove[p]);}
  const v=state.voices[voice],st=v.steps[selected];
  $('transport-status').textContent=state.playing?'Playing':'Stopped';
  $('step-status').textContent=state.step>=0?`${String(state.step+1).padStart(2,'0')} / 16`:'— / 16';

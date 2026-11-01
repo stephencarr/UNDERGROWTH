@@ -10,7 +10,7 @@
 #define DELAY 22050
 
 typedef struct { unsigned char on, mask; float lock[NPARAM]; } Step;
-typedef struct { Step steps[NVOICE][NSTEPS]; float base[NVOICE][NPARAM]; } Score;
+typedef struct { Step steps[NVOICE][NSTEPS]; float base[NVOICE][NPARAM]; float swing, human; } Score;
 typedef struct {
  float phase, env, sweep, noise_lp, vel;
  float params[NPARAM];
@@ -26,6 +26,13 @@ static unsigned char takeover[NVOICE];
 static uint32_t record_skip[NVOICE]; /* Only newly overdubbed future hits: heard live, skip once. */
 static int rate, tempo, playing, recording, step_index, delaypos, first;
 static uint32_t tickphase, noise_state, trigger_count[NVOICE];
+static int pending_chatter;
+static float pending_velocity;
+/* Durations alternate long/short; the pair always spans two straight steps. */
+static uint32_t step_duration(void) {
+ uint32_t offset=(uint32_t)(rate*20*score.swing);
+ return (uint32_t)(rate*60)+((step_index&1)?-offset:offset);
+}
 static float clamp(float x,float a,float b) {return x<a?a:x>b?b:x;}
 static int valid_voice(int v) {return v>=0&&v<NVOICE;}
 static int valid_param(int p) {return p>=0&&p<NPARAM;}
@@ -47,20 +54,25 @@ void ug_init(int sample_rate) {
  zero(manual,sizeof manual);zero(trigger_count,sizeof trigger_count);zero(record_skip,sizeof record_skip);
  rate=sample_rate>=8000&&sample_rate<=96000?sample_rate:44100;
  tempo=110;playing=recording=first=0;step_index=-1;tickphase=0;delaypos=0;delay_lp=0;
- master_target=0.65f;master_now=0;noise_state=0x51d734a1; saved_valid=0;
+ master_target=0.65f;master_now=0;noise_state=0x51d734a1; saved_valid=0;pending_chatter=-1;
  score.base[0][0]=0.35f;score.base[0][1]=0.28f;score.base[0][2]=0.40f;score.base[0][3]=0.0f;
  score.base[1][0]=0.45f;score.base[1][1]=0.50f;score.base[1][2]=0.24f;score.base[1][3]=0.16f;
 }
 void ug_begin_edit(void) {saved=score;saved_valid=1;}
-int ug_undo(void) {if(!saved_valid)return 0;Score swap=score;score=saved;saved=swap;ug_rejoin();zero(record_skip,sizeof record_skip);return 1;}
+int ug_undo(void) {if(!saved_valid)return 0;Score swap=score;score=saved;saved=swap;ug_rejoin();zero(record_skip,sizeof record_skip);pending_chatter=-1;return 1;}
 void ug_rejoin(void) {zero(takeover,sizeof takeover);}
 void ug_record(int enabled) {recording=enabled<0?!recording:enabled?1:0;}
 void ug_play(int enabled) {
  if(enabled<0)enabled=!playing;
  if(enabled&&!playing){playing=1;first=1;step_index=-1;tickphase=0;zero(record_skip,sizeof record_skip);}
- else if(!enabled){playing=0;recording=0;step_index=-1;first=0;ug_rejoin();zero(record_skip,sizeof record_skip);}
+ else if(!enabled){pending_chatter=-1;playing=0;recording=0;step_index=-1;first=0;ug_rejoin();zero(record_skip,sizeof record_skip);}
 }
 void ug_tempo(int bpm) {tempo=bpm<40?40:bpm>220?220:bpm;}
+void ug_groove(int parameter,float value) {
+ if(parameter==0)score.swing=clamp(value,0,1);
+ if(parameter==1)score.human=clamp(value,0,1);
+}
+float ug_getgroove(int parameter) {return parameter==0?score.swing:parameter==1?score.human:0;}
 void ug_master(float gain) {master_target=clamp(gain,0,1);}
 void ug_setparam(int v,int p,float value) {
  if(!valid_voice(v)||!valid_param(p))return;
@@ -97,13 +109,14 @@ void ug_hit(int v,float velocity){
  if(!valid_voice(v))return;
  if(recording&&playing){
   int nearest=step_index<0?0:step_index;
-  if(tickphase>(uint32_t)(rate*30))nearest=(nearest+1)%NSTEPS;
+  if(tickphase>step_duration()/2)nearest=(nearest+1)%NSTEPS;
   if(!score.steps[v][nearest].on){
    ug_begin_edit();
    if(step_index<0||nearest!=step_index)record_skip[v]|=(1u<<nearest);
    score.steps[v][nearest].on=1;
   }
  }
+ if(v==1)pending_chatter=-1; /* A live retrigger supersedes a queued soft hit. */
  trigger(v,velocity);
 }
 void ug_clear(void){
@@ -115,7 +128,15 @@ static void advance(void){
  step_index=(step_index+1)%NSTEPS;
  for(int v=0;v<NVOICE;v++){
   uint32_t bit=1u<<step_index;
-  if(score.steps[v][step_index].on&&!(record_skip[v]&bit))trigger(v,1.0f);
+  if(score.steps[v][step_index].on&&!(record_skip[v]&bit)){
+   if(v==1&&score.human>0){
+    /* Fixed per-step feel, independent of DSP noise and loop count. Never invent events. */
+    uint32_t feel=(uint32_t)(step_index+1)*2654435761u;
+    pending_chatter=(int)(rate*0.008f*score.human*(float)(1u+(feel&255u))/256.0f);
+    pending_velocity=1.0f-score.human*(float)((feel>>8)&255u)*(0.12f/255.0f);
+    if(pending_chatter==0){trigger(v,pending_velocity);pending_chatter=-1;}
+   }else trigger(v,1.0f);
+  }
   record_skip[v]&=~bit;
  }
 }
@@ -124,7 +145,8 @@ void ug_render(int frames){
  if(frames>MAX_BLOCK)frames=MAX_BLOCK;
  int delaylen=(int)((float)rate*30.0f/(float)tempo);if(delaylen>=DELAY)delaylen=DELAY-1;if(delaylen<1)delaylen=1;
  for(int i=0;i<frames;i++){
-  if(playing){if(first){advance();first=0;}else{tickphase+=(uint32_t)(tempo*4);if(tickphase>=(uint32_t)(rate*60)){tickphase-=(uint32_t)(rate*60);advance();}}}
+  if(playing){if(first){advance();first=0;}else{tickphase+=(uint32_t)(tempo*4);if(tickphase>=step_duration()){tickphase-=step_duration();advance();}}}
+  if(playing&&pending_chatter>0&&--pending_chatter==0){trigger(1,pending_velocity);pending_chatter=-1;}
   float dry=0,send=0;
   for(int v=0;v<NVOICE;v++){
    Voice *q=&voices[v];if(q->env<0.000015f&&q->burst_left==0){q->env=0;continue;}

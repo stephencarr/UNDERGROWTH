@@ -10,6 +10,8 @@ void ug_hit(int voice, float velocity);
 void ug_record(int enabled);
 void ug_tempo(int bpm);
 void ug_master(float gain);
+void ug_groove(int parameter,float value);
+float ug_getgroove(int parameter);
 void ug_setparam(int voice,int parameter,float value);
 float ug_getparam(int voice,int parameter);
 float ug_effective(int voice,int parameter);

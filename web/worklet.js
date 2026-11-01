@@ -7,7 +7,7 @@ class UndergrowthProcessor extends AudioWorkletProcessor {
     this.buffer = new Float32Array(this.e.memory.buffer, this.e.ug_buffer(), 512);
     this.frames = 0;
     this.commands = {
-      play: 'ug_play', hit: 'ug_hit', record: 'ug_record', tempo: 'ug_tempo', master: 'ug_master',
+      groove: 'ug_groove', play: 'ug_play', hit: 'ug_hit', record: 'ug_record', tempo: 'ug_tempo', master: 'ug_master',
       toggle: 'ug_togglestep', param: 'ug_setparam', step: 'ug_setstep', lock: 'ug_setlock', clearlock: 'ug_clearlock',
       begin: 'ug_begin_edit', undo: 'ug_undo', clear: 'ug_clear', rejoin: 'ug_rejoin', panic: 'ug_panic'
     };
@@ -24,6 +24,7 @@ class UndergrowthProcessor extends AudioWorkletProcessor {
     const e=this.e;
     this.port.postMessage({type:'state', playing:e.ug_state(0), step:e.ug_state(1), recording:e.ug_state(2),
       rate:e.ug_state(3), tempo:e.ug_state(4), undo:!!e.ug_state(5),
+      groove:[0,1].map(p=>e.ug_getgroove(p)),
       voices:[0,1].map(v=>({takeover:e.ug_state(6+v), count:e.ug_state(8+v),
         base:[0,1,2,3].map(p=>e.ug_getparam(v,p)), effective:[0,1,2,3].map(p=>e.ug_effective(v,p)),
         steps:Array.from({length:16},(_,s)=>({on:!!e.ug_step(v,s),mask:e.ug_lockmask(v,s),lock:[0,1,2,3].map(p=>e.ug_lockvalue(v,s,p))}))}))});
