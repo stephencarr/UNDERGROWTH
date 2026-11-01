@@ -57,3 +57,11 @@ The pinned platform provides a silent safe mode after two failed application sta
 ## Physical acceptance before removing the experimental label
 
 Check boot/reboot and silence; all panel controls/lights; knob direction and held-step release; each voice and velocity; ENV locks/motion/Undo; sequencer/groove timing; ROOT note-off; Master/Panic; USB enumeration on the owner's Mac; long dense-pattern runs with CPU load/xrun readings; update identity verification; and a documented, successfully exercised recovery/reinstall route. Do not deliberately interrupt a flash on the owner's only instrument to manufacture a recovery claim.
+
+## On-screen performance meter
+
+Every hardware page has a bottom strip: `CPU 42% P68% X0 EXP`, with a load bar. CPU is the platform's audio-render time as a percentage of its audio deadline, smoothed over approximately 16 blocks. It is not total processor utilisation. P is the highest **observed smoothed** reading since boot, sampled each UI frame; it is not a raw single-block maximum. X is the platform's cumulative audio-overrun counter since boot. Stop and Panic do not erase these diagnostics.
+
+The strip updates at 4 Hz independently of page changes, outside the audio interrupt. Load at 80% turns amber; 95% or any recorded overrun turns red. Values above 100% remain visible numerically; only the bar saturates. These thresholds are visual indicators, not automatic voice shedding. Host simulation is labelled HOST. The browser displays `CPU -- / FM1 only`, because desktop/browser timing would not establish FM1 headroom.
+
+Meter formatting and redraw cadence are covered by controller and platform-host tests. Its real FM1 readings still require the cross-build and hardware acceptance work above.

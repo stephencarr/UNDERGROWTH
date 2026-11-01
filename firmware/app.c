@@ -9,7 +9,8 @@ static UgEvent ug_events[UG_QUEUE];
 static uint32_t ug_keys,ug_buttons,ug_home_since,ug_home_fired,ug_snapshot_clock;
 typedef struct { char lines[9][64];uint32_t buttons,keys,dimkeys; } UgScreen;
 static UgScreen ug_screen,ug_drawn;
-static int ug_drawn_valid;
+static int ug_drawn_valid,ug_meter_valid;
+static uint32_t ug_meter_at,ug_cpu_peak,ug_meter_updates;
 static void ug_enqueue(int type,int a,int b,float value){
  uint32_t f=plat_lock(),next=(ug_head+1u)%UG_QUEUE;
  if(next==ug_tail){ug_overflow=1;ug_dropped++;}else{ug_events[ug_head]=(UgEvent){type,a,b,value};ug_head=next;}
@@ -25,7 +26,7 @@ static void ug_input(void){
  ug_keys=keys;ug_buttons=buttons;
 }
 void app_input_only(void){ug_input();}
-void app_init(void){ug_init(44100);ug_ui_init();}
+void app_init(void){ug_init(44100);ug_ui_init();ug_meter_valid=0;ug_meter_at=ug_cpu_peak=ug_meter_updates=0;}
 void app_panic(void){uint32_t f=plat_lock();ug_tail=ug_head;ug_panic();plat_unlock(f);}
 void app_render(int32_t *lr,uint32_t n,uint32_t master_q12){
  if(ug_overflow){ug_tail=ug_head;ug_overflow=0;ug_panic();ug_ui_init();}
@@ -49,19 +50,35 @@ void app_render(int32_t *lr,uint32_t n,uint32_t master_q12){
   for(int i=0;i<16;i++){if(ug_step(v,i))ug_screen.keys|=1u<<white[i];if(ug_state(0)&&ug_state(1)==i)ug_screen.dimkeys|=1u<<white[i];}
  }
 }
-void app_ui_init(void){ug_drawn_valid=0;touch_on(1);lcd_fill(0,0,240,240,RGB(184,208,189));}
+void app_ui_init(void){ug_drawn_valid=ug_meter_valid=0;touch_on(1);lcd_fill(0,0,240,240,RGB(184,208,189));}
 void app_say(const char *a,const char *b){cv_begin(240,24,RGB(184,208,189));cv_text(3,3,&FONT_XS,a?a:"",RGB(20,46,35));cv_blit(0,0);cv_begin(240,24,RGB(184,208,189));cv_text(3,3,&FONT_XS,b?b:"",RGB(20,46,35));cv_blit(0,24);}
 void app_frame(void){
  ug_input();UgScreen screen;uint32_t f=plat_lock();screen=ug_screen;plat_unlock(f);
  if(!ug_drawn_valid||memcmp(screen.lines,ug_drawn.lines,sizeof screen.lines)){
  ug_drawn=screen;ug_drawn_valid=1;
  for(int i=0;i<9;i++){cv_begin(240,24,RGB(184,208,189));cv_text(4,4,&FONT_XS,screen.lines[i],RGB(20,46,35));cv_blit(0,i*24);}
- cv_begin(240,24,RGB(184,208,189));cv_text(4,4,&FONT_XS,"EXPERIMENTAL / SESSION ONLY",RGB(20,46,35));cv_blit(0,216);
+
+ }
+ /* The platform reports smoothed audio-deadline utilisation, not whole-chip utilisation.
+  * Sample its high-water mark each frame; repaint only this strip at 4 Hz. */
+ uint32_t cpu=plat_cpu_pct(),xruns=plat_xruns(),now=plat_ms();
+ if(cpu>ug_cpu_peak)ug_cpu_peak=cpu;
+ if(!ug_meter_valid||now-ug_meter_at>=250u){
+  ug_meter_valid=1;ug_meter_at=now;ug_meter_updates++;
+#ifdef PLAT_HOST
+  const int host=1;
+#else
+  const int host=0;
+#endif
+  uint16_t ink=(cpu>=95u||xruns)?RGB(170,38,28):cpu>=80u?RGB(145,86,0):RGB(20,46,35);
+  const char *meter=ug_ui_meter((int)(cpu>999?999:cpu),(int)(ug_cpu_peak>999?999:ug_cpu_peak),(int)(xruns>99999?100000:xruns),host);
+  cv_begin(240,24,RGB(184,208,189));cv_text(4,2,&FONT_XS,meter,ink);cv_blit(0,216);
+  if(cpu)lcd_fill(4,237,(int)(232u*(cpu>100?100:cpu)/100u),2,ink);
  }
  plat_lights(screen.buttons,screen.keys|screen.dimkeys,0,0,0);
 }
 #ifdef PLAT_HOST
 int app_expect(const char *what,int *got){
- if(!strcmp(what,"page"))*got=ug_ui_state(0);else if(!strcmp(what,"voice"))*got=ug_ui_state(2);else if(!strcmp(what,"sub"))*got=ug_ui_state(1);else if(!strcmp(what,"step"))*got=ug_ui_state(3);else if(!strcmp(what,"playing"))*got=ug_state(0);else if(!strcmp(what,"armed"))*got=ug_state(18);else if(!strcmp(what,"hit"))*got=ug_step(ug_ui_state(2),ug_ui_state(3));else if(!strcmp(what,"velocity"))*got=(int)(ug_getvelocity(ug_ui_state(2),ug_ui_state(3))*100+.5f);else if(!strcmp(what,"dropped"))*got=(int)ug_dropped;else return 0;return 1;
+ if(!strcmp(what,"meter_updates"))*got=(int)ug_meter_updates;else if(!strcmp(what,"meter_peak"))*got=(int)ug_cpu_peak;else if(!strcmp(what,"page"))*got=ug_ui_state(0);else if(!strcmp(what,"voice"))*got=ug_ui_state(2);else if(!strcmp(what,"sub"))*got=ug_ui_state(1);else if(!strcmp(what,"step"))*got=ug_ui_state(3);else if(!strcmp(what,"playing"))*got=ug_state(0);else if(!strcmp(what,"armed"))*got=ug_state(18);else if(!strcmp(what,"hit"))*got=ug_step(ug_ui_state(2),ug_ui_state(3));else if(!strcmp(what,"velocity"))*got=(int)(ug_getvelocity(ug_ui_state(2),ug_ui_state(3))*100+.5f);else if(!strcmp(what,"dropped"))*got=(int)ug_dropped;else return 0;return 1;
 }
 #endif

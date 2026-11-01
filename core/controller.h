@@ -10,5 +10,7 @@ void ug_ui_gesture(int reset);
 void ug_ui_tick(float milliseconds);
 int ug_ui_state(int field);
 void ug_ui_refresh(void);
+/* Adapter-supplied diagnostics. Negative cpu means unavailable, never an estimate. */
+const char *ug_ui_meter(int cpu,int peak,int xruns,int host);
 const char *ug_ui_line(int line);
 #endif

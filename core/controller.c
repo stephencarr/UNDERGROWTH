@@ -104,3 +104,9 @@ void ug_ui_refresh(void){
  add(lines[8],ug_state(0)?"PLAY ":"STOP ");number(lines[8],ug_state(4));add(lines[8]," BPM");if(ug_state(18)){add(lines[8]," REC ");add(lines[8],modes[ug_state(17)]);add(lines[8]," ");add(lines[8],voices[ug_state(19)]);}
 }
 const char *ug_ui_line(int n){return n>=0&&n<9?lines[n]:"";}
+
+const char *ug_ui_meter(int cpu,int peak,int xruns,int host){
+ static char text[64];text[0]=0;
+ if(cpu<0){add(text,"CPU -- / FM1 only");return text;}
+ add(text,host?"HOST ":"CPU ");number(text,(int)bound(cpu,0,999));add(text,"% P");number(text,(int)bound(peak,0,999));add(text,"% X");number(text,(int)bound(xruns,0,99999));if(xruns>99999)add(text,"+");if(!host)add(text," EXP");return text;
+}

@@ -5,6 +5,10 @@
 #include <string.h>
 static void init(void){ug_init(44100);ug_ui_init();}
 int main(void){
+ assert(!strcmp(ug_ui_meter(-1,0,0,0),"CPU -- / FM1 only"));
+ assert(!strcmp(ug_ui_meter(42,98,3,0),"CPU 42% P98% X3 EXP"));
+ assert(!strcmp(ug_ui_meter(120,120,0,1),"HOST 120% P120% X0"));
+ assert(strstr(ug_ui_meter(1,2,100000,0),"X99999+"));
  init();assert(ug_ui_state(0)==6&&!ug_state(0));
  ug_ui_button(2);assert(ug_ui_state(0)==2&&(ug_ui_state(6)&4));ug_ui_turn(4,20);assert(ug_getparam(0,4)>.69f);
  ug_ui_turn(0,1);ug_ui_turn(3,-40);assert(ug_getvelocity(0,-1)>.599f&&ug_getvelocity(0,-1)<.601f);
