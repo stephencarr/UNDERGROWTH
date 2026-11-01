@@ -20,3 +20,7 @@ cmd('record',-1);assert.equal(states.at(-1).recording,1);cmd('record',-1);assert
 console.log('PASS AudioWorklet adapter in Node harness: 48kHz, silent init/empty transport, actual WASM render, command validation, rapid toggles, undo, locks preserve rests, Panic, toggled transport/record. Not browser-host execution.');
 
 cmd('panic');cmd('clear');cmd('step',2,0,1);cmd('motion',1);cmd('editparam',2,0,.7);cmd('play',1);block();cmd('snapshot');assert.equal(states.at(-1).motion,true);assert(states.at(-1).voices[2].steps[0].mask&1);cmd('motion',0);cmd('undo');assert.equal(states.at(-1).voices[2].steps[0].mask,0);console.log('PASS ordered arm + immediate slider edit retains motion and whole-take Undo.');
+cmd('panic');cmd('clear');cmd('recmode',3);cmd('arm',1,1);cmd('editvelocity',1,-1,.2);cmd('snapshot');assert.equal(states.at(-1).armed,true);assert.equal(states.at(-1).voices[1].velocity,1);
+cmd('editparam',1,6,.25);cmd('play',1);block();cmd('hit',1,.3);cmd('snapshot');assert(states.at(-1).voices[1].steps[0].mask&64);assert(Math.abs(states.at(-1).voices[1].steps[0].velocity-.3)<.001);
+cmd('arm',0,1);cmd('undo');assert.equal(states.at(-1).voices[1].steps[0].on,false);
+console.log('PASS new ENV motion + velocity recording and velocity-edit/arm ordering preserve the take.');

@@ -129,7 +129,7 @@ for (const k of Object.values(knobs)) {
   k.hit.addEventListener("pointerdown", (e) => {
     e.preventDefault();
     k.hit.setPointerCapture(e.pointerId);
-    callbacks.begin();
+    callbacks.begin('drag');
     drag = { y: e.clientY, acc: 0 };
   });
   k.hit.addEventListener("pointermove", (e) => {
@@ -144,7 +144,7 @@ for (const k of Object.values(knobs)) {
   k.hit.addEventListener("pointerup", end);
   k.hit.addEventListener("pointercancel", end);
   k.hit.addEventListener("wheel", (e) => {
-    e.preventDefault();callbacks.begin();
+    e.preventDefault();callbacks.begin('wheel');
     const dy = e.deltaMode === 1 ? e.deltaY * 33 : e.deltaY;
     if (Math.abs(dy) >= 50) { turn(k, dy < 0 ? 1 : -1); wheel = 0; return; }   // a mouse wheel notch: one detent
     wheel -= dy;                                                                   // a trackpad: by distance
@@ -153,7 +153,7 @@ for (const k of Object.values(knobs)) {
   }, { passive: false });
   k.hit.addEventListener("keydown", (e) => {
     if (e.metaKey || e.ctrlKey || e.altKey) return;
-    callbacks.begin();
+    callbacks.begin('key');
     const big = k.role === "master" ? 8 : 5;
     const n = { ArrowUp: 1, ArrowRight: 1, ArrowDown: -1, ArrowLeft: -1, PageUp: big, PageDown: -big }[e.key];
     if (n) turn(k, n);

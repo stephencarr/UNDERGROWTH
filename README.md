@@ -92,7 +92,7 @@ Select **ROOT** (or press **3**) for its independent 16-step note lane. Click a 
 
 Hold the on-screen keys, or **Q W E R T Y U I**, to play C2 through C3 in C major. Releasing the current key releases the monophonic voice; the most recently pressed note wins. These are live controls, independent of step selection. **Record hits** also overdubs live bass pitches onto the nearest swung step, using that step's gate and slide settings; held duration is not recorded yet.
 
-Gate spans 10–150% of the step. Above 100%, notes can overlap into the next step. **Slide** on the destination note glides from a still-sounding preceding note over roughly 40 ms; otherwise pitch starts directly. **Body** adds fundamental weight, **Edge** adds rounded upper harmonics, **Length** controls release, and **Send** feeds the shared dub delay. This first voice is an additive harmonic bass; filter-envelope synthesis is a future sound-design extension.
+Gate spans 10–150% of the step. Above 100%, notes can overlap into the next step. **Slide** on the destination note glides from a still-sounding preceding note at the rate set by ENV Glide (2–202 ms time constant); otherwise pitch starts directly. **Body** adds fundamental weight, **Edge** adds rounded upper harmonics, **Length** controls release, and **Send** feeds the shared dub delay. This first voice is an additive harmonic bass; filter-envelope synthesis is a future sound-design extension.
 
 ROOT uses the same per-step locks, manual override/Rejoin, motion overdubs and whole-take Undo as percussion. Motion records only controls you move, on existing bass notes. Stop releases bass; Panic silences it immediately. Startup remains empty and silent. Patterns remain session-only, and hardware fit/performance remains unverified.
 
@@ -100,13 +100,25 @@ ROOT uses the same per-step locks, manual override/Rejoin, motion overdubs and w
 
 The default view now uses the open-source fm1-base emulator panel template (revision and licence in LICENSING.md): eight physical knobs including Master, fourteen buttons, 27 keys and a 240×240 non-touch screen. Drag knobs vertically, scroll on them, or focus and use arrow keys/Page Up/Page Down. The previous interface is available through **Expanded view**. Both views use the same running C/WASM engine and score.
 
-- PRESETS / SEL: choose Kick, Chatter or ROOT. SELECT: choose one of sixteen steps. ALGORITHM: cycle pages.
-- HOME: sound controls on KNOB1–4 (Body, Edge, Length, Send). Hold HOME for Panic; Escape also silences.
-- SEQ / ENV: step editor. Lower keys select steps and toggle percussion hits. For ROOT, KNOB1 enables/rests a note, KNOB2 changes pitch, KNOB3 gate, KNOB4 slide.
-- EDIT: selected-step sound locks on KNOB1–4; entering releases live overrides. Lower keys select steps without toggling.
-- GLO: tempo, Swing and Human on KNOB1–3. FX: send on KNOB1.
-- LFO: motion page; REC arms/finishes a motion take. On other pages REC toggles hit recording.
-- PLAY/STOP: transport. ARP: recovery menu, KNOB1 selects Undo/redo or Clear, SEL applies. SAVE explains that persistence is not yet available.
+- ALGORITHM / SEL: choose Kick, Chatter or ROOT. SELECT switches subpages on HOME, SEQ, ENV and FX.
+- EDIT / HOME: draft Body, Edge, Length and Send. Playback locks do not change this draft. HOME's second page offers Undo/redo, Rejoin and Panic: KNOB1 selects, SEL applies. Hold HOME for Panic; Escape also silences.
+- SEQ: the sixteen lower keys address steps for every voice. An empty step captures the sound macros, ENV controls and draft velocity (ROOT also captures draft pitch/gate/slide). An occupied step is selected without alteration. Hold a step and turn a sound knob to edit its lock. SELECT opens explicit Stamp, Erase and Undo actions; KNOB1 chooses, SEL applies.
+- ENV page 1: Kick Length/Damping/Drop/Response; Chatter Stretch/Fracture/Grain/Length; ROOT Release/Glide/Weight/Response. All are track editable, trig lockable and motion recordable. Response directly changes onset firmness as well as scaling the subtle velocity colour.
+- ENV page 2 (SELECT): draft velocity for percussion; ROOT pitch/gate/slide/velocity on KNOB1–4. ROOT shows note names, defaults to C2 / 75% / no slide, and its keyboard enters the draft pitch while auditioning. SEL auditions without recording.
+- SEQ pages (SELECT): sound/stamping, actions, selected-step pitch/gate/slide/velocity, selected-step ENV locks. Percussion uses KNOB1 for velocity on page 3. SEL auditions on that page. Editing an empty step on pages 2–4 preserves its rest; only the stamping page creates hits.
+- REC: arms the selected track and opens its screen. KNOB1 chooses Hits, Motion or Both; changing modes finishes the current take, so press REC again to arm the new mode. REC/SEL finishes a take. PLAY starts/stops independently of the current screen. Stop and Panic disarm.
+- Hits/Both: keys play live hits, quantized into the armed track while transport runs. Motion: move macros to overdub their values on existing hits. Both captures touched macros on new and existing hits. One Undo restores the whole take. Switching the viewed track does not change the armed track; its name stays on the REC screen. Other-track panel keys/knobs are ignored until the take finishes.
+- Motion-only SEQ keys select without stamping. Navigate to EDIT or FX to record their controls. The untouched parameters, rests and draft sound remain intact.
+- GLO: tempo, Swing and Human on KNOB1–3. FX: track delay send on KNOB1, lockable and motion-recordable. SELECT shows the fixed global delay's status; adjustable bus parameters and a global FX lane are deferred.
+- LFO, ARP, SAVE and PRESETS have explicit reserved/unavailable screens. Sessions still disappear on reload.
 - Keys play the selected voice on sound pages. ROOT follows the physical keybed’s semitone ordering, starting F1 by default; OCT± shifts an octave. Notes outside ROOT’s current C1–C4 range are silent. On narrow screens the panel scrolls horizontally to preserve control target size.
 
 This validates a proposed control mapping, not hardware parity: the browser menu renderer and input adapter are JavaScript, while audio/sequencing remain shared C. The actual FM1 renderer, input integration, RAM/CPU performance and flashing package still require implementation and hardware validation. No firmware has been flashed.
+
+## Environment and organism DNA
+
+The [roadmap and accepted design decision](docs/ROADMAP.md) define **strong intentional controls, subtle hard-wired DNA**. Chatter now uses synthetic grain-like fractures: Stretch spreads them without repitching, Fracture sets density, Grain shapes hardness and fragment duration, and Length scales their decay. This is synthesis, not a sample player. Velocity and tempo add bounded reactions without modifying authored controls.
+
+All tracks have draft and per-trig velocity (0–100%). Stamping captures it; live recording preserves supplied velocity; ordinary taps use the draft. Human scales playback velocity without rewriting it. Velocity, pitch, gate and slide are event attributes, edited separately from continuous ENV motion. In Expanded view, the velocity slider follows Edit step locks: off edits draft strength, on edits the selected trig. New ENV sliders share the same lock/motion editor.
+
+The screen controller remains browser-only. Session saving, expanded global effects, punch-in effects and hardware validation remain on the roadmap; no firmware has been flashed.

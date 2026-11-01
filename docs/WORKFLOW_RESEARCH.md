@@ -158,3 +158,7 @@ Port the chosen controller and screen rendering into the FM1 foundation. Browser
 - fm1-base: [browser panel template](https://github.com/charlesvestal/fm1-base/blob/02f422c7d9de121ca099bb2fdebe5c035f59e8ad/web/emu/index.html), accessible hit targets and touch/pointer input. Our extracted adapter replaced its firmware event path; the touch regression is in that adaptation.
 
 No upstream DSP or workflow implementation was copied by this research. Existing panel code remains covered by the notices in LICENSING.md.
+
+## Implemented follow-up: SEQ and REC
+
+The browser now implements draft stamping, held-step macro locks, explicit Stamp/Erase/Undo actions, ROOT draft note/gate/slide, and a scoped Hits/Motion/Both recording take with whole-take Undo. Stamp, draft values and recording transactions live in shared C/WASM. Browser page selection and input routing remain JavaScript; the shared firmware controller portion of slice 1 is still pending. Track delay-send locks and motion use the existing effect. Global effect controls and the silent automation lane are not implemented by this slice. See README for the revised control map.
