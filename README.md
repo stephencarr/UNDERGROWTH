@@ -6,7 +6,7 @@ A browser-first rhythm study: two original synthesized percussion voices and ROO
 
 Every milestone must now produce a validated FM1 firmware package as well as this browser prototype. The panel controller and screen text have moved into shared C, and `firmware/` provides the physical-panel/audio adapter. Bluetooth and Wi-Fi are disabled. See [hardware build, Caravel 0.6.0 migration and recovery](docs/HARDWARE.md).
 
-The host simulator and browser pass their checks, but the real device cross-build is currently blocked by compiler-download access. **No flashable `.fwsc` is ready yet.** The published Pages instrument remains the last completed browser release while this milestone is unfinished.
+The full milestone gate passed with the pinned Jieli compiler on Linux x86-64. It produced an **experimental** `undergrowth-0.1.0-hw1.fwsc` in `build/releases/0.1.0-hw1/`, with a build report, manifest, checksums, installer and licence notices. The package has not been flashed or tested on an FM1. The published Pages instrument remains the last published browser release; this hardware milestone is a local draft.
 
 ## Open it
 
@@ -119,7 +119,7 @@ The default view now uses the open-source fm1-base emulator panel template (revi
 - LFO, ARP, SAVE and PRESETS have explicit reserved/unavailable screens. Sessions still disappear on reload.
 - Keys play the selected voice on sound pages. ROOT follows the physical keybed’s semitone ordering, starting F1 by default; OCT± shifts an octave. Notes outside ROOT’s current C1–C4 range are silent. On narrow screens the panel scrolls horizontally to preserve control target size.
 
-This validates a proposed control mapping, not hardware parity: the browser drawing/input wrapper is JavaScript; menu logic, screen text, audio and sequencing now live in shared C. The new FM1 adapter has host tests; its device memory map, CPU performance and flashing package still require cross-build and hardware validation. No firmware has been flashed.
+This validates a proposed control mapping, not physical hardware parity: the browser drawing/input wrapper is JavaScript; menu logic, screen text, audio and sequencing now live in shared C. The FM1 adapter passed host tests and the pinned cross-build's memory, instruction and package checks. Actual FM1 CPU performance, controls, sound and recovery still require device validation. No firmware has been flashed.
 
 ## Environment and organism DNA
 

@@ -1,6 +1,6 @@
 # UNDERGROWTH: first FM1 hardware milestone
 
-**Status: source port and host/browser checks are in progress. No device firmware package has yet passed the cross-build gate. Do not flash the HTML, WASM, host executable, or an app-only binary.**
+**Status: the host, browser and pinned FM1 cross-build gate passed. `build/releases/0.1.0-hw1/` contains an experimental firmware package and its validation record. It has not been flashed or physically validated.**
 
 The owner uses macOS and currently runs **Caravel 0.6.0**. Keep it installed while preparing this milestone; returning to stock is not a prerequisite established by the available documentation.
 
@@ -27,7 +27,7 @@ python3 tools/firmware_build.py --host
 python3 tools/firmware_build.py --release 0.1.0-hw1
 ```
 
-For the complete milestone gate, set ZIG to Zig 0.13, run a local web server for Chromium tests, and run `sh tools/check_milestone.sh`. The browser tests use `TEST_URL` (localhost by default). If any required dependency is unavailable, the gate fails; there is no placeholder firmware or waived hardware target.
+For the complete milestone gate, set ZIG to Zig 0.13, run a local web server for Chromium tests, and run `sh tools/check_milestone.sh`. The browser tests use `TEST_URL` (localhost by default). If any required dependency is unavailable, the gate fails; there is no placeholder firmware or waived hardware target. The successful Linux build used the SHA-256-verified compiler archive from `firmware/dependencies.json`; the resulting `.fwsc` and `SHA256SUMS` are in `build/releases/0.1.0-hw1/`.
 
 A successful cross-build must include:
 
@@ -64,4 +64,4 @@ Every hardware page has a bottom strip: `CPU 42% P68% X0 EXP`, with a load bar. 
 
 The strip updates at 4 Hz independently of page changes, outside the audio interrupt. Load at 80% turns amber; 95% or any recorded overrun turns red. Values above 100% remain visible numerically; only the bar saturates. These thresholds are visual indicators, not automatic voice shedding. Host simulation is labelled HOST. The browser displays `CPU -- / FM1 only`, because desktop/browser timing would not establish FM1 headroom.
 
-Meter formatting and redraw cadence are covered by controller and platform-host tests. Its real FM1 readings still require the cross-build and hardware acceptance work above.
+Meter formatting and redraw cadence are covered by controller and platform-host tests. The cross-build passed; actual FM1 readings still require the hardware acceptance work above.

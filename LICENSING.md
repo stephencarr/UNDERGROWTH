@@ -7,7 +7,7 @@ No JIANT, Felucca-Engines, SLOOP or proprietary M-Vave DSP was copied into the m
 The separate native-host experiment used fm1-base, pinned to commit 02f422c7d9de121ca099bb2fdebe5c035f59e8ad:
 https://github.com/charlesvestal/fm1-base/tree/02f422c7d9de121ca099bb2fdebe5c035f59e8ad
 
-That upstream source, its adapter, host-generated font assets and test outputs are intentionally excluded from this browser-only tree. The prior private development package preserves the upstream source and licence notices. Any later inclusion of those components requires preserving their applicable notices and complying with their licences.
+The pinned upstream source remains an external build dependency. The experimental firmware package includes the generated font assets and applicable licence notices; it does not bundle the upstream source tree. Any distribution of those components must preserve their applicable notices and comply with their licences.
 
 ## FM1 panel template
 
@@ -19,4 +19,4 @@ Changes extract the drawing, accessible input targets and encoder interaction fr
 
 The hardware build now uses the same pinned fm1-base source above and felucca-bsp `cd76d43ab4b94d6da9a8f1f24f3f4446135196b7` (MPL-2.0). They remain external, unmodified build dependencies. `firmware/app.c`, `app.h`, and `core/controller.c` are original UNDERGROWTH adapters/controller, not copied template implementations. Screen drawing calls the upstream platform API. Its generated Barlow fonts carry SIL OFL 1.1; the three SDK package assets carry Apache-2.0. Their exact versions/hashes are recorded in `firmware/dependencies.json`.
 
-`tools/firmware_build.py` copies the applicable MPL, font and SDK licence texts with the experimental package and identifies upstream source revisions in its manifest. Original UNDERGROWTH code still has no selected public source licence. No Caravel source has been copied: its 0.6.0 installation guide is referenced only for the user's migration route. No firmware package has yet been distributed by this hardware milestone.
+`tools/firmware_build.py` copies the applicable MPL, font and SDK licence texts with the experimental package and identifies upstream source revisions in its manifest. Original UNDERGROWTH code still has no selected public source licence. No Caravel source has been copied: its 0.6.0 installation guide is referenced only for the user's migration route. The experimental package has been built locally, but has not been published or installed on hardware.
