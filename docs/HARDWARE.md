@@ -36,6 +36,8 @@ A successful cross-build must include:
 - Independent package identity, loader marker and UFW/part CRC validation, including corrupted-package rejection.
 - Source/dependency identity, SHA-256 hashes and licence notices. The initial output is explicitly experimental, with `hardware_validated: false`.
 
+The draft `flash.html` offers a Chrome/Edge desktop route to the pinned `firmware/releases/undergrowth-0.1.0-hw1.fwsc`. It checks SHA-256, FM1 identity and UFW CRCs before requesting USB MIDI SysEx access. Device identification and backup acknowledgement precede the install command. Its updater is the pinned fm1-base Web MIDI implementation; a port shown under another name can be selected explicitly. The browser gate tests verification and confirmation with simulated MIDI only. The page must be served over HTTPS or localhost; opening it as a local file is not supported. It is not yet on the published Pages site.
+
 ## Caravel 0.6.0 to UNDERGROWTH: preparation, not an instruction to flash yet
 
 The [tagged Caravel 0.6.0 installation guide](https://github.com/bonszaimusic/caravel/blob/b50bad57dcf32862f36661a5fc2996e13392b93e/docs/installing.md) documents the Felucca USB-MIDI update protocol, interrupted-install retry and identity checks. Its command-line installer does **not** make a backup. Its public installer offers its own published release, not an arbitrary UNDERGROWTH package. Do not assume pressing Install there installs UNDERGROWTH.
@@ -46,7 +48,7 @@ Before the first hardware trial:
 2. Make and verify a full device flash backup with [M-Flasher](https://github.com/jvitkauskas/m-flasher), and keep a separate copy. A project export is not a full flash backup. This step is for the owner to authorize and perform later.
 3. Record the actual USB identity and bootloader. Do not infer that m-bootloader is installed merely because Caravel is installed. Close DAWs and other MIDI clients before identification/update.
 4. Verify the UNDERGROWTH package's published checksum and experimental designation. Inspect the allowed write range and reject model/identity mismatches; do not force past them.
-5. The proposed direct route is the pinned fm1-base USB-MIDI installer, shipped with the eventual package and its dependencies/instructions. Direct Caravel-to-UNDERGROWTH installation remains untested on physical hardware. No stock reinstall or bootloader replacement is part of this milestone.
+5. The proposed direct route is the pinned fm1-base USB-MIDI updater in `flash.html`, or the command-line installer shipped with the package. Direct Caravel-to-UNDERGROWTH installation remains untested on physical hardware. No stock reinstall or bootloader replacement is part of this milestone.
 
 ## Recovery contract and limits
 

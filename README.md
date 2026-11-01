@@ -8,6 +8,8 @@ Every milestone must now produce a validated FM1 firmware package as well as thi
 
 The full milestone gate passed with the pinned Jieli compiler on Linux x86-64. It produced an **experimental** `undergrowth-0.1.0-hw1.fwsc` in `build/releases/0.1.0-hw1/`, with a build report, manifest, checksums, installer and licence notices. The package has not been flashed or tested on an FM1. The published Pages instrument remains the last published browser release; this hardware milestone is a local draft.
 
+The draft browser now links to `flash.html`, a Chrome/Edge desktop installer view. It verifies the included `.fwsc` against its fixed SHA-256 and package CRCs before enabling device identification. USB MIDI SysEx permission, FM1 identity and an explicit backup acknowledgement are required before installation. The pinned fm1-base Web MIDI updater handles the transfer and interrupted-update resume; the view does not offer a bootloader replacement. The browser flow has simulated-port tests, but direct Caravel 0.6.0 installation and recovery have not been tested on hardware. This page is not yet published on GitHub Pages.
+
 ## Open it
 
 1. Download and extract the package. Open **index.html** in a recent Chrome or Edge desktop browser. It contains its C/WASM engine and all interface assets; it has no external assets, analytics or remote calls.
