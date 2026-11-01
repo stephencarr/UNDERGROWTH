@@ -4,7 +4,7 @@ const params=['body','edge','length','send'];
 const noteName=n=>['C','C♯','D','D♯','E','F','F♯','G','G♯','A','A♯','B'][n%12]+(Math.floor(n/12)-1);
 for(const b of document.querySelectorAll('[data-step]')){const label=document.createElement('span');label.className='note-label';b.append(label);}
 let context,node,state,voice=0,selected=0,starting=null,dragging=null;
-const musical=[...document.querySelectorAll('button,input,select')].filter(el=>!['enable-audio','voice-kick','voice-chatter','voice-root','lock-mode'].includes(el.id));
+const musical=[...document.querySelector('main.instrument').querySelectorAll('button,input,select')].filter(el=>!['enable-audio','voice-kick','voice-chatter','voice-root','lock-mode'].includes(el.id));
 for(const el of musical)el.disabled=true;
 function command(type,...args){if(node)node.port.postMessage({type,args});}
 function status(text){$('audio-status').textContent=text;}
@@ -165,3 +165,6 @@ document.addEventListener('keydown',e=>{
 document.addEventListener('visibilitychange',()=>{if(document.hidden)command('panic');});
 window.addEventListener('pagehide',()=>{command('panic');context?.suspend();});
 paint();
+
+// Device-shell bridge: the existing worklet remains the sole audio/sequencing owner.
+window.UG={command,enableAudio,setVoice,paint,get state(){return state;},get voice(){return voice;},get selected(){return selected;},selectStep(s){selected=s;paint();}};

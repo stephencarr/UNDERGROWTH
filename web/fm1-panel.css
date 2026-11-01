@@ -1,0 +1,24 @@
+/* SPDX-License-Identifier: MPL-2.0
+ * Copyright (C) 2026 Charles Vestal
+ * Extracted from fm1-base 02f422c7d9de121ca099bb2fdebe5c035f59e8ad web/emu/index.html. */
+.devicebox { overflow-x: auto; overscroll-behavior-x: contain; }
+.device { position: relative; width: 100%; min-width: 560px; aspect-ratio: 1000 / 640; user-select: none; -webkit-user-select: none; -webkit-touch-callout: none; touch-action: manipulation; }
+.device svg { pointer-events: none; }
+.hit { position: absolute; touch-action: none; cursor: pointer; -webkit-tap-highlight-color: transparent; border-radius: 12px; }
+.hit.knob { cursor: ns-resize; border-radius: 50%; }
+.hit:focus-visible { outline: 3px solid #ffb48a; outline-offset: 2px; box-shadow: 0 0 0 6px #1b1d20; }
+.device svg { position: absolute; inset: 0; width: 100%; height: 100%; }
+.device canvas { position: absolute; left: 31.8%; top: 9.6875%; width: 20%; height: 31.25%; background: #000; border-radius: 2px; }
+.ctl { cursor: pointer; }
+.ctl.knob { cursor: ns-resize; }
+.btnface { transition: fill .06s; }
+.lit .btnface { fill: #f28a5a; }
+.lit text.btn { fill: #2a140a; }
+.held .btnface, .held .keyface { stroke: #f28a5a; stroke-width: 3; }
+.latched .btnface, .latched .keyface { stroke: #6fc3ff; stroke-width: 3; }
+.keyface { transition: fill .06s; }
+.lit .keyface.white { fill: #f6b48e; }
+.lit .keyface.black { fill: #4cc3b6; }
+.dim .btnface { fill: #6e4636; }                /* the dim lights (plat_lights' db / dk, plat_lights_mid): half bright */
+.dim .keyface.white { fill: #e8c9b6; }
+.dim .keyface.black { fill: #8ac6bf; }

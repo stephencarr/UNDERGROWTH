@@ -1,10 +1,16 @@
 # Source provenance and licensing
 
-The C musical core, web interface, adapters, tests and build scripts in this browser-only tree were created for UNDERGROWTH. No public source licence has been selected for these original files. Publication alone must not be described as an open-source licence grant. A licence decision remains with the project owner.
+Except for the explicitly identified fm1-base panel files below, the C musical core, interface, adapters, tests and build scripts were created for UNDERGROWTH. No public source licence has been selected for these original files. Publication alone must not be described as an open-source licence grant. A licence decision remains with the project owner.
 
-No JIANT, Felucca-Engines, SLOOP or proprietary M-Vave DSP was copied into the musical core. There are no bundled third-party runtime libraries, fonts, images or remote assets. WebAssembly and Web Audio are browser platform APIs. Zig 0.13.0 and GCC were used as build tools, not redistributed executables.
+No JIANT, Felucca-Engines, SLOOP or proprietary M-Vave DSP was copied into the musical core. There are no bundled third-party DSP libraries, fonts, images or remote assets. The device view includes the panel UI code identified below. WebAssembly and Web Audio are browser platform APIs. Zig 0.13.0 and GCC were used as build tools, not redistributed executables.
 
 The separate native-host experiment used fm1-base, pinned to commit 02f422c7d9de121ca099bb2fdebe5c035f59e8ad:
 https://github.com/charlesvestal/fm1-base/tree/02f422c7d9de121ca099bb2fdebe5c035f59e8ad
 
 That upstream source, its adapter, host-generated font assets and test outputs are intentionally excluded from this browser-only tree. The prior private development package preserves the upstream source and licence notices. Any later inclusion of those components requires preserving their applicable notices and complying with their licences.
+
+## FM1 panel template
+
+`web/fm1-panel.js` and `web/fm1-panel.css` are adapted from Charles Vestal’s `fm1-base/web/emu/index.html`, revision `02f422c7d9de121ca099bb2fdebe5c035f59e8ad`. Copyright (C) 2026 Charles Vestal. Those files and their modifications are distributed under MPL-2.0; the full licence is in `LICENSES/fm1-base-MPL-2.0.txt`. Their source is published alongside the application at https://github.com/stephencarr/UNDERGROWTH/tree/main/web. The generated `index.html` incorporates those components as part of a larger work and retains their notices. This does not select a licence for UNDERGROWTH’s original files.
+
+Changes extract the drawing, accessible input targets and encoder interaction from the emulator template, and connect them to application callbacks instead of fm1-base’s firmware transport. The original UNDERGROWTH adapter in `web/device.js` renders its menus and forwards commands to the existing shared C/WASM engine. No SLOOP code or assets are incorporated.

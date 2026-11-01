@@ -95,3 +95,18 @@ Hold the on-screen keys, or **Q W E R T Y U I**, to play C2 through C3 in C majo
 Gate spans 10–150% of the step. Above 100%, notes can overlap into the next step. **Slide** on the destination note glides from a still-sounding preceding note over roughly 40 ms; otherwise pitch starts directly. **Body** adds fundamental weight, **Edge** adds rounded upper harmonics, **Length** controls release, and **Send** feeds the shared dub delay. This first voice is an additive harmonic bass; filter-envelope synthesis is a future sound-design extension.
 
 ROOT uses the same per-step locks, manual override/Rejoin, motion overdubs and whole-take Undo as percussion. Motion records only controls you move, on existing bass notes. Stop releases bass; Panic silences it immediately. Startup remains empty and silent. Patterns remain session-only, and hardware fit/performance remains unverified.
+
+## FM1 device view
+
+The default view now uses the open-source fm1-base emulator panel template (revision and licence in LICENSING.md): eight physical knobs including Master, fourteen buttons, 27 keys and a 240×240 non-touch screen. Drag knobs vertically, scroll on them, or focus and use arrow keys/Page Up/Page Down. The previous interface is available through **Expanded view**. Both views use the same running C/WASM engine and score.
+
+- PRESETS / SEL: choose Kick, Chatter or ROOT. SELECT: choose one of sixteen steps. ALGORITHM: cycle pages.
+- HOME: sound controls on KNOB1–4 (Body, Edge, Length, Send). Hold HOME for Panic; Escape also silences.
+- SEQ / ENV: step editor. Lower keys select steps and toggle percussion hits. For ROOT, KNOB1 enables/rests a note, KNOB2 changes pitch, KNOB3 gate, KNOB4 slide.
+- EDIT: selected-step sound locks on KNOB1–4; entering releases live overrides. Lower keys select steps without toggling.
+- GLO: tempo, Swing and Human on KNOB1–3. FX: send on KNOB1.
+- LFO: motion page; REC arms/finishes a motion take. On other pages REC toggles hit recording.
+- PLAY/STOP: transport. ARP: recovery menu, KNOB1 selects Undo/redo or Clear, SEL applies. SAVE explains that persistence is not yet available.
+- Keys play the selected voice on sound pages. ROOT follows the physical keybed’s semitone ordering, starting F1 by default; OCT± shifts an octave. Notes outside ROOT’s current C1–C4 range are silent. On narrow screens the panel scrolls horizontally to preserve control target size.
+
+This validates a proposed control mapping, not hardware parity: the browser menu renderer and input adapter are JavaScript, while audio/sequencing remain shared C. The actual FM1 renderer, input integration, RAM/CPU performance and flashing package still require implementation and hardware validation. No firmware has been flashed.
