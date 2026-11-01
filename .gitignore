@@ -3,3 +3,6 @@ build/
 .zig-cache/
 __pycache__/
 UNDERGROWTH.html
+
+firmware/build/
+firmware/web/words/

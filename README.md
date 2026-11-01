@@ -2,6 +2,12 @@
 
 A browser-first rhythm study: two original synthesized percussion voices and ROOT monophonic bass, a blank 16-step canvas, step locks and immediate performance controls. Nothing composes or plays by itself.
 
+## Hardware milestone in progress
+
+Every milestone must now produce a validated FM1 firmware package as well as this browser prototype. The panel controller and screen text have moved into shared C, and `firmware/` provides the physical-panel/audio adapter. Bluetooth and Wi-Fi are disabled. See [hardware build, Caravel 0.6.0 migration and recovery](docs/HARDWARE.md).
+
+The host simulator and browser pass their checks, but the real device cross-build is currently blocked by compiler-download access. **No flashable `.fwsc` is ready yet.** The published Pages instrument remains the last completed browser release while this milestone is unfinished.
+
 ## Open it
 
 1. Download and extract the package. Open **index.html** in a recent Chrome or Edge desktop browser. It contains its C/WASM engine and all interface assets; it has no external assets, analytics or remote calls.
@@ -113,7 +119,7 @@ The default view now uses the open-source fm1-base emulator panel template (revi
 - LFO, ARP, SAVE and PRESETS have explicit reserved/unavailable screens. Sessions still disappear on reload.
 - Keys play the selected voice on sound pages. ROOT follows the physical keybed’s semitone ordering, starting F1 by default; OCT± shifts an octave. Notes outside ROOT’s current C1–C4 range are silent. On narrow screens the panel scrolls horizontally to preserve control target size.
 
-This validates a proposed control mapping, not hardware parity: the browser menu renderer and input adapter are JavaScript, while audio/sequencing remain shared C. The actual FM1 renderer, input integration, RAM/CPU performance and flashing package still require implementation and hardware validation. No firmware has been flashed.
+This validates a proposed control mapping, not hardware parity: the browser drawing/input wrapper is JavaScript; menu logic, screen text, audio and sequencing now live in shared C. The new FM1 adapter has host tests; its device memory map, CPU performance and flashing package still require cross-build and hardware validation. No firmware has been flashed.
 
 ## Environment and organism DNA
 

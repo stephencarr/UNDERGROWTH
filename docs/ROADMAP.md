@@ -44,3 +44,9 @@ Acceptance: silent startup and empty transport; distinct audible/measured ENV ex
 - Address/undefined-behaviour sanitizer stress test (leak detection disabled because the test runner uses ptrace; the DSP performs no allocation).
 - Chromium AudioWorklet output checks: silent start/empty transport, live voices, sequencing, locks, motion, ROOT, Undo and Panic. New mouse/touch tests cover ENV/velocity stamping and editing, ROOT pitch entry/audition, and longer output from stretched Chatter. Expanded controls and recording-command ordering are also covered.
 - These checks were run locally before publication. They do not establish subjective listening approval, Safari coverage or FM1 hardware validation.
+
+## Milestone contract: firmware is a required output
+
+Accepted with Stephen on 2026-11-01: every future milestone must end with a real, validated FM1 `.fwsc` alongside the browser. Shared C now owns the panel controller and screen text as well as DSP/sequencing. `AGENTS.md` and `tools/check_milestone.sh` make the target explicit. Host/WASM success alone cannot complete a milestone; compiler or package-check failures must remain visible blockers.
+
+First hardware milestone: USB-only, single core, no Bluetooth/Wi-Fi; source port and host/browser tests are implemented. The cross-compiler download is currently blocked by the cloud network policy. The network-settings draft has been saved but not activated; no flashable artifact is claimed yet. See [hardware build and recovery notes](HARDWARE.md), including the Caravel 0.6.0/macOS route and remaining physical acceptance tests.

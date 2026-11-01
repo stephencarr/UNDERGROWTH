@@ -1,0 +1,46 @@
+wait 150
+master 3000
+peakreset
+wait 250
+expect peak_db_max -100
+tap PLAY
+wait 250
+expect peak_db_max -100
+tap PLAY
+tapkey 0
+wait 100
+expect peak_db_min -40
+press HOME
+wait 750
+release HOME
+peakreset
+wait 250
+expect peak_db_max -100
+turn ALGO 1
+tapkey 0
+wait 250
+expect peak_db_min -40
+press HOME
+wait 750
+release HOME
+turn ALGO 1
+tap ENV
+turn SELECT 1
+turn K1 7
+tap SEL
+wait 50
+expect peak_db_min -40
+wait 3000
+peakreset
+wait 250
+expect peak_db_max -100
+midi USB 92 24 64
+wait 200
+expect peak_db_min -40
+midi USB 82 24 00
+wait 3000
+peakreset
+wait 250
+expect peak_db_max -100
+expect dropped 0
+expect store_writes 0
