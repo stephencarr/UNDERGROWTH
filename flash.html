@@ -1,0 +1,57 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="theme-color" content="#e7e5d9">
+<title>Flash UNDERGROWTH · FM1</title>
+<link rel="stylesheet" href="web/flash.css">
+</head>
+<body>
+<main>
+  <nav><a href="index.html">← UNDERGROWTH instrument</a></nav>
+  <p class="eyebrow">FM1 / experimental firmware</p>
+  <h1>Flash UNDERGROWTH</h1>
+  <p class="lede">Install the experimental <strong>0.1.0-hw1</strong> build from Chrome or Edge on a desktop computer. The browser uses USB MIDI with SysEx permission. This build passed the software gate but has not been tried on a physical FM1.</p>
+  <section aria-labelledby="package-heading">
+    <h2 id="package-heading">1. Verify the package</h2>
+    <p id="package-status" role="status">Checking the included firmware…</p>
+    <p class="mono">Target: FM-1_731000100 · SHA-256: <span id="package-hash">33e1a2b8ad58970f01f6ac3dfbd425217f6dbecb67af3db4c8256a51fbd6c753</span></p>
+    <p><a href="firmware/releases/undergrowth-0.1.0-hw1.fwsc" download>Download this .fwsc</a> · <a href="docs/HARDWARE.md">Build and recovery notes</a></p>
+  </section>
+  <section aria-labelledby="prepare-heading">
+    <h2 id="prepare-heading">2. Prepare your FM1</h2>
+    <ol>
+      <li>Export your Caravel projects and settings, then make and verify a full flash backup. The installer does not create one.</li>
+      <li>Keep your Caravel 0.6.0 package and checksum available for recovery.</li>
+      <li>Connect the FM1 directly with a USB data cable. Close DAWs and other MIDI tabs.</li>
+    </ol>
+    <p>Chrome may ask for MIDI access, including SysEx. Identifying the device does not start an update.</p>
+    <button id="connect" disabled>Identify FM1</button>
+    <p id="device-status" role="status">No device checked.</p>
+    <div id="other-port" hidden>
+      <label for="port">If your Mac shows the FM1 under another name, select its MIDI port:</label>
+      <select id="port"></select> <button id="try-port" type="button">Try selected port</button>
+    </div>
+  </section>
+  <section aria-labelledby="install-heading">
+    <h2 id="install-heading">3. Install</h2>
+    <p>Installation can erase data from the current firmware. Keep the USB cable and power connected until the FM1 restarts and this page reports the new identity. Direct installation from Caravel 0.6.0 has not yet been physically tested.</p>
+    <button id="install" disabled>Install experimental firmware</button>
+    <progress id="progress" max="100" value="0" aria-label="Installation progress"></progress>
+    <p id="install-status" role="status">Waiting for package and device checks.</p>
+    <pre id="log" aria-label="Installation log"></pre>
+  </section>
+  <p class="small">The updater is from the pinned <a href="https://github.com/charlesvestal/fm1-base/tree/02f422c7d9de121ca099bb2fdebe5c035f59e8ad">fm1-base</a> revision under MPL-2.0. No bootloader replacement or stock-firmware action is offered here. <a href="LICENSING.md">Source and licence notices</a>.</p>
+</main>
+<dialog id="confirm" aria-labelledby="confirm-heading">
+  <form method="dialog">
+    <h2 id="confirm-heading">Confirm FM1 installation</h2>
+    <p id="confirm-device"></p>
+    <p>Target: UNDERGROWTH 0.1.0-hw1 (experimental). The FM1 may enter update mode and restart. Keep it connected until this page reports completion.</p>
+    <label class="ack"><input id="backup-ok" type="checkbox"> I have a verified full flash backup and my Caravel project export, or I accept losing them.</label>
+    <div class="actions"><button value="cancel" class="secondary">Cancel</button><button id="confirm-install" value="install" disabled>Install on FM1</button></div>
+  </form>
+</dialog>
+<script type="module" src="web/flash.js"></script>
+</body>
+</html>

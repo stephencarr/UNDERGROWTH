@@ -23,7 +23,7 @@ async function enableAudio(){
     const module=await WebAssembly.compile(await response.arrayBuffer());
     await context.audioWorklet.addModule('worklet.js');
     node=new AudioWorkletNode(context,'undergrowth',{numberOfInputs:0,numberOfOutputs:1,outputChannelCount:[2],processorOptions:{module}});
-    node.port.onmessage=({data})=>{if(data.type==='state'){state=data;paint();}};
+    node.port.onmessage=({data})=>{if(data.type==='state'){state=data;if(data.panel){voice=data.panel.voice;selected=data.panel.selected;}paint();}};
     node.onprocessorerror=()=>{status('Audio stopped unexpectedly. Reload to restart safely.');node.disconnect();for(const el of musical)el.disabled=true;};
     node.connect(context.destination);
     context.onstatechange=()=>{if(context.state!=='running'){command('panic');status('Audio paused. Enable audio to continue.');$('enable-audio').disabled=false;$('enable-audio').textContent='Resume audio';}};
@@ -42,9 +42,9 @@ $('enable-audio').onclick=enableAudio;
 function chooseLockStep(){
  if(!state)return;
  const steps=state.voices[voice].steps;
- if(!steps[selected].on){const first=steps.findIndex(s=>s.on);if(first>=0)selected=first;}
+ if(!steps[selected].on){const first=steps.findIndex(s=>s.on);if(first>=0){selected=first;command('uiSelect',1,first);}}
 }
-function setVoice(v){voice=v;dragging=null;if($('lock-mode').checked&&!state?.armed){chooseLockStep();command('rejoin');}paint();}
+function setVoice(v){voice=v;command('uiSelect',0,v);dragging=null;if($('lock-mode').checked&&!state?.armed){chooseLockStep();command('rejoin');}paint();}
 for(const b of document.querySelectorAll('[data-voice]'))b.onclick=()=>setVoice(Number(b.dataset.voice));
 function hit(v){command('hit',v,-1);const pad=document.querySelector(`[data-trigger="${v}"]`);pad.classList.add('active');setTimeout(()=>pad.classList.remove('active'),90);}
 for(const b of document.querySelectorAll('[data-trigger]'))b.onclick=()=>hit(Number(b.dataset.trigger));
@@ -64,7 +64,7 @@ $('lock-hit').onclick=()=>{command('begin');command('toggle',voice,selected);};
 $('lock-play').onclick=()=>command('play',1);
 for(const b of document.querySelectorAll('[data-step]'))b.onclick=()=>{
  if(!state)return;const s=Number(b.dataset.step);
- if(voice===2||$('lock-mode').checked){selected=s;paint();}
+ if(voice===2||$('lock-mode').checked){selected=s;command('uiSelect',1,s);paint();}
  else{command('begin');command('toggle',voice,s);}
 };
 for(const [p,id] of params.entries()){
@@ -175,4 +175,4 @@ window.addEventListener('pagehide',()=>{command('panic');context?.suspend();});
 paint();
 
 // Device-shell bridge: the existing worklet remains the sole audio/sequencing owner.
-window.UG={command,enableAudio,setVoice,paint,get state(){return state;},get voice(){return voice;},get selected(){return selected;},selectStep(s){selected=s;paint();}};
+window.UG={command,enableAudio,setVoice,paint,get state(){return state;},get voice(){return voice;},get selected(){return selected;},selectStep(s){selected=s;command('uiSelect',1,s);paint();}};

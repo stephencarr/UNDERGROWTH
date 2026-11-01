@@ -22,7 +22,13 @@ static int motion, motion_saved;
 static int rec_mode=1, take_active, rec_track=-1;
 static unsigned char motion_mask[NVOICE];
 static Voice voices[NVOICE];
-static float delaybuf[DELAY], delay_lp, output[MAX_BLOCK*2];
+#if defined(UG_FM1) && !defined(PLAT_HOST)
+#define UG_POOL __attribute__((section(".pool")))
+#else
+#define UG_POOL
+#endif
+static float delaybuf[DELAY] UG_POOL;
+static float delay_lp, output[MAX_BLOCK*2];
 static float master_target, master_now;
 static float manual[NVOICE][NPARAM];
 static unsigned char takeover[NVOICE];

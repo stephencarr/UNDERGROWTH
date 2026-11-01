@@ -1,0 +1,16 @@
+name = "undergrowth"
+id_prefix = "FM-1_731"
+usb_manufacturer = "UNDERGROWTH"
+usb_product = "UNDERGROWTH FM-1"
+o2 = ["../core/undergrowth.c", "../core/controller.c"]
+include = ["../core"]
+o2_cflags = ["-DUG_FM1=1"]
+words = "words.tsv"
+ble = false
+wifi = false
+cpu2 = false
+usb_audio_in = true
+usb_audio_out = false
+usb_midi_last = true
+repo = "https://github.com/stephencarr/UNDERGROWTH"
+tagline = "Organisms, rhythm and deliberate control"

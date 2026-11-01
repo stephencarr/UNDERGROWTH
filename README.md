@@ -2,6 +2,14 @@
 
 A browser-first rhythm study: two original synthesized percussion voices and ROOT monophonic bass, a blank 16-step canvas, step locks and immediate performance controls. Nothing composes or plays by itself.
 
+## Hardware milestone in progress
+
+Every milestone must now produce a validated FM1 firmware package as well as this browser prototype. The panel controller and screen text have moved into shared C, and `firmware/` provides the physical-panel/audio adapter. Bluetooth and Wi-Fi are disabled. See [hardware build, Caravel 0.6.0 migration and recovery](docs/HARDWARE.md).
+
+The full milestone gate passed with the pinned Jieli compiler on Linux x86-64. It produced an **experimental** `undergrowth-0.1.0-hw1.fwsc` in `build/releases/0.1.0-hw1/`, with a build report, manifest, checksums, installer and licence notices. The package has not been flashed or tested on an FM1. The browser instrument and experimental flasher are published together on GitHub Pages.
+
+The browser links to `flash.html`, a Chrome/Edge desktop installer view. It verifies the included `.fwsc` against its fixed SHA-256 and package CRCs before enabling device identification. USB MIDI SysEx permission, FM1 identity and an explicit backup acknowledgement are required before installation. The pinned fm1-base Web MIDI updater handles the transfer and interrupted-update resume; the view does not offer a bootloader replacement. The browser flow has simulated-port tests, but direct Caravel 0.6.0 installation and recovery have not been tested on hardware. Open https://stephencarr.github.io/UNDERGROWTH/flash.html in desktop Chrome or Edge; no local server is needed.
+
 ## Open it
 
 1. Download and extract the package. Open **index.html** in a recent Chrome or Edge desktop browser. It contains its C/WASM engine and all interface assets; it has no external assets, analytics or remote calls.
@@ -113,7 +121,7 @@ The default view now uses the open-source fm1-base emulator panel template (revi
 - LFO, ARP, SAVE and PRESETS have explicit reserved/unavailable screens. Sessions still disappear on reload.
 - Keys play the selected voice on sound pages. ROOT follows the physical keybed’s semitone ordering, starting F1 by default; OCT± shifts an octave. Notes outside ROOT’s current C1–C4 range are silent. On narrow screens the panel scrolls horizontally to preserve control target size.
 
-This validates a proposed control mapping, not hardware parity: the browser menu renderer and input adapter are JavaScript, while audio/sequencing remain shared C. The actual FM1 renderer, input integration, RAM/CPU performance and flashing package still require implementation and hardware validation. No firmware has been flashed.
+This validates a proposed control mapping, not physical hardware parity: the browser drawing/input wrapper is JavaScript; menu logic, screen text, audio and sequencing now live in shared C. The FM1 adapter passed host tests and the pinned cross-build's memory, instruction and package checks. Actual FM1 CPU performance, controls, sound and recovery still require device validation. No firmware has been flashed.
 
 ## Environment and organism DNA
 

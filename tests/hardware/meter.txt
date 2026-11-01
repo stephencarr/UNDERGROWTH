@@ -1,0 +1,21 @@
+wait 1100
+expect meter_updates >3
+expect meter_updates <8
+expect meter_peak >-1
+tap ENV
+wait 1100
+expect meter_updates >7
+expect meter_updates <14
+tap SEQ
+tapkey 0
+tap PLAY
+wait 1100
+expect meter_updates >11
+expect meter_updates <22
+expect playing 1
+press HOME
+wait 750
+release HOME
+expect playing 0
+expect dropped 0
+expect store_writes 0

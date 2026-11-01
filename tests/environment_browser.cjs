@@ -9,7 +9,7 @@ try{for(const touch of [false,true]){
  const turn=async(name,n=1)=>{await button(name).focus();for(let i=0;i<Math.abs(n);i++)await page.keyboard.press(n>0?'ArrowUp':'ArrowDown');await wait(80);};
  const snap=()=>page.evaluate(()=>UG.state),read=()=>page.locator('#panel-readout').textContent();
  const peak=()=>page.evaluate(()=>{const a=new Float32Array(envAnalyser.fftSize);envAnalyser.getFloatTimeDomainData(a);return Math.max(...a.map(Math.abs));});
- await click(page.locator('#device-audio'));await page.waitForFunction(()=>UG.state);assert.equal(await peak(),0);
+ await click(page.locator('#device-audio'));await page.waitForFunction(()=>UG.state);await page.waitForFunction(()=>document.getElementById('panel-readout').textContent.includes('CPU -- / FM1 only'));assert.equal(await peak(),0);
  await press('ENV');assert((await read()).includes('Damping'));await turn('KNOB2',20);assert(Math.abs((await snap()).voices[0].base[4]-.7)<.001);
  await turn('SELECT');await turn('KNOB1',-40);assert(Math.abs((await snap()).voices[0].velocity-.6)<.001);
  await press('SEQ');await press('White key 1');let s=await snap();assert(Math.abs(s.voices[0].steps[0].velocity-.6)<.001);assert(Math.abs(s.voices[0].steps[0].lock[4]-.7)<.001);
