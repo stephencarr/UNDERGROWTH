@@ -176,10 +176,12 @@ for(const [name,b] of Object.entries(buttons)){
  if(name==='HOME'){let timer;const clear=()=>clearTimeout(timer);b.hit.addEventListener('pointerdown',()=>timer=setTimeout(()=>callbacks.panic(),650));for(const e of ['pointerup','pointercancel','lostpointercapture','pointerleave'])b.hit.addEventListener(e,clear);}
 }
 keys.forEach((k,i)=>{
- const down=()=>{k.g.classList.add('held');callbacks.key(i,true,WHITE_K.indexOf(i));};
- const up=()=>{k.g.classList.remove('held');callbacks.key(i,false,WHITE_K.indexOf(i));};
+ let active=false;
+ const down=()=>{if(active)return;active=true;k.g.classList.add('held');callbacks.key(i,true,WHITE_K.indexOf(i));};
+ const up=(cancel=false)=>{if(!active)return;active=false;k.g.classList.remove('held');callbacks.key(i,cancel?-1:false,WHITE_K.indexOf(i));};
  k.hit.addEventListener('pointerdown',e=>{e.preventDefault();k.hit.setPointerCapture(e.pointerId);down();});
- for(const e of ['pointerup','pointercancel','lostpointercapture','blur'])k.hit.addEventListener(e,up);
+ k.hit.addEventListener('pointerup',()=>up());
+ for(const e of ['pointercancel','lostpointercapture','blur'])k.hit.addEventListener(e,()=>up(true));
  k.hit.addEventListener('keydown',e=>{if((e.code==='Enter'||e.code==='Space')&&!e.repeat){e.preventDefault();e.stopPropagation();down();}});
  k.hit.addEventListener('keyup',e=>{if(e.code==='Enter'||e.code==='Space'){e.preventDefault();e.stopPropagation();up();}});
 });

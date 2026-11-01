@@ -1,0 +1,33 @@
+wait 150
+tap SEQ
+tapkey 0
+expect hit 1
+tapkey 0
+expect hit 0
+key 0 down
+wait 450
+expect locks 1
+expect hit 0
+key 0 up
+turn K1 10
+expect hit 0
+turn SELECT 1
+expect sub 3
+turn K2 10
+expect hit 0
+tap SEQ
+expect locks 0
+turn SELECT 1
+expect sub 0
+tapkey 0
+expect hit 1
+key 0 down
+wait 450
+expect locks 1
+key 0 up
+expect hit 1
+tap SEQ
+tapkey 0
+expect hit 0
+expect dropped 0
+expect store_writes 0
