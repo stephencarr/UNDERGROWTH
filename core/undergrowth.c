@@ -3,13 +3,13 @@
  * No allocation, system calls, IO, wall-clock scheduling or random composition.
  */
 #include "undergrowth.h"
-#define NVOICE 2
+#define NVOICE 3
 #define NSTEPS 16
 #define NPARAM 4
 #define MAX_BLOCK 256
 #define DELAY 22050
 
-typedef struct { unsigned char on, mask; float lock[NPARAM]; } Step;
+typedef struct { unsigned char on, mask; float lock[NPARAM]; int note; float gate; unsigned char slide; } Step;
 typedef struct { Step steps[NVOICE][NSTEPS]; float base[NVOICE][NPARAM]; float swing, human; } Score;
 typedef struct {
  float phase, env, sweep, noise_lp, vel;
@@ -30,6 +30,12 @@ static int rate, tempo, playing, recording, step_index, delaypos, first;
 static uint32_t tickphase, noise_state, trigger_count[NVOICE];
 static int pending_chatter;
 static float pending_velocity;
+static float root_freq, root_target;
+static int root_gate, root_live=-1;
+static float note_frequency(int note){
+ static const float hz[12]={32.703196f,34.647829f,36.708096f,38.890873f,41.203445f,43.653529f,46.249303f,48.999429f,51.913087f,55.0f,58.270470f,61.735413f};
+ int n=note-24;float f=hz[n%12];for(int o=0;o<n/12;o++)f*=2;return f;
+}
 /* Durations alternate long/short; the pair always spans two straight steps. */
 static uint32_t step_duration(void) {
  uint32_t offset=(uint32_t)(rate*20*score.swing);
@@ -54,11 +60,14 @@ void ug_init(int sample_rate) {
  zero(&score,sizeof score); zero(&saved,sizeof saved); zero(voices,sizeof voices);
  zero(delaybuf,sizeof delaybuf);zero(output,sizeof output);zero(takeover,sizeof takeover);
  zero(manual,sizeof manual);zero(trigger_count,sizeof trigger_count);zero(record_skip,sizeof record_skip);
+ root_freq=root_target=65.406392f;root_gate=0;root_live=-1;
+ for(int s=0;s<NSTEPS;s++){score.steps[2][s].note=36;score.steps[2][s].gate=.75f;}
  motion=motion_saved=0;zero(motion_mask,sizeof motion_mask);
  rate=sample_rate>=8000&&sample_rate<=96000?sample_rate:44100;
  tempo=110;playing=recording=first=0;step_index=-1;tickphase=0;delaypos=0;delay_lp=0;
  master_target=0.65f;master_now=0;noise_state=0x51d734a1; saved_valid=0;pending_chatter=-1;
  score.base[0][0]=0.35f;score.base[0][1]=0.28f;score.base[0][2]=0.40f;score.base[0][3]=0.0f;
+ score.base[2][0]=.65f;score.base[2][1]=.25f;score.base[2][2]=.35f;score.base[2][3]=0;
  score.base[1][0]=0.45f;score.base[1][1]=0.50f;score.base[1][2]=0.24f;score.base[1][3]=0.16f;
 }
 void ug_begin_edit(void) {ug_motion(0);saved=score;saved_valid=1;}
@@ -78,7 +87,7 @@ void ug_record(int enabled) {if(enabled!=0)ug_motion(0);recording=enabled<0?!rec
 void ug_play(int enabled) {
  if(enabled<0)enabled=!playing;
  if(enabled&&!playing){playing=1;first=1;step_index=-1;tickphase=0;zero(record_skip,sizeof record_skip);}
- else if(!enabled){ug_motion(0);pending_chatter=-1;playing=0;recording=0;step_index=-1;first=0;ug_rejoin();zero(record_skip,sizeof record_skip);}
+ else if(!enabled){root_gate=0;root_live=-1;ug_motion(0);pending_chatter=-1;playing=0;recording=0;step_index=-1;first=0;ug_rejoin();zero(record_skip,sizeof record_skip);}
 }
 void ug_tempo(int bpm) {tempo=bpm<40?40:bpm>220?220:bpm;}
 void ug_groove(int parameter,float value) {
@@ -111,6 +120,8 @@ void ug_setlock(int v,int s,int p,float value){
 void ug_clearlock(int v,int s){if(valid_voice(v)&&valid_step(s))score.steps[v][s].mask=0;}
 int ug_lockmask(int v,int s){return valid_voice(v)&&valid_step(s)?score.steps[v][s].mask:0;}
 float ug_lockvalue(int v,int s,int p){return valid_voice(v)&&valid_step(s)&&valid_param(p)?score.steps[v][s].lock[p]:0;}
+void ug_note(int s,int note,float gate,int slide){if(!valid_step(s))return;score.steps[2][s].note=note<24?24:note>60?60:note;score.steps[2][s].gate=clamp(gate,.1f,1.5f);score.steps[2][s].slide=slide?1:0;}
+float ug_notevalue(int s,int p){if(!valid_step(s))return 0;Step *q=&score.steps[2][s];return p==0?q->note:p==1?q->gate:p==2?q->slide:0;}
 static void trigger(int v,float velocity,int sequenced){
    if(sequenced&&motion){
     Step *s=&score.steps[v][step_index];
@@ -126,10 +137,29 @@ static void trigger(int v,float velocity,int sequenced){
  Voice *q=&voices[v];
  /* The short attack fades retriggers in, avoiding a hard initial sample jump. */
  for(int p=0;p<NPARAM;p++)q->params[p]=ug_effective(v,p);
+ if(v==2){
+  if(sequenced)root_live=-1; /* A sequenced note replaces the live-key gate owner. */
+  Step *st=&score.steps[2][sequenced?step_index:0];
+  int glide=sequenced&&st->slide&&q->env>.001f;
+  root_target=note_frequency(sequenced?st->note:root_live>=0?root_live:36);
+  if(!glide){root_freq=root_target;q->phase=0;q->age=0;}
+  root_gate=sequenced?(int)((float)step_duration()/(tempo*4)*st->gate):-1;
+  q->env=glide?q->env:1;q->vel=clamp(velocity,0,1);trigger_count[v]++;return;
+ }
  q->phase=0;q->env=1;q->sweep=1;q->vel=clamp(velocity,0,1);q->age=0;
  q->burst_left=v==1?(int)(q->params[0]*4.99f):0;
  q->burst_wait=(int)(rate*(0.013f+q->params[2]*0.030f));
  trigger_count[v]++;
+}
+void ug_key(int note,int down){
+ if(note<24||note>60)return;
+ if(!down){if(root_live==note){root_gate=0;root_live=-1;}return;}
+ root_live=note;
+ if(recording&&playing){int nearest=step_index<0?0:step_index;if(tickphase>step_duration()/2)nearest=(nearest+1)%NSTEPS;
+  ug_begin_edit();if(!score.steps[2][nearest].on&&(step_index<0||nearest!=step_index))record_skip[2]|=1u<<nearest;
+  score.steps[2][nearest].on=1;score.steps[2][nearest].note=note;
+ }
+ trigger(2,1,0);
 }
 void ug_hit(int v,float velocity){
  if(!valid_voice(v))return;
@@ -147,7 +177,7 @@ void ug_hit(int v,float velocity){
 }
 void ug_clear(void){
  int changed=0;for(int v=0;v<NVOICE;v++)for(int s=0;s<NSTEPS;s++)if(score.steps[v][s].on||score.steps[v][s].mask)changed=1;
- if(changed){ug_begin_edit();zero(score.steps,sizeof score.steps);}ug_panic();
+ if(changed){ug_begin_edit();zero(score.steps,sizeof score.steps);for(int s=0;s<NSTEPS;s++){score.steps[2][s].note=36;score.steps[2][s].gate=.75f;}}ug_panic();
 }
 void ug_panic(void){ug_play(0);zero(voices,sizeof voices);zero(delaybuf,sizeof delaybuf);delay_lp=0;zero(output,sizeof output);}
 static void advance(void){
@@ -185,6 +215,16 @@ void ug_render(int frames){
     q->sweep*=1.0f-1.0f/(rate*0.018f);
     q->env*=1.0f-1.0f/(rate*(0.035f+length*0.25f));
     sample*=0.65f;
+   }else if(v==2){
+    root_freq+=(root_target-root_freq)*(1.0f/(rate*.04f));
+    q->phase+=root_freq/rate;if(q->phase>=1)q->phase-=1;
+    float p2=q->phase*2;while(p2>=1)p2-=1;
+    float p3=q->phase*3;while(p3>=1)p3-=1;
+    float p5=q->phase*5;while(p5>=1)p5-=1;
+    float tone=sine(q->phase)*(0.65f+body*.35f)+edge*(sine(p2)*.35f+sine(p3)*.22f+sine(p5)*.12f);
+    if(root_gate>0)root_gate--;
+    if(root_gate==0)q->env*=1.0f-1.0f/(rate*(.008f+length*.30f));
+    sample=tone*q->env*.42f;
    }else{
     if(q->burst_left>0&&--q->burst_wait<=0){q->env=0.85f;q->age=0;q->burst_left--;q->burst_wait=(int)(rate*(0.012f+length*0.026f));}
     float n=noise();q->noise_lp+=(n-q->noise_lp)*(0.04f+edge*0.65f);
@@ -207,5 +247,5 @@ void ug_render(int frames){
  }
 }
 float *ug_buffer(void){return output;}
-int ug_state(int key){switch(key){case 0:return playing;case 1:return step_index;case 2:return recording;case 3:return rate;case 4:return tempo;case 5:return saved_valid;case 6:return takeover[0];case 7:return takeover[1];case 8:return trigger_count[0];case 9:return trigger_count[1];case 10:return motion;case 11:return motion_mask[0];case 12:return motion_mask[1];default:return 0;}}
+int ug_state(int key){switch(key){case 0:return playing;case 1:return step_index;case 2:return recording;case 3:return rate;case 4:return tempo;case 5:return saved_valid;case 6:return takeover[0];case 7:return takeover[1];case 8:return trigger_count[0];case 9:return trigger_count[1];case 10:return motion;case 11:return motion_mask[0];case 12:return motion_mask[1];case 13:return takeover[2];case 14:return trigger_count[2];case 15:return motion_mask[2];case 16:return root_gate;default:return 0;}}
 int ug_state_bytes(void){return sizeof(score)+sizeof(saved)+sizeof(voices)+sizeof(delaybuf)+sizeof(output)+sizeof(manual)+128;}

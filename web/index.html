@@ -3,13 +3,13 @@
 <head>
 <meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
 <meta name="theme-color" content="#e7e5d9">
-<title>UNDERGROWTH · Rhythm study</title>
+<title>UNDERGROWTH · Rhythm + ROOT</title>
 <link rel="stylesheet" href="style.css">
 </head>
 <body>
 <main class="instrument">
   <header class="masthead">
-    <div><p class="eyebrow">An instrument with imagination</p><h1>UNDERGROWTH<span aria-hidden="true">✳</span></h1><p class="edition">ORGANISM / RHYTHM STUDY 01</p></div>
+    <div><p class="eyebrow">An instrument with imagination</p><h1>UNDERGROWTH<span aria-hidden="true">✳</span></h1><p class="edition">ORGANISM + ROOT / STUDY 02</p></div>
     <div class="power-block"><button id="enable-audio" class="power">Enable audio <span aria-hidden="true">↗</span></button><p id="audio-status" role="status">Audio is off. Your canvas is empty.</p></div>
   </header>
 
@@ -31,11 +31,14 @@
 
   <div class="performance">
     <section class="voices" aria-labelledby="voices-heading">
-      <div class="section-label"><span class="eyebrow" id="voices-heading">01 / Choose an organism</span><span class="small-note">Two voices. One ecosystem.</span></div>
+      <div class="section-label"><span class="eyebrow" id="voices-heading">01 / Choose an organism</span><span class="small-note">Rhythm meets bass.</span></div>
       <div class="voice-pair">
         <div class="voice-card kick-card"><button id="voice-kick" class="voice-select active" data-voice="0" aria-pressed="true"><span class="voice-number">01</span><span class="voice-name">Kick</span><span class="voice-description">Weight · skin · pulse</span><svg viewBox="0 0 240 65" aria-hidden="true"><path d="M5 35 C15 35 15 5 25 5 S40 60 52 60 S70 15 83 15 S102 47 117 47 S138 26 155 26 S177 38 195 38 S218 33 235 33"/></svg></button><button class="trigger" data-trigger="0" aria-label="Trigger kick"><span class="trigger-mark" aria-hidden="true">●</span> Tap kick <kbd>A</kbd></button></div>
         <div class="voice-card chatter-card"><button id="voice-chatter" class="voice-select" data-voice="1" aria-pressed="false"><span class="voice-number">02</span><span class="voice-name">Chatter</span><span class="voice-description">Grain · twig · resonance</span><svg viewBox="0 0 240 65" aria-hidden="true"><path d="M5 34 L16 34 L19 8 L24 57 L30 16 L35 44 L44 29 L49 38 L57 33 L78 33 L82 17 L87 49 L94 25 L102 38 L112 32 L139 33 L144 24 L149 42 L155 29 L164 35 L185 33 L190 28 L195 38 L204 32 L235 33"/></svg></button><button class="trigger" data-trigger="1" aria-label="Trigger chatter"><span class="trigger-mark" aria-hidden="true">✳</span> Tap chatter <kbd>S</kbd></button></div>
       </div>
+      <div class="voice-card root-card"><button id="voice-root" class="voice-select" data-voice="2" aria-pressed="false"><span class="voice-number">03</span><span class="voice-name">ROOT</span><span class="voice-description">Sub · rounded harmonics · slide</span></button></div>
+      <div id="root-keys" class="root-keys" aria-label="Play bass notes"><button data-note="36" aria-label="Play ROOT C2">C2<kbd>Q</kbd></button><button data-note="38" aria-label="Play ROOT D2">D2<kbd>W</kbd></button><button data-note="40" aria-label="Play ROOT E2">E2<kbd>E</kbd></button><button data-note="41" aria-label="Play ROOT F2">F2<kbd>R</kbd></button><button data-note="43" aria-label="Play ROOT G2">G2<kbd>T</kbd></button><button data-note="45" aria-label="Play ROOT A2">A2<kbd>Y</kbd></button><button data-note="47" aria-label="Play ROOT B2">B2<kbd>U</kbd></button><button data-note="48" aria-label="Play ROOT C3">C3<kbd>I</kbd></button></div>
+      <p class="root-help">Hold a key to play ROOT. Q–I play notes; 3 selects its lane.</p>
     </section>
 
     <section class="macros" aria-labelledby="macros-heading">
@@ -57,6 +60,14 @@
 
   <section class="sequencer" aria-labelledby="sequence-heading">
     <div class="section-label"><div><span class="eyebrow">03 / Seed a rhythm</span><h2 id="sequence-heading">Leave room for something.</h2></div><div class="sequence-tools"><label class="lock-toggle"><input id="lock-mode" type="checkbox"> <span>Edit step locks</span></label><button id="clear-lock" class="quiet">Clear lock</button></div></div>
+    <div id="root-editor" class="root-editor" hidden>
+      <p id="root-step-label"></p>
+      <label><input id="root-on" type="checkbox"> Note on</label>
+      <label>Pitch <select id="root-note"><option value="24">C1</option><option value="25">C♯1</option><option value="26">D1</option><option value="27">D♯1</option><option value="28">E1</option><option value="29">F1</option><option value="30">F♯1</option><option value="31">G1</option><option value="32">G♯1</option><option value="33">A1</option><option value="34">A♯1</option><option value="35">B1</option><option value="36">C2</option><option value="37">C♯2</option><option value="38">D2</option><option value="39">D♯2</option><option value="40">E2</option><option value="41">F2</option><option value="42">F♯2</option><option value="43">G2</option><option value="44">G♯2</option><option value="45">A2</option><option value="46">A♯2</option><option value="47">B2</option><option value="48">C3</option><option value="49">C♯3</option><option value="50">D3</option><option value="51">D♯3</option><option value="52">E3</option><option value="53">F3</option><option value="54">F♯3</option><option value="55">G3</option><option value="56">G♯3</option><option value="57">A3</option><option value="58">A♯3</option><option value="59">B3</option><option value="60">C4</option></select></label>
+      <label>Gate <input id="root-gate" type="range" min="0.1" max="1.5" step="0.05" value="0.75"><output id="root-gate-value">75%</output></label>
+      <label><input id="root-slide" type="checkbox"> Slide into this note</label>
+      <p>Choose a step, enable Note on, then set pitch and gate. Unchecked steps are rests. Gate over 100% overlaps the next step; Slide glides from a still-sounding note. Body adds weight, Edge adds harmonics, Length shapes release.</p>
+    </div>
     <div class="step-grid" role="group" aria-label="Sixteen steps for the selected voice">
       <button id="step-0" class="step" data-step="0" aria-label="Step 1" aria-pressed="false"><span class="step-number">01</span><span class="step-light" aria-hidden="true"></span><span class="lock-dot" aria-hidden="true"></span></button>
       <button id="step-1" class="step" data-step="1" aria-label="Step 2" aria-pressed="false"><span class="step-number">02</span><span class="step-light" aria-hidden="true"></span><span class="lock-dot" aria-hidden="true"></span></button>
@@ -75,7 +86,7 @@
       <button id="step-14" class="step" data-step="14" aria-label="Step 15" aria-pressed="false"><span class="step-number">15</span><span class="step-light" aria-hidden="true"></span><span class="lock-dot" aria-hidden="true"></span></button>
       <button id="step-15" class="step" data-step="15" aria-label="Step 16" aria-pressed="false"><span class="step-number">16</span><span class="step-light" aria-hidden="true"></span><span class="lock-dot" aria-hidden="true"></span></button>
     </div>
-    <div class="sequence-foot"><p>Tap steps to plant hits. Turn a knob to shape the selected voice.<br><span class="lock-help">For a variation: enable “Edit step locks”, choose a lit step, then move a sound slider above. Press Play to hear it each loop.</span></p><div><button id="rejoin" class="quiet" title="Release manual takeover and return to stored step locks">Rejoin</button><button id="undo" class="quiet">↶ Undo</button><button id="clear-pattern" class="quiet">Clear rhythm</button></div></div>
+    <div class="sequence-foot"><p><span id="sequence-help">Tap steps to plant hits. Turn a knob to shape the selected voice.</span><br><span class="lock-help">For a variation: enable “Edit step locks”, choose a lit step, then move a sound slider above. Press Play to hear it each loop.</span></p><div><button id="rejoin" class="quiet" title="Release manual takeover and return to stored step locks">Rejoin</button><button id="undo" class="quiet">↶ Undo</button><button id="clear-pattern" class="quiet">Clear rhythm</button></div></div>
   </section>
   <footer><span>SEED <b>→</b> INFLUENCE <b>→</b> LISTEN</span><span>Session only · reload clears your rhythm · hardware validation pending</span></footer>
 </main>

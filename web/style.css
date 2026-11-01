@@ -12,3 +12,7 @@
 .lock-editor{padding:12px 14px;margin:0 0 18px;border:1px solid #879774;border-radius:6px;background:#e3e8d9}.lock-editor[hidden]{display:none}.lock-editor p{font-size:11px;line-height:1.6;margin:0 0 10px;overflow-wrap:anywhere}.lock-editor p:last-child{margin:10px 0 0}.lock-actions{display:flex;flex-wrap:wrap;gap:8px}.lock-actions button{padding:8px 12px;font-size:11px}.macro.has-lock .macro-top{color:#41612f}.macro.has-lock .macro-top>span:after{content:' · LOCK';font-size:9px;letter-spacing:1px}
 
 .motion-help{font-size:11px;line-height:1.65;color:#626d5b;margin:14px 0 0}.transport-buttons{flex-wrap:wrap}
+
+.root-card{margin-top:12px}.root-card .voice-select{min-height:95px}.root-keys{display:grid;grid-template-columns:repeat(8,1fr);gap:4px;margin-top:10px}.root-keys button{padding:14px 2px;font-size:11px;min-width:0;touch-action:none}.root-keys kbd{display:block;margin-top:8px;font-size:9px}.root-help,.root-editor p{font-size:11px;line-height:1.6}.root-editor{display:flex;flex-wrap:wrap;align-items:center;gap:14px;padding:14px;margin-top:15px;border:1px solid #879774;border-radius:6px}.root-editor[hidden]{display:none}.root-editor p{width:100%;margin:0}.root-editor label{font-size:12px;display:flex;align-items:center;gap:8px}.root-editor input[type=range]{width:90px}.root-editor select{max-width:100px;padding:6px}
+
+.note-label{font-size:10px;display:block;margin-top:8px;line-height:1.1}

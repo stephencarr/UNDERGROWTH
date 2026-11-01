@@ -18,3 +18,5 @@ cmd('param',0,0,NaN);cmd('unknown',1);cmd('panic');assert(silent());assert.equal
 cmd('play',-1);assert.equal(states.at(-1).playing,1);cmd('play',-1);assert.equal(states.at(-1).playing,0);
 cmd('record',-1);assert.equal(states.at(-1).recording,1);cmd('record',-1);assert.equal(states.at(-1).recording,0);
 console.log('PASS AudioWorklet adapter in Node harness: 48kHz, silent init/empty transport, actual WASM render, command validation, rapid toggles, undo, locks preserve rests, Panic, toggled transport/record. Not browser-host execution.');
+
+cmd('panic');cmd('clear');cmd('step',2,0,1);cmd('motion',1);cmd('editparam',2,0,.7);cmd('play',1);block();cmd('snapshot');assert.equal(states.at(-1).motion,true);assert(states.at(-1).voices[2].steps[0].mask&1);cmd('motion',0);cmd('undo');assert.equal(states.at(-1).voices[2].steps[0].mask,0);console.log('PASS ordered arm + immediate slider edit retains motion and whole-take Undo.');
