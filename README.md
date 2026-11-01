@@ -25,12 +25,14 @@ There is no save/load yet. This is a **session-only sketch**: reload or close lo
 - **Voice cards** select the lane and macros without triggering sound. **Tap kick/chatter** plays live.
 - **A/S** or **Z/X** trigger kick/chatter. **1/2** select voices. **Space** toggles transport when focus is not in a form control or button. **Escape** silences everything. Native button Space/Enter remain accessible.
 - **16 steps** toggle authored hits on the selected lane. Play on an empty lane/session is silent.
-- **Edit step locks:** choose a step, then move a macro. A lock can exist on an inactive step without creating a hit. Disable the mode to edit the voice's base sound. Clear lock removes that step's locks.
+- **Edit step locks:** enabling this selects an existing hit when possible and releases live overrides so you can hear the locks. The panel beside the sound sliders names the voice, step and locked parameters. Choose a step, then move Body, Edge, Length or Send. Use **Enable hit** if that step is silent, and **Play loop** to hear it when playback reaches the step. Swing and Human remain global. A lock can exist on an inactive step without creating a hit. Disable the mode to edit the voice's base sound. Clear lock removes that step's locks.
 - **Live override:** moving a base macro during playback temporarily takes priority over its step locks and also changes its base value. **Rejoin** releases the live override so stored locks govern again. Stop also releases overrides. Locks apply for their whole step, including the decay of a previous hit.
 - **Swing:** global sixteenth-note swing, displayed as 50.0% (straight) to 66.7% (2:1 shuffle). Alternating subdivisions move later while each pair keeps its total duration. Both lanes and their step locks follow this grid.
 - **Human:** sequenced chatter gets a fixed per-step delay of up to 8 ms and velocity softening of up to 12% at full strength. The same timing/accent shape repeats each loop; it does not regenerate random jitter. Kick timing/velocity and live taps are unaffected. Nothing adds or removes hits. This is an original groove treatment inspired by classic swing workflows, not an emulation of specific MPC hardware or templates.
 - Both groove controls are global, outside step-lock mode, and covered by one-edit Undo/redo. Changes affect upcoming scheduling; already queued chatter keeps its current small delay. Clear rhythm retains the groove settings; reloading resets them. At Swing/Human zero, audio is bit-identical to the previous rhythm study at 44.1/48 kHz.
-- **Record hits** arms quantized percussion overdubbing while playing. A live tap is heard immediately and marks the nearest step on the swung grid for future playback; existing other hits/locks remain. This is not continuous gesture recording. After arming while stopped, press Play and tap. Stop disarms.
+- **Record hits** arms quantized percussion overdubbing while playing. A live tap is heard immediately and marks the nearest step on the swung grid for future playback; existing other hits/locks remain. Use **Record motion** separately for per-trigger sound-slider overdubs. These two record modes are mutually exclusive. After arming while stopped, press Play and tap. Stop disarms.
+- **Record motion:** plant hits first, arm, press Play, then move Body, Edge, Length or Send. Each existing sequenced hit captures the latest value of each control you moved on that voice as a step lock. A moved control continues writing its held value until you finish the take. Switch voices to capture controls on the other lane too. Untouched parameters, other locks, base sounds and rests are preserved. **Finish motion** or Stop releases the live override so the recorded locks govern playback. One Undo restores the entire take, and another redoes it. Arming without moving controls does not replace your previous Undo. Live taps are immediate but do not create motion locks. Swing, Human, tempo and master are outside motion recording. Step editing and global groove editing are unavailable during a take; Finish motion to use them.
+- While playing outside lock edit, sound-slider readouts follow the effective sounding values, including recorded locks. In lock edit, they show the selected step.
 - **Undo** swaps the last authored edit with its previous version (a second press redoes it). One level, including clear, step edits, macro drags and individual recorded hits. Not a history stack or a whole-take undo yet.
 - **Stop** stops future events but allows current percussion and delay to decay. **Silence / Escape** immediately clears voices and delay, stops and disarms, without erasing the pattern.
 - **Clear rhythm** clears both lanes and locks and silences. Undo restores the score but stays stopped.
@@ -41,14 +43,14 @@ There is no save/load yet. This is a **session-only sketch**: reload or close lo
 - Original click/chatter synthesis: short resonant tone, filtered noise and small per-hit burst clusters. Noise colors a hit you supplied; it does not create musical events.
 - Sample-clock-owned two-lane 16-step sequencer, 40–220 BPM.
 - Four step-lockable macros and explicit manual/lock/base precedence.
-- Quantized live hit overdub, one-edit undo/redo, Stop and Panic.
+- Quantized live hit overdub, per-trigger sound-slider motion overdub, one-edit/whole-motion-take undo/redo, Stop and Panic.
 - A fixed, dark eighth-note delay. Its buffer is bounded, so very slow tempos/high sample rates cap its length; this is not the complete future dub-effects engine.
 - Original responsive cream/moss interface with accessible semantic controls.
 - Same C core compiled native and WASM, plus a thin adapter successfully built in the pinned fm1-base native host.
 
 ## What is deferred
 
-Bass, additional percussion, evolving patterns, Keep/Revert, continuous gesture overdub, probability/ratchets, session save/load, MIDI, polished hardware controls, firmware packaging and physical FM1 validation. No firmware was flashed. This is not a device-ready release.
+Bass, additional percussion, evolving patterns, Keep/Revert, continuous gesture curves, probability/ratchets, session save/load, MIDI, polished hardware controls, firmware packaging and physical FM1 validation. No firmware was flashed. This is not a device-ready release.
 
 ## Source layout
 
@@ -67,6 +69,7 @@ python3 -m pip install --target .tools ziglang==0.13.0
 ZIG="$PWD/.tools/ziglang/zig" sh tools/build.sh
 ./build/core_test
 ./build/groove_test
+./build/motion_test
 node tests/parity.mjs
 node tests/worklet.mjs
 python3 tools/bundle.py

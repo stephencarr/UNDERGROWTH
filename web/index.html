@@ -14,12 +14,14 @@
   </header>
 
   <section class="transport" aria-label="Transport">
-    <div class="transport-buttons"><button id="play" class="primary" aria-label="Play sequence"><span aria-hidden="true">▶</span> Play</button><button id="stop" aria-label="Stop sequence"><span aria-hidden="true">■</span> Stop</button><button id="record" aria-pressed="false">Record hits</button></div>
+    <div class="transport-buttons"><button id="play" class="primary" aria-label="Play sequence"><span aria-hidden="true">▶</span> Play</button><button id="stop" aria-label="Stop sequence"><span aria-hidden="true">■</span> Stop</button><button id="record" aria-pressed="false">Record hits</button><button id="motion" aria-pressed="false" aria-describedby="motion-help">Record motion</button></div>
     <label class="tempo-control" for="tempo"><span class="eyebrow">Tempo</span><span><input id="tempo" type="number" min="40" max="220" step="1" value="110" inputmode="numeric"> <small>BPM</small></span></label>
     <div class="transport-readout"><span id="transport-status">STOPPED</span><span id="step-status">— / 16</span></div>
     <label class="master-control" for="master"><span class="eyebrow">Master</span><input id="master" type="range" min="0" max="1" step="0.01" value="0.65" aria-label="Master volume"></label>
     <button id="panic" class="quiet danger" title="Immediately silence all sound and delay tails">Silence</button>
   </section>
+
+  <p id="motion-help" class="motion-help" role="status">Motion overdub: arm Record motion, play your rhythm, then move a sound slider. Each existing hit captures that value as a step lock.</p>
 
   <section class="groove" aria-label="Global groove">
     <label class="macro" for="swing"><span class="macro-top"><span>Swing</span><output id="swing-value" for="swing">50.0%</output></span><input id="swing" type="range" min="0" max="1" step="0.01" value="0" aria-describedby="groove-help"><span class="macro-ends"><span>Straight</span><span>Shuffle</span></span></label>
@@ -38,6 +40,11 @@
 
     <section class="macros" aria-labelledby="macros-heading">
       <div class="section-label"><span class="eyebrow" id="macros-heading">02 / Shape the sound</span><span id="selected-voice" class="voice-badge">KICK</span></div>
+      <div id="lock-editor" class="lock-editor" hidden>
+        <p id="lock-target" role="status"></p>
+        <div class="lock-actions"><button id="lock-hit" aria-pressed="false">Enable hit</button><button id="lock-play">Play loop</button></div>
+        <p>Choose a numbered step below, then change Body, Edge, Length or Send here. Swing and Human stay global.</p>
+      </div>
       <div class="macro-grid">
         <label class="macro" for="body"><span class="macro-top"><span>Body</span><output id="body-value" for="body">50</output></span><input id="body" type="range" min="0" max="1" step="0.01" value="0.5"><span class="macro-ends"><span>Low</span><span>High</span></span></label>
         <label class="macro" for="edge"><span class="macro-top"><span>Edge</span><output id="edge-value" for="edge">35</output></span><input id="edge" type="range" min="0" max="1" step="0.01" value="0.35"><span class="macro-ends"><span>Soft</span><span>Bright</span></span></label>
@@ -68,7 +75,7 @@
       <button id="step-14" class="step" data-step="14" aria-label="Step 15" aria-pressed="false"><span class="step-number">15</span><span class="step-light" aria-hidden="true"></span><span class="lock-dot" aria-hidden="true"></span></button>
       <button id="step-15" class="step" data-step="15" aria-label="Step 16" aria-pressed="false"><span class="step-number">16</span><span class="step-light" aria-hidden="true"></span><span class="lock-dot" aria-hidden="true"></span></button>
     </div>
-    <div class="sequence-foot"><p>Tap steps to plant hits. Turn a knob to shape the selected voice.<br><span class="lock-help">For a step variation, enable “Edit step locks”, choose a step, then turn a knob.</span></p><div><button id="rejoin" class="quiet" title="Release manual takeover and return to stored step locks">Rejoin</button><button id="undo" class="quiet">↶ Undo</button><button id="clear-pattern" class="quiet">Clear rhythm</button></div></div>
+    <div class="sequence-foot"><p>Tap steps to plant hits. Turn a knob to shape the selected voice.<br><span class="lock-help">For a variation: enable “Edit step locks”, choose a lit step, then move a sound slider above. Press Play to hear it each loop.</span></p><div><button id="rejoin" class="quiet" title="Release manual takeover and return to stored step locks">Rejoin</button><button id="undo" class="quiet">↶ Undo</button><button id="clear-pattern" class="quiet">Clear rhythm</button></div></div>
   </section>
   <footer><span>SEED <b>→</b> INFLUENCE <b>→</b> LISTEN</span><span>Session only · reload clears your rhythm · hardware validation pending</span></footer>
 </main>

@@ -8,3 +8,7 @@
 @media(max-width:680px){.masthead{flex-wrap:wrap}.power-block{max-width:none;text-align:left;width:100%;display:flex;align-items:center;gap:12px}.power-block p{margin:0;max-width:190px}.sequencer>.section-label{flex-wrap:wrap}.voice-card{min-width:0}.sequence-foot>div{flex-wrap:wrap;white-space:normal}}
 
 .groove{display:grid;grid-template-columns:1fr 1fr;gap:14px 30px;padding:22px 0;border-bottom:1px solid #bfc6b4}.groove p{grid-column:1/-1;margin:0;font-size:11px;line-height:1.6;color:#626d5b}.groove .macro{min-width:0}
+
+.lock-editor{padding:12px 14px;margin:0 0 18px;border:1px solid #879774;border-radius:6px;background:#e3e8d9}.lock-editor[hidden]{display:none}.lock-editor p{font-size:11px;line-height:1.6;margin:0 0 10px;overflow-wrap:anywhere}.lock-editor p:last-child{margin:10px 0 0}.lock-actions{display:flex;flex-wrap:wrap;gap:8px}.lock-actions button{padding:8px 12px;font-size:11px}.macro.has-lock .macro-top{color:#41612f}.macro.has-lock .macro-top>span:after{content:' · LOCK';font-size:9px;letter-spacing:1px}
+
+.motion-help{font-size:11px;line-height:1.65;color:#626d5b;margin:14px 0 0}.transport-buttons{flex-wrap:wrap}

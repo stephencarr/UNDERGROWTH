@@ -8,6 +8,7 @@ float *ug_buffer(void);
 void ug_play(int enabled);
 void ug_hit(int voice, float velocity);
 void ug_record(int enabled);
+void ug_motion(int enabled);
 void ug_tempo(int bpm);
 void ug_master(float gain);
 void ug_groove(int parameter,float value);
