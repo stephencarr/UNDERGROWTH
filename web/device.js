@@ -11,7 +11,7 @@ const hardware=window.createFM1Panel({
  button(name){send('uiButton',buttons.indexOf(name));},panic(){send('panic');},
  key(offset,down){send('uiKey',offset,+down,-1);}
 });
-window.addEventListener('blur',()=>{for(let k=0;k<27;k++)send('uiKey',k,0,-1);});
+window.addEventListener('blur',()=>{for(let k=0;k<27;k++)send('uiKey',k,-1,-1);});
 function draw(){const s=ug()?.state,p=s?.panel;const signature=JSON.stringify([p,s?.step,s?.playing,s?.voices.map(v=>v.steps.map(x=>x.on))]);if(signature===last)return;last=signature;
  const lines=p?.lines||['UNDERGROWTH','Enable audio above','Empty until you play','','','','','','SILENT'];
  ctx.fillStyle='#b8d0bd';ctx.fillRect(0,0,240,240);ctx.fillStyle='#142e23';ctx.font='bold 16px monospace';ctx.fillText(lines[0],8,24);ctx.fillRect(8,32,224,2);ctx.font='13px monospace';for(let i=1;i<=5;i++)ctx.fillText(lines[i],8,54+(i-1)*23);ctx.font='11px monospace';ctx.fillText(lines[6],8,181);ctx.fillText(lines[7],8,195);ctx.font='bold 11px monospace';ctx.fillText(lines[8],8,209);

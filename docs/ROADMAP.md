@@ -25,6 +25,14 @@ Response on Kick and ROOT directly controls onset firmness over a pronounced ran
 
 Acceptance: silent startup and empty transport; distinct audible/measured ENV extremes; full draft stamping including ENV/velocity; per-step ENV/velocity edits and Undo; motion captures new ENV controls without creating hits; recorded velocities survive playback/Human; ROOT note names, direct draft pitch entry and audition; native/WASM parity and actual browser AudioWorklet output.
 
+## Planned — controlled ROOT arp evolution
+
+Inspired by the bounded movement of Caravel 0.6.0's WALK arp. Start with a small played/latched note set; neighbour-note wandering, adjustable rests and a restricted register keep the phrase recognisable. Hold freezes a pleasing phrase; Keep captures it into the sequencer; Revert returns to the seed. ROOT comes first, with related Chatter rhythm/articulation exploration later. Implement original behaviour in shared C for browser and firmware. This is a roadmap item, not part of the current step-editing fix.
+
+## Current interaction fix — tap steps, hold for trig locks
+
+A short SEQ tap toggles its step on/off. Holding for 350 ms opens the single trig-lock menu, without toggling or creating a hit. SELECT switches Sound, ENV and Notes / velocity; SEQ closes it. The menu remains open after releasing the key. Remove competing SEQ actions/lock pages and Expanded view's separate lock-mode switch. Expanded steps use the same hold gesture. Rest edits preserve rests; canceled presses never toggle; whole menu edits on one step support Undo.
+
 ## Next — effects
 
 1. Track filters with cutoff/resonance, and separate delay/reverb sends.

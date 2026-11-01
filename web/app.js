@@ -5,7 +5,7 @@ const environmentLabels=[['Damping','Drop','Response'],['Stretch','Fracture','Gr
 const noteName=n=>['C','C♯','D','D♯','E','F','F♯','G','G♯','A','A♯','B'][n%12]+(Math.floor(n/12)-1);
 for(const b of document.querySelectorAll('[data-step]')){const label=document.createElement('span');label.className='note-label';b.append(label);}
 let context,node,state,voice=0,selected=0,starting=null,dragging=null;
-const musical=[...document.querySelector('main.instrument').querySelectorAll('button,input,select')].filter(el=>!['enable-audio','voice-kick','voice-chatter','voice-root','lock-mode'].includes(el.id));
+const musical=[...document.querySelector('main.instrument').querySelectorAll('button,input,select')].filter(el=>!['enable-audio','voice-kick','voice-chatter','voice-root'].includes(el.id));
 for(const el of musical)el.disabled=true;
 function command(type,...args){if(node)node.port.postMessage({type,args});}
 function status(text){$('audio-status').textContent=text;}
@@ -39,12 +39,8 @@ async function enableAudio(){
  })();return starting;
 }
 $('enable-audio').onclick=enableAudio;
-function chooseLockStep(){
- if(!state)return;
- const steps=state.voices[voice].steps;
- if(!steps[selected].on){const first=steps.findIndex(s=>s.on);if(first>=0){selected=first;command('uiSelect',1,first);}}
-}
-function setVoice(v){voice=v;command('uiSelect',0,v);dragging=null;if($('lock-mode').checked&&!state?.armed){chooseLockStep();command('rejoin');}paint();}
+const lockEditing=()=>!!state?.panel?.locks;
+function setVoice(v){voice=v;command('uiSelect',0,v);dragging=null;paint();}
 for(const b of document.querySelectorAll('[data-voice]'))b.onclick=()=>setVoice(Number(b.dataset.voice));
 function hit(v){command('hit',v,-1);const pad=document.querySelector(`[data-trigger="${v}"]`);pad.classList.add('active');setTimeout(()=>pad.classList.remove('active'),90);}
 for(const b of document.querySelectorAll('[data-trigger]'))b.onclick=()=>hit(Number(b.dataset.trigger));
@@ -53,30 +49,35 @@ $('stop').onclick=()=>command('play',0);
 $('panic').onclick=()=>command('panic');
 $('tempo').onchange=()=>command('tempo',Math.round(Number($('tempo').value)||110));
 $('master').oninput=()=>command('master',Number($('master').value));
-$('record').onclick=()=>command('record',-1);
-$('motion').onclick=()=>{dragging=null;$('lock-mode').checked=false;command('motion',-1);paint();};
+$('record').onclick=()=>{command('uiButton',9);command('record',-1);};
+$('motion').onclick=()=>{dragging=null;command('uiButton',9);command('motion',-1);paint();};
 $('rejoin').onclick=()=>command('rejoin');
 $('undo').onclick=()=>command('undo');
 $('clear-pattern').onclick=()=>command('clear');
 $('clear-lock').onclick=()=>{command('begin');command('clearlock',voice,selected);};
-$('lock-mode').onchange=()=>{dragging=null;if($('lock-mode').checked){chooseLockStep();command('rejoin');}paint();};
-$('lock-hit').onclick=()=>{command('begin');command('toggle',voice,selected);};
+$('lock-close').onclick=()=>command('uiButton',9);
 $('lock-play').onclick=()=>command('play',1);
-for(const b of document.querySelectorAll('[data-step]'))b.onclick=()=>{
- if(!state)return;const s=Number(b.dataset.step);
- if(voice===2||$('lock-mode').checked){selected=s;command('uiSelect',1,s);paint();}
- else{command('begin');command('toggle',voice,s);}
-};
+const stepKeys=[0,2,4,6,7,9,11,12,14,16,18,19,21,23,24,26];
+for(const b of document.querySelectorAll('[data-step]')){
+ let active=false,directAt=-Infinity;
+ const down=()=>{if(active||!state)return;active=true;directAt=performance.now();if(state.panel.page!==9)command('uiButton',9);command('uiKey',stepKeys[Number(b.dataset.step)],1,-1);};
+ const up=(cancel=false)=>{if(!active)return;active=false;command('uiKey',stepKeys[Number(b.dataset.step)],cancel?-1:0,-1);};
+ b.onpointerdown=e=>{e.preventDefault();b.setPointerCapture(e.pointerId);down();};
+ b.onpointerup=()=>up();b.onpointercancel=b.onlostpointercapture=()=>up(true);b.onblur=()=>up(true);
+ b.onkeydown=e=>{if((e.code==='Space'||e.code==='Enter')&&!e.repeat){e.preventDefault();e.stopPropagation();down();}};
+ b.onkeyup=e=>{if(e.code==='Space'||e.code==='Enter'){e.preventDefault();e.stopPropagation();up();}};
+ b.onclick=e=>{if(e.detail===0&&!active&&performance.now()-directAt>500){down();up();}};
+}
 for(const [p,id] of params.entries()){
  const el=$(id);
  const begin=()=>{const first=dragging!==id;dragging=id;return first;};
  el.oninput=()=>{
   const first=begin();const val=Number(el.value);$(`${id}-value`).textContent=Math.round(val*100);
-  if($('lock-mode').checked){if(first)command('begin');command('lock',voice,selected,p,val);}else command(first?'editparam':'param',voice,p,val);
+  if(lockEditing()){if(first)command('begin');command('lock',voice,selected,p,val);}else command(first?'editparam':'param',voice,p,val);
  };
  el.onchange=()=>{dragging=null;};el.addEventListener('blur',()=>dragging=null);
 }
-$('velocity').oninput=()=>{if(!state||state.armed||state.motion||state.recording)return;const first=dragging!=='velocity';dragging='velocity';command(first?'editvelocity':'velocity',voice,$('lock-mode').checked?selected:-1,Number($('velocity').value));};
+$('velocity').oninput=()=>{if(!state||state.armed||state.motion||state.recording)return;const first=dragging!=='velocity';dragging='velocity';command(first?'editvelocity':'velocity',voice,lockEditing()?selected:-1,Number($('velocity').value));};
 $('velocity').onchange=()=>dragging=null;
 $('velocity').addEventListener('blur',()=>dragging=null);
 const grooveText=(id,value)=>id==='swing'?`${(50+value*100/6).toFixed(1)}%`:`${Math.round(value*100)}%`;
@@ -88,10 +89,10 @@ for(const [p,id] of ['swing','human'].entries()){
 function paint(){
  for(const b of document.querySelectorAll('[data-voice]')){const on=Number(b.dataset.voice)===voice;b.classList.toggle('active',on);b.setAttribute('aria-pressed',String(on));}
  $('selected-voice').textContent=names[voice];
- const lock=$('lock-mode').checked;
+ const lock=lockEditing();
  $('lock-editor').hidden=!lock;
- $('root-editor').hidden=voice!==2;
- $('sequence-help').textContent=voice===2?'Choose a step, enable Note on, then set pitch, gate and slide. Unchecked steps are rests.':'Tap steps to plant hits. Turn a knob to shape the selected voice.';
+ $('root-editor').hidden=voice!==2||!lock;
+ $('sequence-help').textContent='Tap a step to turn it on or off. Hold a step to open its trig-lock menu.';
  if(!state){$('edit-status').textContent='Enable audio to begin. Your canvas is empty.';return;}
  for(const [p,id] of ['swing','human'].entries())if(dragging!==id){$(id).value=state.groove[p];$(`${id}-value`).textContent=grooveText(id,state.groove[p]);}
  const v=state.voices[voice],st=v.steps[selected];
@@ -101,14 +102,14 @@ function paint(){
  if(dragging!=='velocity'){$('velocity').value=lock?st.velocity:v.velocity;$('velocity-value').textContent=Math.round(Number($('velocity').value)*100);}
  if(voice===2){
   $('root-step-label').textContent=`ROOT · step ${selected+1} · ${st.on?'note':'rest'}`;
-  $('root-on').checked=st.on;$('root-note').value=st.note;$('root-slide').checked=st.slide;
+  $('root-note').value=st.note;$('root-slide').checked=st.slide;
   if(dragging!=='root-gate')$('root-gate').value=st.gate;
   $('root-gate-value').textContent=Math.round(st.gate*100)+'%';
  }
- for(const id of ['root-on','root-note','root-gate','root-slide'])$(id).disabled=state.motion;
+ for(const id of ['root-note','root-gate','root-slide'])$(id).disabled=state.motion;
  const locked=params.filter((_,p)=>st.mask&(1<<p)).map(id=>id.startsWith('env-')?environmentLabels[voice][Number(id.slice(-1))-4]:id[0].toUpperCase()+id.slice(1));
  $('lock-target').textContent=`${names[voice]} · step ${selected+1} · ${st.on?'hit on':'NO HIT — enable it to hear this step'}${locked.length?' · Locked: '+locked.join(', '):' · no locks yet'}`;
- $('lock-hit').textContent=st.on?'Disable hit':'Enable hit';$('lock-hit').setAttribute('aria-pressed',String(st.on));
+
  $('lock-play').disabled=!!state.playing;$('lock-play').textContent=state.playing?'Loop playing':'Play loop';
  for(const [p,id] of params.entries()){
   $(id).closest('label').classList.toggle('has-lock',lock&&!!(st.mask&(1<<p)));
@@ -124,7 +125,7 @@ function paint(){
  const touched=params.filter((_,p)=>state.motionMask[voice]&(1<<p)).map(id=>id.startsWith('env-')?environmentLabels[voice][Number(id.slice(-1))-4]:id);
  $('motion-help').textContent=state.motion?`${state.playing?'RECORDING':'ARMED'} · ${names[voice]} · ${!v.steps.some(s=>s.on)?'No hits in this voice yet. Finish motion and plant some steps first.':touched.length?'Capturing '+touched.join(', ')+' on existing hits.':'Move a sound slider to begin capturing.'} Finish motion or Stop to hear the recorded locks. Undo restores the whole take.`:
  'Motion overdub: arm Record motion, play your rhythm, then move a sound slider. Each existing hit captures that value as a step lock.';
- $('lock-mode').disabled=state.motion;$('clear-pattern').disabled=state.motion;
+ $('clear-pattern').disabled=state.motion;
  for(const id of ['swing','human'])$(id).disabled=state.motion;
  $('undo').disabled=!state.undo;$('clear-lock').disabled=!lock||!st.mask;
  if(document.activeElement!==$('tempo'))$('tempo').value=state.tempo;
@@ -140,9 +141,9 @@ function paint(){
  for(const [p,id] of params.entries())if(dragging!==id){
   const val=lock&&(st.mask&(1<<p))?st.lock[p]:lock?v.base[p]:state.motion||state.playing?v.effective[p]:v.base[p];$(id).value=val;$(`${id}-value`).textContent=Math.round(val*100);
  }
- $('edit-status').textContent=state.motion?`MOTION · ${names[voice]} · sound sliders overdub locks on existing hits; other parameters stay intact.`:lock?`LOCK EDIT · ${names[voice]} step ${selected+1} · ${st.on?(state.playing?'changes sound when this step plays':'press Play loop to hear your edits'):'no hit here — use Enable hit to hear it'}`:
+ $('edit-status').textContent=state.motion?`MOTION · ${names[voice]} · sound sliders overdub locks on existing hits; other parameters stay intact.`:lock?`LOCK EDIT · ${names[voice]} step ${selected+1} · ${st.on?(state.playing?'changes sound when this step plays':'press Play loop to hear your edits'):'rest — close the menu and tap the step to enable it'}`:
  v.takeover?'LIVE · your changed knobs override locks. Rejoin restores lock priority.':
- state.playing&&v.steps[state.step]?.mask?'LOCK · stored step values are sounding.':'BASE · knobs shape this voice. Enable Edit locks to shape a single step.';
+ state.playing&&v.steps[state.step]?.mask?'LOCK · stored step values are sounding.':'BASE · knobs shape this voice. Hold a step to shape its trig locks.';
 }
 const rootKeys={KeyQ:36,KeyW:38,KeyE:40,KeyR:41,KeyT:43,KeyY:45,KeyU:47,KeyI:48};
 const heldKeys=new Set();
@@ -153,7 +154,7 @@ for(const b of document.querySelectorAll('[data-note]')){
  b.onclick=e=>{if(e.detail===0){setVoice(2);command('key',Number(b.dataset.note),1);setTimeout(release,180);}};
 }
 const noteEdit=()=>command('note',selected,Number($('root-note').value),Number($('root-gate').value),$('root-slide').checked?1:0);
-$('root-on').onchange=()=>{command('begin');command('step',2,selected,$('root-on').checked?1:0);};
+
 for(const id of ['root-note','root-slide'])$(id).onchange=()=>{command('begin');noteEdit();};
 $('root-gate').oninput=()=>{if(dragging!=='root-gate'){command('begin');dragging='root-gate';}noteEdit();};
 $('root-gate').onchange=()=>dragging=null;

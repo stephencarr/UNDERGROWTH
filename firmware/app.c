@@ -79,6 +79,6 @@ void app_frame(void){
 }
 #ifdef PLAT_HOST
 int app_expect(const char *what,int *got){
- if(!strcmp(what,"meter_updates"))*got=(int)ug_meter_updates;else if(!strcmp(what,"meter_peak"))*got=(int)ug_cpu_peak;else if(!strcmp(what,"page"))*got=ug_ui_state(0);else if(!strcmp(what,"voice"))*got=ug_ui_state(2);else if(!strcmp(what,"sub"))*got=ug_ui_state(1);else if(!strcmp(what,"step"))*got=ug_ui_state(3);else if(!strcmp(what,"playing"))*got=ug_state(0);else if(!strcmp(what,"armed"))*got=ug_state(18);else if(!strcmp(what,"hit"))*got=ug_step(ug_ui_state(2),ug_ui_state(3));else if(!strcmp(what,"velocity"))*got=(int)(ug_getvelocity(ug_ui_state(2),ug_ui_state(3))*100+.5f);else if(!strcmp(what,"dropped"))*got=(int)ug_dropped;else return 0;return 1;
+ if(!strcmp(what,"locks"))*got=ug_ui_state(7);else if(!strcmp(what,"meter_updates"))*got=(int)ug_meter_updates;else if(!strcmp(what,"meter_peak"))*got=(int)ug_cpu_peak;else if(!strcmp(what,"page"))*got=ug_ui_state(0);else if(!strcmp(what,"voice"))*got=ug_ui_state(2);else if(!strcmp(what,"sub"))*got=ug_ui_state(1);else if(!strcmp(what,"step"))*got=ug_ui_state(3);else if(!strcmp(what,"playing"))*got=ug_state(0);else if(!strcmp(what,"armed"))*got=ug_state(18);else if(!strcmp(what,"hit"))*got=ug_step(ug_ui_state(2),ug_ui_state(3));else if(!strcmp(what,"velocity"))*got=(int)(ug_getvelocity(ug_ui_state(2),ug_ui_state(3))*100+.5f);else if(!strcmp(what,"dropped"))*got=(int)ug_dropped;else return 0;return 1;
 }
 #endif

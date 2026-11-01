@@ -33,7 +33,7 @@ class UndergrowthProcessor extends AudioWorkletProcessor {
   snapshot() {
     const e=this.e;e.ug_ui_refresh();
     const readText=ptr=>{const bytes=new Uint8Array(e.memory.buffer,ptr,64);let s='';for(let i=0;i<64&&bytes[i];i++)s+=String.fromCharCode(bytes[i]);return s;};
-    const panel={meter:readText(e.ug_ui_meter(-1,0,0,0)),page:e.ug_ui_state(0),sub:e.ug_ui_state(1),voice:e.ug_ui_state(2),selected:e.ug_ui_state(3),octave:e.ug_ui_state(4),lights:e.ug_ui_state(6),lines:Array.from({length:9},(_,i)=>readText(e.ug_ui_line(i)))};
+    const panel={locks:!!e.ug_ui_state(7),meter:readText(e.ug_ui_meter(-1,0,0,0)),page:e.ug_ui_state(0),sub:e.ug_ui_state(1),voice:e.ug_ui_state(2),selected:e.ug_ui_state(3),octave:e.ug_ui_state(4),lights:e.ug_ui_state(6),lines:Array.from({length:9},(_,i)=>readText(e.ug_ui_line(i)))};
     this.port.postMessage({type:'state', panel, playing:e.ug_state(0), step:e.ug_state(1), recording:e.ug_state(2),
       rate:e.ug_state(3), tempo:e.ug_state(4), undo:!!e.ug_state(5),
       recordMode:e.ug_state(17),armed:!!e.ug_state(18),recordTrack:e.ug_state(19),draftNote:[0,1,2].map(p=>e.ug_draftvalue(p)),
