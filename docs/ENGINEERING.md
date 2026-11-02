@@ -97,7 +97,8 @@ The published product URL is https://stephencarr.github.io/UNDERGROWTH/. A commi
 ## Railway browser previews
 
 Railway's UNDERGROWTH project uses `preview-base` as the base environment,
-tracking `main`, with automatic PR environments enabled. GitHub Pages remains
+tracking `codex/railway-previews`, with automatic PR environments enabled.
+The hosting setup remains on that branch until its merge is separately authorized. GitHub Pages remains
 the accepted instrument. Railway only packages the checked-in browser bundle;
 the normal milestone gate must build matching WASM/firmware before a functional
 change is accepted. Hosting configuration does not replace musical validation.
