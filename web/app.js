@@ -89,6 +89,7 @@ for(const [p,id] of ['swing','human'].entries()){
 function paint(){
  for(const b of document.querySelectorAll('[data-voice]')){const on=Number(b.dataset.voice)===voice;b.classList.toggle('active',on);b.setAttribute('aria-pressed',String(on));}
  $('selected-voice').textContent=names[voice];
+ $('backbeat-help').hidden=voice!==3;
  const lock=lockEditing();
  $('lock-editor').hidden=!lock;
  $('root-editor').hidden=voice!==2||!lock;

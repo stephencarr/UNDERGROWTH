@@ -37,7 +37,9 @@ static int rate, tempo, playing, recording, step_index, delaypos, first;
 static uint32_t tickphase, noise_state, trigger_count[NVOICE], sample_clock, last_trigger[NVOICE];
 static int pending_chatter;
 static float pending_velocity;
-static float root_freq, root_target,backbeat_mode,backbeat_noise;
+static float root_freq, root_target;
+/* One bounded collision cloud per Backbeat hit; no independent musical events. */
+static struct {float mode, metal, low, band, held, clock, grain, smooth[6];} backbeat;
 static int root_gate, root_live=-1;
 static float note_frequency(int note){
  static const float hz[12]={32.703196f,34.647829f,36.708096f,38.890873f,41.203445f,43.653529f,46.249303f,48.999429f,51.913087f,55.0f,58.270470f,61.735413f};
@@ -68,7 +70,7 @@ void ug_init(int sample_rate) {
  zero(delaybuf,sizeof delaybuf);zero(output,sizeof output);zero(takeover,sizeof takeover);
  zero(manual,sizeof manual);zero(trigger_count,sizeof trigger_count);zero(record_skip,sizeof record_skip);
  sample_clock=0;zero(last_trigger,sizeof last_trigger);
- backbeat_mode=backbeat_noise=0;root_freq=root_target=65.406392f;root_gate=0;root_live=-1;
+ zero(&backbeat,sizeof backbeat);root_freq=root_target=65.406392f;root_gate=0;root_live=-1;
  for(int s=0;s<NSTEPS;s++){score.steps[2][s].note=36;score.steps[2][s].gate=.75f;}
  for(int v=0;v<NVOICE;v++){score.velocity[v]=1;for(int st=0;st<NSTEPS;st++)score.steps[v][st].velocity=1;score.base[v][4]=.5f;score.base[v][5]=.5f;score.base[v][6]=.5f;}
  score.draft_note.note=36;score.draft_note.gate=.75f;
@@ -207,9 +209,11 @@ static void trigger(int v,float velocity,int sequenced){
  q->burst_left=v==1?(int)clamp(1+q->params[5]*11+pressure,1,13):0;
  q->burst_wait=(int)(rate*(.003f+q->params[4]*q->params[4]*.14f)*q->dna_decay);
  if(v==3){
-  backbeat_mode=0;backbeat_noise=0;q->noise_lp=0;
-  q->burst_left=q->params[1]>.4f&&q->params[5]>.2f?1+(int)(q->params[5]*3):0;
-  q->burst_wait=(int)(rate*(.006f+q->params[5]*q->params[5]*.045f));
+  zero(&backbeat,sizeof backbeat);q->noise_lp=0;backbeat.grain=1;
+  for(int p=0;p<6;p++)backbeat.smooth[p]=q->params[p<3?p:p+1];
+  float shaker=clamp(1-q->params[0]*2,0,1),clap=clamp(q->params[0]*2-1,0,1),spread=q->params[5];
+  q->burst_left=(int)(shaker*(3+spread*18)+(1-shaker)*spread*(4+clap*3));
+  q->burst_wait=(int)(rate*((.0015f+spread*spread*.014f)*shaker+(.005f+spread*spread*.045f)*(1-shaker)));
  }
  trigger_count[v]++;
 }
@@ -247,7 +251,7 @@ void ug_clear(void){
  int changed=0;for(int v=0;v<NVOICE;v++)for(int s=0;s<NSTEPS;s++)if(score.steps[v][s].authored||score.steps[v][s].on||score.steps[v][s].mask)changed=1;
  if(changed){ug_begin_edit();zero(score.steps,sizeof score.steps);for(int v=0;v<NVOICE;v++)for(int st=0;st<NSTEPS;st++)score.steps[v][st].velocity=1;for(int s=0;s<NSTEPS;s++){score.steps[2][s].note=36;score.steps[2][s].gate=.75f;}}ug_panic();
 }
-void ug_panic(void){ug_play(0);backbeat_mode=backbeat_noise=0;zero(voices,sizeof voices);zero(delaybuf,sizeof delaybuf);delay_lp=0;zero(output,sizeof output);}
+void ug_panic(void){ug_play(0);zero(&backbeat,sizeof backbeat);zero(voices,sizeof voices);zero(delaybuf,sizeof delaybuf);delay_lp=0;zero(output,sizeof output);}
 static void advance(void){
  step_index=(step_index+1)%NSTEPS;
  for(int v=0;v<NVOICE;v++){
@@ -297,17 +301,42 @@ void ug_render(int frames){
     if(root_gate==0)q->env*=1.0f-1.0f/(rate*(.008f+length*.30f));
     sample=tone*q->env*.42f*(.65f+e5*.45f);
    }else if(v==3){
-    /* Two inharmonic skin modes and filtered wire noise; Spread opens a short clap cluster. */
-    if(q->burst_left>0&&--q->burst_wait<=0){q->sweep=.8f;q->burst_left--;q->burst_wait=(int)(rate*(.006f+e5*e5*.045f));}
-    float hz=340.0f-body*180.0f;
+    /* Continuous shaker -> snare -> clap blend. Smooth timbre changes inside a hit,
+     * but keep the score/draft and authored lock values exact. */
+    float target[6]={body,edge,length,e4,e5,e6};
+    for(int p=0;p<6;p++)backbeat.smooth[p]+=(target[p]-backbeat.smooth[p])*(1.0f/(rate*.002f));
+    body=backbeat.smooth[0];edge=backbeat.smooth[1];length=backbeat.smooth[2];e4=backbeat.smooth[3];e5=backbeat.smooth[4];e6=backbeat.smooth[5];
+    float shaker=clamp(1-body*2,0,1),clap=clamp(body*2-1,0,1),snare=1-shaker-clap;
+    if(q->burst_left>0&&--q->burst_wait<=0){
+     backbeat.grain=.65f+noise()*.3f;q->sweep=.8f+backbeat.grain*.15f;q->burst_left--;
+     float spacing=(.0015f+e5*e5*.014f)*shaker+(.005f+e5*e5*.045f)*(1-shaker);
+     q->burst_wait=(int)(rate*spacing*(.75f+backbeat.grain*.4f));
+    }
+    float hz=150.0f+body*190.0f+q->sweep*q->sweep*(25+edge*120);
     q->phase+=hz/rate;if(q->phase>=1)q->phase-=1;
-    backbeat_mode+=hz*2.47f/rate;if(backbeat_mode>=1)backbeat_mode-=1;
-    float n=noise();backbeat_noise+=(n-backbeat_noise)*(.03f+edge*.18f);
-    q->noise_lp+=((n-backbeat_noise)-q->noise_lp)*(.05f+(1-e4)*(.15f+edge*.45f));
-    float skin=sine(q->phase)*(.6f+body*.3f)+sine(backbeat_mode)*(.4f-body*.2f);
-    sample=(skin*q->env*(.9f-edge*.6f)+q->noise_lp*q->sweep*(.04f+edge*1.5f))*.48f;
-    q->env*=1.0f-1.0f/(rate*(.025f+length*.45f)*(1.5f-e4*1.25f)*q->dna_decay);
-    q->sweep*=1.0f-1.0f/(rate*(.008f+length*.22f)*(1.3f-e4*.9f)*q->dna_decay);
+    backbeat.mode+=hz*(2.19f+edge*.73f)/rate;if(backbeat.mode>=1)backbeat.mode-=1;
+    backbeat.metal+=clamp((2200+edge*5100+backbeat.grain*800)/rate,0,.42f);if(backbeat.metal>=1)backbeat.metal-=1;
+    float n=noise(),crush=clamp((edge-.6f)*2.5f,0,1);
+    backbeat.clock+=clamp((18000-crush*15500)/rate,0,1);
+    if(backbeat.clock>=1){backbeat.clock-=1;backbeat.held=n;}
+    n+=(backbeat.held-n)*crush;
+    /* Difference of two stable low-passes: airy high-pass grains through
+     * papery band-limited clap. Damping darkens without killing the grain cloud. */
+    float lower=900+clap*1000+edge*1400;
+    backbeat.low+=(n-backbeat.low)*clamp(lower/rate,0,.8f);
+    backbeat.band+=(n-backbeat.band)*clamp((lower+600+(1-e4)*(4500+edge*12000))/rate,0,.9f);
+    float wire=(backbeat.band-backbeat.low)*(2.4f+shaker*.9f);
+    float skin=sine(q->phase)*.72f+sine(backbeat.mode)*.28f;
+    float metal=sine(backbeat.metal)*sine(backbeat.mode);
+    float cloud=wire+metal*crush*(.15f+shaker*.4f);
+    /* At the edge, short thresholded impacts break up the noise into crackle. */
+    float crack=clamp((wire*wire-.12f)*6,0,1);
+    cloud*=1-crush*.7f+crush*crack*1.3f;
+    float driven=cloud*(1+crush*5);cloud=driven/(1+(driven<0?-driven:driven));
+    sample=(skin*q->env*snare*(.7f-edge*.35f)+cloud*(q->sweep*(.85f+shaker*.4f+clap*.5f)+q->env*(snare*.35f+clap*.16f)))*.65f;
+    q->env*=1.0f-1.0f/(rate*(.02f+length*.45f)*(1.6f-e4*1.3f)*q->dna_decay);
+    float grain_decay=(.0006f+length*.004f)*shaker+(.009f+length*.17f)*snare+(.003f+length*.045f)*clap;
+    q->sweep*=1.0f-1.0f/(rate*grain_decay*(1.4f-e4*1.1f)*q->dna_decay);
    }else{
     if(q->burst_left>0&&--q->burst_wait<=0){q->env=0.85f;q->age=0;q->burst_left--;q->burst_wait=(int)(rate*(.003f+e4*e4*.14f)*q->dna_decay*(.92f+(q->burst_left%3)*.08f));}
     float n=noise();q->noise_lp+=(n-q->noise_lp)*(.025f+e6*.70f);

@@ -8,7 +8,7 @@ A browser-first rhythm study: three original synthesized percussion voices—Kic
 
 Every milestone must now produce a validated FM1 firmware package as well as this browser prototype. The panel controller and screen text have moved into shared C, and `firmware/` provides the physical-panel/audio adapter. Bluetooth and Wi-Fi are disabled. See [hardware build, Caravel 0.6.0 migration and recovery](docs/HARDWARE.md).
 
-The full milestone gate passed with the pinned Jieli compiler on Linux x86-64. It produced an **experimental** `undergrowth-0.2.0-hw1.fwsc` in `build/releases/0.2.0-hw1/`, with a build report, manifest, checksums, installer and licence notices. The package has not been flashed or tested on an FM1. The browser instrument and experimental flasher are published together on GitHub Pages.
+The full milestone gate passed with the pinned Jieli compiler on Linux x86-64. It produced an **experimental** `undergrowth-0.2.1-hw1.fwsc` in `build/releases/0.2.1-hw1/`, with a build report, manifest, checksums, installer and licence notices. The package has not been flashed or tested on an FM1. The browser instrument and experimental flasher are published together on GitHub Pages.
 
 The browser links to `flash.html`, a Chrome/Edge desktop installer view. It verifies the included `.fwsc` against its fixed SHA-256 and package CRCs before enabling device identification. USB MIDI SysEx permission, FM1 identity and an explicit backup acknowledgement are required before installation. The pinned fm1-base Web MIDI updater handles the transfer and interrupted-update resume, with each changed MIDI pair explicitly re-identified and confirmed by the owner; the view does not offer a bootloader replacement. The browser flow has simulated-port tests, but direct Caravel 0.6.0 installation and recovery have not been tested on hardware. Open https://stephencarr.github.io/UNDERGROWTH/flash.html in desktop Chrome or Edge; no local server is needed.
 
@@ -131,15 +131,17 @@ The [roadmap and accepted design decision](docs/ROADMAP.md) define **strong inte
 
 All tracks have draft and per-trig velocity (0–100%). Stamping captures it; live recording preserves supplied velocity; ordinary taps use the draft. Human scales playback velocity without rewriting it. Velocity, pitch, gate and slide are event attributes, edited separately from continuous ENV motion. In Expanded view, hold a grid step to open the same trig-lock editor. Its sliders edit the selected trig; closing it returns the sliders to the draft. New ENV sliders share the same lock/motion editor.
 
-The screen controller remains browser-only. Session saving, expanded global effects, punch-in effects and hardware validation remain on the roadmap; no firmware has been flashed.
+The screen controller is shared C. Session saving, expanded global effects, punch-in effects and hardware validation remain on the roadmap; no firmware has been flashed.
 
 ## Backbeat organism
 
 Select Backbeat with ALGORITHM, press **4**, or choose its card in Expanded view. **D** or **Tap backbeat** plays it live. Its own sixteen-step lane, trig locks, velocity and scoped Hits/Motion/Both recording use the same controls as the other organisms.
 
-- **Body:** higher values deepen the two skin resonances and emphasise their fundamental; lower values give a higher, woodier knock.
-- **Edge:** increases bright wire/noise content, moving toward snare/clap textures.
-- **Length:** extends body and wire decay. **Send** feeds the existing dark delay.
-- **ENV:** Length, Damping (shorter/darker), Spread (a wider cluster of clap components at noisier Edge settings), and Response (attack firmness). Spread articulates the sound of one hit; it does not add sequencer trigs.
+- **Body:** continuously blends airy shaker grains at 0%, skin/wire snares around 50%, and papery handclaps at 100%. The spaces between mix those layers.
+- **Edge:** opens brightness, then pushes into sample-held grit, thresholded crackle and metallic fragments above about 60%. It changes texture as well as level.
+- **Length:** extends skin, grain and diffuse noise tails. **Send** feeds the existing dark delay.
+- **ENV:** Length, Damping (shorter/darker), Spread (collision density and spacing, from tight grains to rattles and handclap flams), and Response (attack firmness). These are bounded components of one hit, never extra sequencer trigs.
+
+Starting points, with Send at zero and Response high: shaker Body 0 / Edge 45 / Length 35 / Spread 35; snare 50 / 48 / 30 / 10; clap 100 / 55 / 20 / 60. Raise Edge and Spread, sweep Body between those anchors, then lock contrasting textures on adjacent steps. Damping around 25–35 keeps these examples open. Timbre controls smooth over 2 ms inside a sounding hit; authored lock values remain exact.
 
 This is original synthesis, with no samples. Velocity controls strength and adds small bounded colour; tempo adds the same subtle bounded decay response. Human continues to affect only Chatter. Chord stabs and a flexible melodic/atonal/drone/grainy FM organism are planned after Backbeat; see the roadmap.
