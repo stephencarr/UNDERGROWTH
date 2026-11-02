@@ -18,5 +18,7 @@ html=html.replace('href="../flash.html"','href="flash.html"').replace('href="../
 html=html.replace('<script type="module" src="device.js"></script>','')
 html=html.replace('<script type="module" src="app.js"></script>','<script type="module">'+js+'</script>')
 assert 'src="app.js"' not in html
+notice=(root/'LICENSES/Mutable-Instruments-MIT.txt').read_text()
+html=html.replace('<!doctype html>','<!doctype html>\n<!-- Mutable Instruments Clouds reverb notice\n'+notice+'-->')
 (root/'index.html').write_text(html)
 print('Bundled',root/'index.html')

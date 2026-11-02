@@ -149,3 +149,13 @@ and memory checks. Image: 118668 bytes; data+bss: 40604/98304; pool: 236108/3440
 Identity: FM-1_731000402. PR #10 review completed with no findings; its subsequent
 test-only change tolerates encoder floating-point rounding. No physical device
 access, flashing or FM1 CPU validation was performed.
+
+## Clouds-derived reverb — 0.4.3-hw1 (draft)
+
+The shared C Clouds tank uses 49,200 float pool samples, with no render-time
+allocation. Cross-build: image 119884 bytes; data+bss 40572/98304 bytes; pool
+312908/344064 bytes (31,156 bytes spare). Identity FM-1_731000403. Package CRC,
+loader and instruction checks passed. Final full-gate evidence follows below.
+The larger float arena supports 8–96 kHz with no resampler. Device CPU/P/X
+comparison with grains enabled and reverb off/on remains required; host cost
+is not FM1 headroom. No device access or physical flashing was performed.

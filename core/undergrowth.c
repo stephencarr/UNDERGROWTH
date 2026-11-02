@@ -1,4 +1,4 @@
-/* Original UNDERGROWTH musical core, 2026. No donor DSP copied.
+/* UNDERGROWTH musical core, 2026. Clouds-derived reverb: see room.h and LICENSING.md.
  * One source for native tests, WebAssembly, and fm1-base app adapter.
  * No allocation, system calls, IO, wall-clock scheduling or random composition.
  */
@@ -29,11 +29,10 @@ static Voice voices[NVOICE];
 #endif
 static float delaybuf[DELAY] UG_POOL;
 static float delay_lp, output[MAX_BLOCK*2];
-/* Original Schroeder-style stereo room: four damped combs and two diffusers
- * per side. Fixed storage covers 8–96 kHz; no render-time allocation or IO. */
-#define ROOM_SAMPLES 30000
+/* Rate-scaled Clouds tank. Float storage avoids quantized-tail limit cycles. */
+#define ROOM_SAMPLES 49200
 static float room_buffer[ROOM_SAMPLES] UG_POOL;
-static struct { int offset[12], length[12], position[12]; float low[8], now[5], smoothing; int active; } room;
+static struct { int offset[10], length[10], position[10]; float low[2], phase[2], now[5], smoothing; int active; } room;
 static void room_clear(void);
 
 static float master_target, master_now;
@@ -103,9 +102,9 @@ void ug_init(int sample_rate) {
  rec_mode=1;take_active=0;rec_track=-1;
  motion=motion_saved=0;zero(motion_mask,sizeof motion_mask);
  rate=sample_rate>=8000&&sample_rate<=96000?sample_rate:44100;
- const int times[12]={1499,1601,1747,1867,1522,1624,1770,1890,149,421,166,438};
+ const int times[10]={113,162,241,399,1653,2038,3411,1913,1663,4782};
  room.smoothing=1.0f/(rate*.005f);
- int room_offset=0;for(int i=0;i<12;i++){room.offset[i]=room_offset;room.length[i]=((times[i]*rate+24000)/48000)|1;room_offset+=room.length[i];}
+ int room_offset=0;for(int i=0;i<10;i++){room.offset[i]=room_offset;room.length[i]=((times[i]*rate+16000)/32000)+2;room_offset+=room.length[i];}
  score.fx[0]=0;score.fx[1]=.55f;score.fx[2]=.45f;score.fx[3]=.8f;score.fx[4]=.75f;
  for(int p=0;p<5;p++)room.now[p]=score.fx[p];
  tempo=110;playing=recording=first=0;step_index=-1;tickphase=0;delaypos=0;delay_lp=0;
@@ -164,7 +163,7 @@ void ug_velocity(int v,int step,float value){
 float ug_getvelocity(int v,int step){return !valid_voice(v)||step < -1||step>=NSTEPS?0:step<0?score.velocity[v]:score.steps[v][step].velocity;}
 void ug_stamp(int v,int step){
  if(!valid_voice(v)||!valid_step(step)||recording||motion)return;
- ug_begin_edit();Step *st=&score.steps[v][step];st->authored=1;st->on=1;st->velocity=score.velocity[v];st->mask=(1u<<(v==2?11:7))-1; /* ROOT captures synth only; ENV is an independent drone. */
+ ug_begin_edit();Step *st=&score.steps[v][step];st->authored=1;st->on=1;st->velocity=score.velocity[v];st->mask=v==2?2039u:127u; /* ROOT sound/character only: sends and ENV need deliberate locks. */
  for(int p=0;p<NPARAM;p++)st->lock[p]=score.base[v][p];
  if(v==2){st->note=score.draft_note.note;st->gate=score.draft_note.gate;st->slide=score.draft_note.slide;}
  record_skip[v]&=~(1u<<step);takeover[v]=0;
@@ -349,33 +348,7 @@ float ug_grain(int field){
  if(field>=2&&field<2+GRAINS)return grains[field-2].active?grains[field-2].pos/TEXTURE:-1;
  return 0;
 }
-static void room_clear(void){zero(room_buffer,sizeof room_buffer);zero(room.low,sizeof room.low);zero(room.position,sizeof room.position);room.active=0;}
-static void room_render(float input,float *left,float *right){
- for(int p=0;p<5;p++)room.now[p]+=(score.fx[p]-room.now[p])*room.smoothing;
- *left=*right=0;
- if(score.fx[0]==0&&room.now[0]<.00001f){if(room.active)room_clear();room.now[0]=0;return;}
- room.active=1;
- float feedback=.55f+room.now[1]*.40f,damping=.8f-room.now[2]*.75f;
- float side[2]={0,0};
- for(int c=0;c<8;c++){
-  int at=room.offset[c]+room.position[c];float delayed=room_buffer[at];
-  room.low[c]+=(delayed-room.low[c])*damping;
-  if(room.low[c]<1e-9f&&room.low[c]>-1e-9f)room.low[c]=0;
-  float value=clamp(input,-2,2)*.16f+room.low[c]*feedback;
-  room_buffer[at]=clamp(value,-4,4);
-  if(++room.position[c]>=room.length[c])room.position[c]=0;
-  side[c/4]+=delayed*.25f;
- }
- for(int a=8;a<12;a++){
-  int c=(a-8)/2,at=room.offset[a]+room.position[a];float delayed=room_buffer[at];
-  float value=side[c]+delayed*.5f;side[c]=delayed-value*.5f;
-  room_buffer[at]=value;
-  if(++room.position[a]>=room.length[a])room.position[a]=0;
- }
- float middle=(side[0]+side[1])*.5f,spread=(side[0]-side[1])*.5f*room.now[3];
- /* Full aux return should be a prominent room, not a barely audible tail. */
- *left=(middle+spread)*room.now[0]*8;*right=(middle-spread)*room.now[0]*8;
-}
+#include "room.h"
 void ug_render(int frames){
  if(frames<0)frames=0;
  if(frames>MAX_BLOCK)frames=MAX_BLOCK;

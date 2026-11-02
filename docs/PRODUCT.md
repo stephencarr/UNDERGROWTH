@@ -32,10 +32,10 @@ The default browser view follows the FM1 panel; Expanded view shares the same ru
 | --- | --- |
 | Musical engine | Four 16-step lanes, sound/ENV locks, velocity, ROOT articulation, groove, recording, takeover/Rejoin and Undo. |
 | Browser | Shared C/WASM engine and panel controller, JavaScript IO/drawing, FM1 and Expanded views. |
-| Firmware | Shared C plus FM1 adapter; experimental `0.4.2-hw1` package and validation record are checked in. |
+| Firmware | Shared C plus FM1 adapter; experimental `0.4.3-hw1` package and validation record are checked in. |
 | Device evidence | Cross-build/package and host checks are recorded as passed. No physical flash, playing, CPU-headroom or recovery validation is established. |
 | Persistence | Session-only. Reload/close loses the score. SAVE is unavailable. |
-| Effects | Fixed shared delay with track sends. Track filters, reverb, adjustable global effects and a silent FX automation lane are planned. |
+| Effects | Fixed shared delay with track sends. Shared reverb and delay return are implemented. Track filters, further delay controls and a silent FX lane are planned. |
 | Other reserved controls | LFO, ARP and PRESETS do not establish implemented modulation, arp or preset workflows. |
 
 For shared effects automation, the planned owner is a dedicated silent FX lane, independent of instrument hits. Do not create conflicting global locks on multiple instrument tracks. Future punch-in effects must preserve SEQ's keyboard contract. Keep roadmap proposals labelled as proposals until implemented and validated.
@@ -80,3 +80,18 @@ Ordinary ROOT steps capture only synth Sound/Character settings. They no longer
 capture the atmosphere's pitch, grain controls, level or send. ENV needs Enabled
 ON, a nonzero Level and PLAY; an empty sequence works. Changing ENV while stopped
 then playing a bass sequence preserves the chosen drone settings and FX send.
+
+### Clouds-derived wash and send ownership (0.4.3-hw1, draft)
+
+The room now uses a Clouds-derived modulated diffuse tank. Decay has useful
+ambience below maximum and a long wash at the top. Full send plus full Reverb
+removes the direct layer; zero-send tracks retain their dry sound. Delay return
+can be set to zero to audition the reverb alone. Listening acceptance remains
+with Stephen; numeric tail/energy checks do not establish it.
+
+Ordinary ROOT note entry also excludes Synth send. Raising it while stopped
+then playing no longer restores an implicit zero. Deliberate send locks and
+motion are retained; Rejoin restores those locks. FX shows the effective send
+while playing and the draft while stopped. Sound/Character locks remain per trig.
+ENV continues independently with Enabled ON, nonzero Level and PLAY, including
+on an empty sequence. Stop fades ENV and lets the shared tank decay.

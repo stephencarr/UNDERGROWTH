@@ -175,3 +175,19 @@ These are noncritical workflow/feedback issues, not fixed by this release.
 ROOT atmosphere independence (0.4.2-hw1): ordinary ROOT stamping captures slots
 0–10 only. Slots 11–18 are not implicitly locked by note entry. The continuous
 drone runs with no steps and retains its level/send when a bass sequence plays.
+
+## Clouds wash and explicit sends — 0.4.3-hw1 (draft)
+
+ROOT ordinary notes capture synth Sound/Character and articulation, excluding
+Synth send (3) and every atmosphere parameter. A deliberate Sends-page trig
+edit or motion take still creates a send lock; reactivating a note retains it.
+In FX playback, LIVE / FX SENDS shows what is heard and an encoder starts there.
+When stopped it shows/edits draft sends. Explicit locks resume on Rejoin and
+Stop/Play; ordinary snapshots no longer hide a zero send behind a 100% draft.
+Expanded Synth/ENV sends follow effective playback values too.
+
+The original Schroeder room above is superseded by a Clouds-derived modulated
+tank, with four input diffusers and cross-coupled branches. Full send/Reverb
+removes direct audio; Decay reaches ambience at mid travel and a longer wash at
+maximum. Global ownership, Undo/REC guard, parallel delay, mute/Stop tails and
+Panic remain. See REVERB_EVALUATION.md; human listening remains outstanding.

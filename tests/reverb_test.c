@@ -4,6 +4,7 @@
 #include <math.h>
 #include <stdio.h>
 #include <time.h>
+#include <string.h>
 static double stereo;
 static double render(int frames){double energy=0;while(frames>0){int n=frames>256?256:frames;ug_render(n);for(int i=0;i<n;i++){float a=ug_buffer()[2*i],b=ug_buffer()[2*i+1];assert(isfinite(a)&&isfinite(b)&&fabsf(a)<=.95001f&&fabsf(b)<=.95001f);energy+=a*a+b*b;stereo+=fabsf(a-b);}frames-=n;}return energy;}
 static double tail(int rate,float wet,float send,float decay,float width){ug_init(rate);ug_setfx(0,wet);ug_setfx(1,decay);ug_setfx(3,width);ug_setfx(4,0);ug_setparam(0,2,0);ug_setparam(0,4,1);ug_setparam(0,3,send);ug_hit(0,1);render(rate/2);return render(rate);}
@@ -29,18 +30,34 @@ static void env_with_authored_notes(void){
  ug_play(0);ug_play(1);render(256);ug_rejoin();assert(ug_effective(2,16)==1&&ug_effective(2,15)==1);
  ug_panic();assert(render(256)==0);
 }
+static void synth_send_ownership(void){
+ ug_init(44100);ug_ui_init();ug_ui_select(0,2);ug_ui_button(9);
+ ug_ui_key(0,1,1);ug_ui_key(0,0,1);assert(!(ug_lockmask(2,0)&8));
+ ug_ui_button(0);ug_ui_turn(3,100);ug_play(1);render(1);
+ assert(ug_effective(2,3)==1);ug_rejoin();assert(ug_effective(2,3)==1);
+ ug_play(0);ug_play(1);render(1);assert(ug_effective(2,3)==1);
+ /* An intentional send lock still wins and the FX screen reports it. */
+ ug_play(0);ug_setlock(2,0,3,.2f);ug_play(1);render(1);ug_ui_refresh();
+ assert(ug_effective(2,3)==.2f);
+ assert(strstr(ug_ui_line(2),"20%"));
+ ug_ui_tick(301);ug_ui_turn(3,10);assert(fabsf(ug_effective(2,3)-.3f)<.0001f);ug_rejoin();assert(ug_effective(2,3)==.2f);
+ ug_play(0);ug_recmode(2);ug_arm(1,2);ug_setparam(2,3,.7f);ug_play(1);render(1);ug_arm(0,2);
+ assert(ug_lockvalue(2,0,3)==.7f);ug_undo();assert(ug_lockvalue(2,0,3)==.2f);
+ ug_play(0);ug_setlock(2,1,3,.8f);assert(!ug_step(2,1));ug_audition(2,1);
+ assert(ug_effective(2,3)==.8f);ug_rejoin();assert(ug_effective(2,3)==ug_getparam(2,3));
+}
 int main(void){
- env_with_authored_notes();
+ synth_send_ownership();env_with_authored_notes();
  wet_presence(0);wet_presence(1);
- /* A settled full send + full Reverb removes the direct attack before the
-  * first room reflection. A zero-send track must retain its direct attack. */
- ug_init(44100);ug_setfx(0,1);ug_setfx(4,0);ug_setparam(0,3,1);render(4410);ug_hit(0,1);assert(render(882)<1e-6);
- ug_panic();ug_setparam(0,3,0);render(4410);ug_hit(0,1);assert(render(882)>.01);
+ /* A fully wet diffuse attack is much softer than the direct attack.
+  * Clouds allpasses have an immediate feedthrough; silence is not expected. */
+ ug_init(44100);ug_setfx(0,1);ug_setfx(4,0);ug_setparam(0,3,1);render(4410);ug_hit(0,1);double wet_attack=render(882);
+ ug_panic();ug_setparam(0,3,0);render(4410);ug_hit(0,1);double dry_attack=render(882);assert(dry_attack>.01&&wet_attack<dry_attack*.1);
  const int rates[4]={8000,44100,48000,96000};for(int r=0;r<4;r++){int rate=rates[r];
   ug_init(rate);ug_setfx(0,1);assert(render(rate)==0);ug_play(1);assert(render(rate)==0);
   double dry=tail(rate,0,1,1,1),no_send=tail(rate,1,0,1,1);assert(dry<1e-8&&no_send<1e-8);
   double short_tail=tail(rate,1,1,0,1);stereo=0;double long_tail=tail(rate,1,1,1,1);assert(long_tail>short_tail*2&&long_tail>1e-5&&stereo>1e-5);
-  render(rate*20);assert(render(rate)<1e-7);ug_panic();assert(render(256)==0);
+  render(rate*90);assert(render(rate)<1e-7);ug_panic();assert(render(256)==0);
   tail(rate,1,1,1,0);stereo=0;render(rate/2);assert(stereo<1e-6);
   ug_init(rate);ug_setfx(0,1);ug_setfx(1,1);ug_setfx(4,0);ug_setparam(2,17,1);ug_setparam(2,16,1);ug_play(1);render(rate);ug_play(0);render(rate/2);assert(render(rate)>1e-6);ug_panic();assert(render(256)==0);
   ug_init(rate);ug_setfx(0,1);ug_setfx(1,1);ug_setfx(2,1);for(int v=0;v<4;v++)for(int p=0;p<7;p++)ug_setparam(v,p,1);

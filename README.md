@@ -8,7 +8,7 @@ A browser-first rhythm study: three original synthesized percussion voices—Kic
 
 Every milestone must now produce a validated FM1 firmware package as well as this browser prototype. The panel controller and screen text have moved into shared C, and `firmware/` provides the physical-panel/audio adapter. Bluetooth and Wi-Fi are disabled. See [hardware build, Caravel 0.6.0 migration and recovery](docs/HARDWARE.md).
 
-The full milestone gate passed with the pinned Jieli compiler on Linux x86-64. It produced an **experimental** `undergrowth-0.4.2-hw1.fwsc` in `build/releases/0.4.2-hw1/`, with a build report, manifest, checksums, installer and licence notices. The package has not been flashed or tested on an FM1. The browser instrument and experimental flasher are published together on GitHub Pages.
+The full milestone gate passed with the pinned Jieli compiler on Linux x86-64. It produced an **experimental** `undergrowth-0.4.3-hw1.fwsc` in `build/releases/0.4.3-hw1/`, with a build report, manifest, checksums, installer and licence notices. The package has not been flashed or tested on an FM1. The browser instrument and experimental flasher are published together on GitHub Pages.
 
 The browser links to `flash.html`, a Chrome/Edge desktop installer view. It verifies the included `.fwsc` against its fixed SHA-256 and package CRCs before enabling device identification. USB MIDI SysEx permission, FM1 identity and an explicit backup acknowledgement are required before installation. The pinned fm1-base Web MIDI updater handles the transfer and interrupted-update resume, with each changed MIDI pair explicitly re-identified and confirmed by the owner; the view does not offer a bootloader replacement. The browser flow has simulated-port tests, but direct Caravel 0.6.0 installation and recovery have not been tested on hardware. Open https://stephencarr.github.io/UNDERGROWTH/flash.html in desktop Chrome or Edge; no local server is needed.
 
@@ -149,3 +149,12 @@ Select Backbeat with ALGORITHM, press **4**, or choose its card in Expanded view
 Starting points, with Send at zero and Response high: shaker Body 0 / Edge 45 / Length 35 / Spread 35; snare 50 / 48 / 30 / 10; clap 100 / 55 / 20 / 60. Raise Edge and Spread, sweep Body between those anchors, then lock contrasting textures on adjacent steps. Damping around 25–35 keeps these examples open. Timbre controls smooth over 2 ms inside a sounding hit; authored lock values remain exact.
 
 This is original synthesis, with no samples. Velocity controls strength and adds small bounded colour; tempo adds the same subtle bounded decay response. Human continues to affect only Chatter. Chord stabs and a flexible melodic/atonal/drone/grainy FM organism are planned after Backbeat; see the roadmap.
+
+## Clouds-derived reverb trial — 0.4.3-hw1 (draft)
+
+The shared C room now adapts Mutable Instruments Clouds' diffused, modulated
+tank. ROOT Synth send no longer enters ordinary note snapshots; explicit
+send locks/motion remain. FX shows actual sends during playback. Reverb at
+maximum makes fully sent layers wet, with useful Decay below maximum. See
+[the comparison and audition procedure](docs/REVERB_EVALUATION.md). User listening
+acceptance and physical FM1 CPU measurements remain outstanding.
