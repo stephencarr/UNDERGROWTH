@@ -178,3 +178,16 @@ No additional pool arena: image 130448 bytes; data+bss 45044/98304; pool
 memory checks passed. Full milestone evidence follows after the gate. Compare
 physical CPU/P/X on a dense five-track phrase with grains/reverb engaged before
 accepting headroom. No physical device was accessed or flashed.
+
+## Completed software validation — 2 November 2026
+
+The complete `tools/check_milestone.sh` passed for 0.5.0-hw1: twelve native suites,
+including CHORD spectrum/articulation/snapshot tests; active five-track native/WASM
+bit parity; worklet; real mouse/touch browser workflows; simulated updater safety;
+platform-host traces including channel-5 MIDI and fifth-track mixing; package
+CRC/identity/loader/instruction/memory checks; and exact rebuilt firmware/vocabulary
+comparison. CHORD also passed address/undefined-behaviour sanitizer checks with
+leak detection disabled. Image 130448 bytes; data+bss 45044/98304; pool 312908/344064.
+Firmware identity FM-1_731000500. No physical FM1 access or flashing occurred.
+PR review and publication remain pending; listening and device CPU acceptance
+remain open even after software validation.

@@ -176,3 +176,7 @@ it; HOME SELECT page 4 mixes its level. MIDI channel 5 plays C2–C5 chord roots
 The existing browser, shared-C recording/locks/Undo and experimental firmware
 contract apply. See [the chord guide](docs/CHORD.md) for exact controls, budget
 and acceptance. This candidate is not yet published or listening-approved.
+
+The full 0.5.0-hw1 software milestone gate and CHORD sanitizer checks passed.
+Publication awaits completed PR review; listening and physical FM1 validation
+remain outstanding.

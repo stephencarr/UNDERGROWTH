@@ -1,7 +1,7 @@
 # CHORD organism — 0.5.0-hw1 candidate
 
 Status: draft, not yet published. Shared C implementation with a matching
-experimental FM1 build; final full-gate and listening evidence follow below.
+experimental FM1 build; the full software gate passed; review/publication and listening remain open.
 The fifth track complements Kick, Chatter, ROOT and Backbeat. It always renders
 four chord tones. Tone/Colour morph independently of the chosen harmony.
 
@@ -64,8 +64,8 @@ Continuous sound/ENV parameters support locks and motion. Harmony values also
 support explicit locks and motion, but the sounding chord's pitches/voicing latch
 on its note onset; they do not retune a held bank halfway through a note. Hits
 record the played root and harmony, Both also captures touched controls, and
-Motion changes existing hits only. One Undo restores the take, including palette
-edits made outside a take. A rest remains silent while edited; SEL can hear it.
+Motion changes existing hits only. One Undo restores the take. Palette edits outside a take use their own normal
+Undo transaction. A rest remains silent while edited; SEL can hear it.
 
 HOME lower key 5 mutes CHORD. HOME SELECT page 4 exposes its level; first-four-track
 mix controls remain on page 1. USB MIDI channel 5 accepts chord-root note-on/off
@@ -96,8 +96,8 @@ Real mouse/touch browser checks exercise fifth-track selection, palette isolatio
 sequence/live AudioWorklet output, trig menus, mixer and Expanded controls.
 Native/WASM parity includes chord events and high-bit harmony parameters.
 
-The complete milestone gate must pass with a real 0.5.0-hw1 package, including
-platform-host chord/MIDI behavior, before this candidate can be called complete.
+The complete milestone gate passed with a real 0.5.0-hw1 package, including
+platform-host chord/MIDI behavior; detailed evidence is recorded below.
 This is original synthesis; no Caravel or third-party chord DSP was copied.
 Sample import, scenes/morphing, arp, saving and the full UI overhaul remain future
 roadmap work. Chord names/scale mapping and larger polyphony are not implemented.
@@ -107,3 +107,16 @@ Dry dub/bright/ambient and shared-room ambient recordings can be reproduced with
 peaks were .1041, .2645, .1624 and .3528 respectively. Slow-attack and sustained
 articulation are exercised without depending on reverb. These measurements do
 not replace the owner's listening assessment.
+
+## Completed software validation — 2 November 2026
+
+The complete `tools/check_milestone.sh` passed for 0.5.0-hw1: twelve native suites,
+including CHORD spectrum/articulation/snapshot tests; active five-track native/WASM
+bit parity; worklet; real mouse/touch browser workflows; simulated updater safety;
+platform-host traces including channel-5 MIDI and fifth-track mixing; package
+CRC/identity/loader/instruction/memory checks; and exact rebuilt firmware/vocabulary
+comparison. CHORD also passed address/undefined-behaviour sanitizer checks with
+leak detection disabled. Image 130448 bytes; data+bss 45044/98304; pool 312908/344064.
+Firmware identity FM-1_731000500. No physical FM1 access or flashing occurred.
+PR review and publication remain pending; listening and device CPU acceptance
+remain open even after software validation.
