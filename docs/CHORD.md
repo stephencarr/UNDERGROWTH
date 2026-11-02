@@ -10,7 +10,8 @@ four chord tones. Tone/Colour morph independently of the chosen harmony.
 Select CHORD with ALGORITHM (or the Expanded card / computer key 5).
 The physical keyboard plays semitone roots F2–G4 at the default octave; OCT±
 shifts it within C2–C5, with out-of-range keys silent. Computer Q–I plays C3–C4
-while CHORD is selected. F / Hear chord triggers a finite draft audition.
+while CHORD is selected. F / Hear chord triggers a finite draft audition when no chord key is held;
+see the accepted overlap caveat below.
 SEL auditions the draft or selected trig/rest without enabling it.
 
 | Page | KNOB1 | KNOB2 | KNOB3 | KNOB4 |
@@ -120,3 +121,19 @@ leak detection disabled. Image 130448 bytes; data+bss 45044/98304; pool 312908/3
 Firmware identity FM-1_731000500. No physical FM1 access or flashing occurred.
 PR review and publication remain pending; listening and device CPU acceptance
 remain open even after software validation.
+
+## Accepted/deferred review debt
+
+PR #14's Codex review identified two noncritical workflow issues. They are
+accepted/deferred under AGENTS.md; they do not change the successful software
+checks into a listening or physical-acceptance claim.
+
+- **Held-key / one-shot overlap:** with Decay at maximum, holding a chord key,
+  triggering F / Hear chord, then releasing the held key can leave the audition
+  latched. Stop or Panic releases it. Until fixed, release chord keys before using
+  F / Hear chord; this overlap is not covered by the ordinary finite one-shot claim.
+- **Selected-step edit Undo:** outside the trig-lock menu, successive CHORD SEQ
+  encoder events each replace the one Undo snapshot, so Undo restores the preceding
+  detent rather than the value before a multi-detent gesture. Values remain editable;
+  this is not a grouped-gesture Undo guarantee. The held trig-menu transaction and
+  whole-recording-take Undo retain their tested behavior.
