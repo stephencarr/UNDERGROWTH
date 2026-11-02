@@ -11,18 +11,18 @@ knob mappings and modulation destinations remain to be chosen through playing.
 Retain explicit enable, silent startup, independent synth/atmosphere sends,
 Stop fades and Panic. Atmospheres must not rewrite authored notes or locks.
 
-Start by improving ROOT's existing original-texture grain sampler: smooth grain
-boundaries, control the gain as density increases, and keep work bounded to eight
-grains. Preserve Position/Size/Density/Pitch/Level/Scan and current ownership.
-This is draft development until browser and matching experimental firmware pass
-the milestone gate and the sound is auditioned.
+ROOT's original-texture grain sampler now has smooth boundaries, gain compensation
+as density increases and work bounded to eight grains. Position/Size/Density/
+Pitch/Level/Scan and current ownership are preserved. Listening acceptance remains
+open.
 
-Next, investigate a short session-only mono capture from phone microphone audio
-routed over USB. The phone supplies audio; playback runs on the FM1 after capture.
-Explicit arm/record/stop freezes a bounded RAM sample. No flash saving, automatic
-mic routing, phone DSP dependency or new sequencer events are implied. The current
-platform needs an incoming-audio capture hook before its playback mixer; browser
-input must feed the same C sampler through its own IO adapter.
+After the palette, investigate a short session-only mono capture from phone
+microphone audio routed over USB. The phone supplies audio; playback runs on the
+FM1 after capture. Explicit arm/record/stop freezes a bounded RAM sample. No flash
+saving, automatic mic routing, phone DSP dependency or new sequencer events are
+implied. The current platform needs an incoming-audio capture hook before its
+playback mixer; browser input must feed the same C sampler through its own IO
+adapter.
 
 Mutable Instruments Clouds' MIT-licensed time-domain grain playback, windows,
 interpolation and density handling are references for selective adaptation.
@@ -62,56 +62,105 @@ Expose surprise as a deliberate amount with deterministic seeded variation;
 zero retains a stable texture. Changes happen inside the enabled atmosphere,
 never as new score events. ROOT ENV remains its owner. Default startup stays
 silent; Stop fades and Panic clears grains and effect tails. New controls and
-pitch/reverse choices are proposals until implemented and auditioned.
+pitch/reverse choices are implemented; their sound still needs listening and
+physical acceptance.
+
+Updated 2 November 2026. Current published build: **experimental 0.4.3-hw1**.
+Published instrument: https://stephencarr.github.io/UNDERGROWTH/ . Implementation,
+listening acceptance and physical FM1 validation are separate statuses.
+
+## Direction and order
+
+Complete a useful organism palette before broader features and general polish.
+Kick, Chatter, ROOT and Backbeat are implemented. **The chord organism is the
+next development slice, followed by the flexible FM organism.** Audition the new
+reverb and ROOT/ENV workflow alongside this work; only critical defects should
+interrupt the palette-first priority. Accepted noncritical debt stays deferred.
+
+| Order | Work | Status |
+| --- | --- | --- |
+| Shipped | Four organisms, shared controller/workflow, ROOT Character and independent ENV, shared reverb and delay return | Published experimental; acceptance checks below remain open. |
+| Next | Chord organism: dub stabs, bright house/rave chords and sustained ambient textures | Planned; eight editable palette slots are a proposed starting scope. |
+| Following chords | Flexible FM organism with a distinct role beyond ROOT | Planned; final name, controls and voice budget remain open. |
+| After the palette | Track filters, separate delay/reverb sends and further delay controls | Planned. Existing reverb controls and delay return are already implemented. |
+| Then | Silent global FX automation lane | Planned; one owner for shared-bus automation. |
+| After the palette; exact order open | Per-track trig-lock scenes and morphing | Requested; up to four scenes per track as the starting scope. |
+| After the palette; exact order open | Complete playful, exploratory UI overhaul | Requested; Teenage Engineering is a design reference, with an original UNDERGROWTH identity. |
+| Later | Controlled ROOT arp evolution and punch-in effects | Planned; mappings and sequencing details require playing tests. |
+| Later | Versioned session saving and other reserved workflows | Deferred; current sessions disappear on reload. |
+
+Physical FM1 acceptance is outstanding work across these milestones, not a
+controller port that still needs implementing. See [HARDWARE.md](HARDWARE.md).
 
 ## Decision: strong controls, subtle organism DNA
 
-Accepted with Stephen, 2026-11-01. ENV means **Environment**, not a conventional ADSR editor. Each organism has an opinionated identity that remains recognisable. The player makes the large musical decisions; the organism adds character in its response.
+Accepted with Stephen, 2026-11-01. ENV means **Environment**, not a conventional
+ADSR editor. Each organism has an opinionated identity that remains recognisable.
+The player makes the large musical decisions; the organism adds character.
 
-- ENV knobs must have a pronounced, useful effect by themselves. Locks and motion retain that intentional control.
-- Parameter precedence is track draft/base → stored trig lock → manual takeover (including motion performance). Motion writes touched values back into the trig locks; finishing/Rejoin releases takeover. DNA then interprets the sounding values.
-- Hard-wired DNA is bounded, deterministic and smaller than the control's useful range. It may respond to velocity, tempo and recent musical context. It never rewrites knobs, locks, velocity or motion data, and never invents notes.
-- Example: stretching Chatter must clearly spread its fragments apart. A stronger hit may produce slightly denser fractures; it must not undo the chosen stretch.
-- Velocity is authored per-trig strength for every organism. Stamping captures draft velocity; live recording stores input velocity. Ordinary browser taps use draft velocity. Human varies playback around the stored strength without editing it.
-- No full ADSR, sample player, automatic composition, or new save format is implied by this decision.
+- Intentional controls must produce pronounced, useful changes. Trig locks and motion retain that control.
+- For parameters that support locks, precedence is track draft/base → stored trig lock → manual takeover. Finishing a take or Rejoin releases takeover. DNA interprets the sounding values without rewriting authored data.
+- DNA is bounded, deterministic and smaller than the control's useful range. Velocity, tempo or musical context may colour a supplied event; they never invent notes or rewrite knobs, locks or velocity.
+- Velocity is authored per trig. Human varies playback around the stored strength without editing it; Human currently affects Chatter only.
+- ROOT ENV is an independent continuous atmosphere. Ordinary notes do not snapshot its settings or either layer's send. Deliberate legacy atmosphere/send locks still exist; their presence does not make per-note ENV automation the intended drone workflow.
+- This direction does not imply a general ADSR editor, automatic composition, sample import or a save format. The shipped ROOT trial uses an original generated texture, not an imported-sample workflow.
 
-## Current milestone — environment and articulation
+## Shipped — published experimental
 
-Implemented for the browser prototype; listening approval and hardware validation remain open.
+### Organisms and Environment
 
-| Organism | ENV controls | Hard-wired response |
-|---|---|---|
-| Kick | Length, Damping, Drop, Response | Velocity adds up to 0.06 to/subtracts from Edge, scaled by Response; tempo changes decay by at most 6%; closely spaced retriggers shorten recovery by 4%. |
-| Chatter | Stretch, Fracture, Grain, Length | Tempo changes fragment spacing/decay by at most 6%; velocity shifts secondary-fragment count by at most one. Deterministic uneven spacing gives the fractures a tactile shape. |
-| ROOT | Release, Glide, Weight, Response | Velocity adds up to 0.06 to/subtracts from Edge, scaled by Response. Slide still requires an overlapping note and the destination's Slide flag. |
+| Organism | Current role and controls | Bounded response |
+| --- | --- | --- |
+| Kick | Synthesised kick; ENV Length, Damping, Drop, Response | Velocity colours Edge, scaled by Response; tempo changes decay by at most 6%; closely spaced retriggers shorten recovery by 4%. |
+| Chatter | Synthetic grain-like noise/resonant fractures; ENV Stretch, Fracture, Grain, Length | Tempo changes fragment spacing/decay by at most 6%; velocity shifts secondary-fragment count by at most one. |
+| ROOT | Monophonic bass with EDIT Sound/Character; ENV Position, Grain size, Density, Pitch, then Level, Scan, Enabled, ENV send | Bass velocity adds bounded colour; ENV remains an independently pitched continuous drone. |
+| Backbeat | Continuous shaker → snare → clap blends; Edge reaches crushed crackle and metallic fragments; ENV Length, Damping, Spread, Response | Velocity/tempo add bounded colour and decay response. Grains/flams belong to a supplied hit, not extra sequencer events. |
 
-Response on Kick and ROOT directly controls onset firmness over a pronounced range; its small pressure-colour modulation is additional. Chatter uses synthetic noise/resonant fragments, not recorded samples. Stretch changes their spacing rather than oscillator pitch. Fracture sets density, Grain sets hardness/duration, and Length sets each fragment's decay. These are auditionable controls, not a claim of acoustic realism. ROOT's gate/slide/pitch and all tracks' velocity live on a separate note/articulation page; continuous ENV parameters support track edits, locks and motion.
+ROOT's note pitch, gate, slide and velocity remain separate articulation data.
+Sound/Character settings support trig locks and motion. Ordinary ROOT note entry
+captures synth slots 0–10 except Synth send; ENV and sends require deliberate
+locks rather than implicit snapshots. ENV runs with Enabled ON, nonzero Level
+and PLAY, including on an empty sequence. STOP fades it; ROOT mix/mute affects
+both layers. Following bass-note pitches is only a possible optional future
+mode, not a change to the accepted independent ENV behaviour.
 
-Acceptance: silent startup and empty transport; distinct audible/measured ENV extremes; full draft stamping including ENV/velocity; per-step ENV/velocity edits and Undo; motion captures new ENV controls without creating hits; recorded velocities survive playback/Human; ROOT note names, direct draft pitch entry and audition; native/WASM parity and actual browser AudioWorklet output.
+### Workflow and shared controller
 
-## Next slice — complete the organism palette
+The musical engine, panel controller, input/edit semantics and screen text are
+implemented in shared C for browser and firmware. Browser JavaScript and the
+FM1 adapter handle their respective IO/drawing. The controller port is complete;
+physical ergonomics and device behaviour still need acceptance.
 
-Stephen's next priority is the remaining organisms, following Kick, Chatter and ROOT. Complete a useful basic sound palette before adding further features and polishing the instrument. Preserve musically productive overdub behaviour during this slice; only critical defects should interrupt it.
+Shipped workflow includes four 16-step lanes, persistent trig-lock menus,
+velocity and ROOT articulation, Hits/Motion/Both takes, takeover/Rejoin,
+whole-take Undo, mix/mutes, typed full-trig copy/paste, audition, and per-track
+page/step memory. SEQ taps toggle while preserving authored data; a 350 ms hold
+opens locks without toggling or enabling a rest. REC retains its armed owner
+across navigation. See [UX_DESIGN.md](UX_DESIGN.md) for current controls and
+accepted noncritical workflow debt.
 
-### Immediate slice — Backbeat
+### Effects and routing
 
-A fourth independent organism. Stephen rejected the first skin/noise version as too narrow after audition. The revised direction covers shakers → snares → claps, with continuous blends and surprising mashed-up, extreme textures in between. Body sweeps those families; Edge opens brightness into crushed crackle and metallic fragments; Length extends grains, skin and diffuse tails; Send feeds the existing delay. ENV provides Length, Damping, Spread (grain density/spacing, rattles and clap flams) and Response (attack firmness). These are bounded components of one authored hit, not generated sequencer events. Timbre transitions smooth inside the DSP without rewriting locks. This is original synthesis, without samples. Preserve trig locks, velocity, motion and Undo. Browser and matching experimental FM1 firmware are required. Further listening approval remains with Stephen; no additional sequencing features or noncritical lock cleanup is implied.
+Shared effects now include a Clouds-derived modulated diffuse reverb with
+Reverb level, Decay, Damping and Width, plus a fixed dark delay with independent
+return. Existing track sends and ROOT's separate Synth/ENV sends feed both in
+parallel. **Separate sends for delay versus reverb are still planned.**
 
-### Following Backbeat: chord stabs and a flexible FM tone
+At full Reverb, fully sent layers lose their direct contribution; unsent layers
+retain it. FX shows effective ROOT sends during playback. Explicit send locks
+and motion remain; ordinary ROOT notes no longer restore an implicit zero.
+Global FX settings have score Undo and refuse edits during recording; no global
+FX automation lane exists yet. Stop/mute preserve shared tails; Panic clears
+them. See [REVERB_EVALUATION.md](REVERB_EVALUATION.md) for source, comparisons,
+validation and publication evidence. Listening acceptance remains open.
 
-Stephen chose Backbeat as the immediate next slice, followed by chord stabs and the flexible FM organism. Working labels below describe the future roles; final organism names are open. Build Backbeat first, then the chord organism, then the FM organism. Together with Kick, Chatter and ROOT, these establish the basic sound palette before broader features and polish.
+## Next — chord organism
 
-**Chord organism — always chords.** Morph from rounded, filtered dub stabs through bright, hollow 90s dance/house/rave chord colours, with long, swelling and sustained ambient articulations. Ambient capability belongs in the sound and articulation, rather than depending entirely on a future reverb. Timbre morphing and harmonic selection are separate: changing the colour need not replace the chosen chord. No single-note/OFF chord mode or silent fallback to a root-only voice is part of this organism.
+**Chord organism — always chords.** Morph from rounded, filtered dub stabs through bright, hollow 90s dance/house/rave chord colours, with long, swelling and sustained ambient articulations. Ambient capability belongs in the sound and articulation, rather than depending entirely on the shared reverb. Timbre morphing and harmonic selection are separate: changing the colour need not replace the chosen chord. No single-note/OFF chord mode or silent fallback to a root-only voice is part of this organism.
 
 - Configure a small session-only chord palette. Proposed starting scope: eight editable slots, each combining a chord shape with voicing/inversion and spread. Start with useful built-in shapes; include the ability to author a slot's intervals, within a bounded voice budget.
 - Keys choose chord roots; palette slots supply the harmonic shape. Chord slot/shape, root, inversion and spread can vary per trig alongside the sound and ENV locks. A trig captures its actual chord definition, not just a mutable palette-slot reference: later palette changes must not silently rewrite existing trigs.
 - Use intentional sound controls with a broad musical range, plus articulation suitable for both short stabs and slow ambient chords. Velocity, motion, Undo, Stop and Panic follow the existing shared workflow. Keep at least two distinct chord tones through range handling and timbre morphing; bounded polyphony and retrigger/tail behaviour need audition and FM1 budget checks.
-
-**FM organism — warm and bright, with a wide morphing range.** A coherent playable FM voice spanning melodic/plucked/bell-like tones, inharmonic and atonal textures, sustained drones, very short micro-sounds and grainy/fractured articulations. Design it to receive pitched note events from keys, the sequencer and the later arp. Arp implementation is still a later feature.
-
-- Expose independent musical dimensions for colour/brightness, harmonic-to-inharmonic structure, feedback/roughness, and temporal behaviour. These are continuous sound-design dimensions, not merely a list of presets on one morph knob. Final knob names and page allocation are to be chosen through playing.
-- Articulation should reach from tiny bursts through plucks and evolving sustained tones. Grain-like behaviour means synthesised temporal fragmentation in this slice; no sample/granular playback engine is implied. Warm melodic settings should remain easy to find without preventing more extreme settings.
-- Trig locks and motion must reach the defining synthesis and articulation controls, so successive steps can produce strongly contrasting colours within one organism. Pitch/root and note attributes stay distinct from sound morphing. Bounded/smoothed parameter changes, note-off and Panic remain required; the CPU/voice budget must be checked in the matching firmware.
 
 ### Caravel 0.6.0 chord reference
 
@@ -120,75 +169,113 @@ https://github.com/bonszaimusic/caravel/blob/b50bad57dcf32862f36661a5fc2996e1339
 
 The inspected implementation offers diatonic triads/sevenths plus fixed major, minor, dominant seventh, major seventh, minor seventh, sus4 and power shapes. It separates CLOSE/OPEN/inversions/added-bass voicing from chord quality, with ROOT/SCALE mapping and NEW/STACK latch elsewhere in the input model. Its chord builder uses at most four tones; mono/legato/unison modes can reduce a chord to its root. UNDERGROWTH takes the separation of harmony and voicing as design guidance, adds an explicitly editable palette, and keeps its dedicated chord organism chordal. Caravel's inspected code does not establish the proposed eight-slot editable bank; that is our own design proposal. No Caravel source has been incorporated.
 
-### Slice contract
+### Budget and slice acceptance
 
-Each new organism has its own recognisable synthesis identity, useful sound macros and ENV controls, velocity response, and the existing draft/step/lock/motion workflow. Implement it in shared C and finish each slice with the browser and matching experimental FM1 firmware. Audition it with the existing organisms. New sequencing modes, arp evolution, expanded global effects and general UI polish follow the basic palette. Accept noncritical prototype debt; only critical defects interrupt this sequence.
+Each new organism needs a recognisable identity, useful sound/ENV controls,
+velocity response and the existing draft/step/lock/motion/Undo workflow in shared
+C. Finish each slice with the browser and matching experimental FM1 firmware,
+and audition it with the existing organisms. Arp, new sequencing modes and
+noncritical cleanup do not enter the palette slice by default.
 
-## Implemented workflow pass — hardware first
+The 0.4.3-hw1 build uses **312,908 of 344,064 pool bytes**, leaving **31,156 bytes**.
+Data+bss is 40,572 of 98,304 bytes. These are separate memory regions; pool space
+alone is not a total voice budget. Physical CPU headroom is unmeasured.
+Establish chord voice count, note overlap/tail policy, score storage and DSP
+memory/CPU budgets early, then validate the matching dense-pattern build.
+Do not assume two additional organisms or more grain buffers fit merely because
+the current four-track browser plays. Host timings are not FM1 measurements.
 
-Stephen requested an overnight study and overhaul of the whole workflow, starting at the human hardware interface. [UX_DESIGN.md](UX_DESIGN.md) records the external UX/manual research, design choices, physical mapping and task acceptance scenarios. This is a design hypothesis to play, not a usability-study result.
+## Following chords — a flexible FM organism
 
-HOME becomes a four-track session mixer; lower keys 1–4 toggle mutes. SEQ retains sixteen step keys and tap/hold semantics; upper keys expose tracks, typed full-trig copy/paste, Undo, Rejoin, audition and lock-page navigation. SEL auditions rather than ambiguously choosing a track. EDIT adds a quick articulation page. Selected steps and section pages are remembered per track. REC mode changes retain the same armed owner; finishing preserves the working page. Device and Expanded views share that recorder/mix. Key labels and light masks come from shared C. No saving, arp, new effect or additional organism is implied. Physical testing and Stephen’s workflow acceptance remain open; chord stabs and FM remain next.
+**Warm and bright, with a wide morphing range.** A coherent playable FM voice spanning melodic/plucked/bell-like tones, inharmonic and atonal textures, sustained drones, very short micro-sounds and grainy/fractured articulations. Design it to receive pitched note events from keys, the sequencer and the later arp. Arp implementation is still a later feature.
 
-## Later — controlled ROOT arp evolution
+ROOT already has fixed-topology FM Character controls for its bass role. This planned organism must earn a separate lane through a broader register and useful melodic, bell-like, inharmonic and fragmented articulations. Define and audition that distinction before finalising its controls; expanding ROOT's macro list alone does not complete this organism.
 
-Inspired by the bounded movement of Caravel 0.6.0's WALK arp. Start with a small played/latched note set; neighbour-note wandering, adjustable rests and a restricted register keep the phrase recognisable. Hold freezes a pleasing phrase; Keep captures it into the sequencer; Revert returns to the seed. ROOT comes first, with related Chatter rhythm/articulation exploration later. Implement original behaviour in shared C for browser and firmware. This is a roadmap item, not part of the current step-editing fix.
+- Expose independent musical dimensions for colour/brightness, harmonic-to-inharmonic structure, feedback/roughness, and temporal behaviour. These are continuous sound-design dimensions, not merely a list of presets on one morph knob. Final knob names and page allocation are to be chosen through playing.
+- Articulation should reach from tiny bursts through plucks and evolving sustained tones. Grain-like behaviour means synthesised temporal fragmentation in this slice; no sample/granular playback engine is implied. Warm melodic settings should remain easy to find without preventing more extreme settings.
+- Trig locks and motion must reach the defining synthesis and articulation controls, so successive steps can produce strongly contrasting colours within one organism. Pitch/root and note attributes stay distinct from sound morphing. Bounded/smoothed parameter changes, note-off and Panic remain required; the CPU/voice budget must be checked in the matching firmware.
 
-## Current interaction fix — tap steps, hold for trig locks
+## Later — effects, automation and performance
 
-A short SEQ tap toggles its step on/off while preserving authored trig data; only a previously untouched step captures the draft. Holding for 350 ms opens the single trig-lock menu, without toggling or creating a hit. SELECT switches Sound, ENV and Notes / velocity; SEQ closes it. The menu remains open after releasing the key. Remove competing SEQ actions/lock pages and Expanded view's separate lock-mode switch. Expanded steps use the same hold gesture. Rest edits preserve rests; canceled presses never toggle; whole menu edits on one step support Undo.
+### Effects after the palette
 
-## After the organism palette — effects
+1. Track filters with cutoff/resonance, and independent delay/reverb send amounts.
+2. Global delay time, feedback and tone; preserve the implemented return control.
+3. Silent global FX automation lane, independent of instrument hits. It alone owns shared-bus events, with bounded feedback, smoothing, Panic and whole-take Undo.
 
-1. Track filters with cutoff/resonance, and separate delay/reverb sends.
-2. Global delay time, feedback, tone and return; reverb size, damping and return.
-3. Silent global FX automation lane: one owner for shared-bus automation, independent of instrument hits. Bounded feedback, smoothing, Panic and whole-take Undo.
+Reverb level/Decay/Damping/Width are already available. Pre-delay and a reverb
+low-cut are candidates to evaluate after listening, not commitments for the
+current release. Additional room-size controls should likewise earn their place
+through playing. Avoid adding controls merely because the algorithm permits them.
 
-## Later — performance, device parity and persistence
+### Per-track trig-lock scenes and morphing
 
-- Dedicated sixteen-key punch-in effects page. Explore momentary throws, repeats, filter moves and reverb blooms. Black-key Hold/latch and modifiers are proposed; decide mappings through playing tests. They must not take over SEQ's keyboard contract.
-- Port the browser controller/screens to the FM1 foundation and verify physical controls, CPU/RAM, audio and note-off behaviour. Shared C DSP/sequencing already underlies the browser; the browser UI remains JavaScript. No flash is authorized by this milestone.
-- Versioned session saving once parameter ownership settles. Stable IDs and migrations will still be necessary; feature completion cannot eliminate schema evolution.
+Requested by Stephen, 2 November 2026. Each track has up to four trig-lock scenes
+as the initial scope. Scenes hold alternative sets of that track's per-trig
+settings. A track morph control moves between scenes by interpolating the
+settings themselves: each value travels from its source-scene value to the
+corresponding destination-scene value. This is parameter morphing, not an audio
+crossfade or four simultaneously rendered instruments.
 
-## Validation recorded before publication
+- Continuous settings interpolate smoothly, with exact scene values at the endpoints. A simple starting mapping is adjacent scene pairs along one control; the physical mapping and scene-selection workflow remain design work.
+- The musician must be able to capture/edit scenes and understand the active source, destination and morph position. Audition should preserve authored scene endpoints; deliberate edits and recording need a clear Undo transaction.
+- Scene scope is per-track trig settings. Shared delay/reverb character remains owned by global FX; scenes must not create competing global automation owners. The relationship to ROOT's independent ENV must be defined explicitly rather than implicitly snapshotting the drone again.
+- Before implementation, settle missing-lock/base fallback, how pitch/velocity/gate and discrete settings such as slide or chord shape participate, and precedence with manual takeover, motion and Rejoin. Trig on/off pattern changes are not implied by trig-lock scenes.
+- Decide whether/how the morph gesture is recordable and how scene capture uses the draft versus sounding values. These are open details, not implemented behaviour or permission to overwrite existing scenes during performance.
 
-- Native core, groove, motion, ROOT, workflow and environment/velocity tests at 44.1/48 kHz.
-- Native/WASM bit identity over 262,144 stereo frames, including ENV motion and velocity events.
-- Address/undefined-behaviour sanitizer stress test (leak detection disabled because the test runner uses ptrace; the DSP performs no allocation).
-- Chromium AudioWorklet output checks: silent start/empty transport, live voices, sequencing, locks, motion, ROOT, Undo and Panic. New mouse/touch tests cover ENV/velocity stamping and editing, ROOT pitch entry/audition, and longer output from stretched Chatter. Expanded controls and recording-command ordering are also covered.
-- These checks were run locally before publication. They do not establish subjective listening approval, Safari coverage or FM1 hardware validation.
+Acceptance should cover exact endpoints, useful intermediate timbres, rest
+preservation, track isolation, predictable takeover/recording/Undo and bounded
+shared-C CPU/memory use with the full palette. Scene storage needs an explicit
+budget alongside the remaining device memory. Feature placement among the
+post-palette milestones remains open; this request does not reprioritise chords
+and FM.
 
-## Milestone contract: firmware is a required output
+### Complete playful, exploratory UI overhaul
 
-Accepted with Stephen on 2026-11-01: every future milestone must end with a real, validated FM1 `.fwsc` alongside the browser. Shared C now owns the panel controller and screen text as well as DSP/sequencing. `AGENTS.md` and `tools/check_milestone.sh` make the target explicit. Host/WASM success alone cannot complete a milestone; compiler or package-check failures must remain visible blockers.
+Requested by Stephen, 2 November 2026. Redesign the instrument's layout,
+navigation, typography, colour, visual feedback and interaction language around
+a playful, exploratory experience. Teenage Engineering is the design reference:
+bold readable typography, purposeful graphic shapes, strong control groupings,
+expressive colour and inviting feedback. Develop an original UNDERGROWTH identity;
+this is a complete UI/workflow milestone, not a colour-only reskin.
 
-First hardware milestone: USB-only, single core, no Bluetooth/Wi-Fi. The host/browser tests, pinned cross-build and package validation passed; `build/releases/0.1.0-hw1/` contains an experimental `.fwsc`, manifest, checksums, build report and installer. The browser flasher is published as experimental; the firmware has not been flashed or tested on an FM1. See [hardware build and recovery notes](HARDWARE.md), including the Caravel 0.6.0/macOS route and remaining physical acceptance tests.
+- Cover the browser's FM1 and Expanded views and the shared controller's physical-screen experience. Respect the real panel's fixed knobs, buttons, keys and non-touch screen; browser layouts can take advantage of their larger canvas.
+- Make sound shaping and exploration feel immediate. Use clear visual responses for organism character, grains, scenes/morph position, transport and effects, while keeping the musician's authored events and parameter ownership legible.
+- Keep draft versus trig versus live state, selected versus armed track, keyboard role, recording, scene capture and recovery unmistakable. Exploration must preserve deliberate note entry, predictable Undo/Panic and silent startup; it does not imply automatic composition.
+- Explore the navigation and page hierarchy as part of the overhaul. Preserve required musical capabilities, but do not treat every existing screen arrangement as fixed. Prototype the core choose → shape → plant → vary → perform → recover loop on the actual FM1 control constraints.
+- Retain keyboard, touch, pointer and assistive operation, readable contrast and comfortable targets. Colour and animation must not be the sole way to understand state. Expressive feedback must fit the physical display/render budget and avoid obscuring performance controls.
 
-Hardware diagnostics added to this pending milestone: persistent audio-budget CPU meter, observed peak and cumulative overruns on every display page, updated at 4 Hz. The browser explicitly marks device CPU unavailable; no simulated load is presented as hardware headroom.
+Start with a coherent visual/interaction prototype and task walkthroughs, then
+carry the accepted design through shared C and the browser/device adapters.
+Acceptance includes musical task clarity, real pointer/touch/keyboard paths,
+small-screen layouts, hardware readability/ergonomics and the matching browser
+and experimental firmware gate. Exact placement relative to scenes and expanded
+effects remains open; the organism palette stays first unless Stephen changes
+that priority.
 
-### ROOT-only trial (draft)
+### Controlled ROOT arp evolution
 
-Trial EDIT Sound/Character with per-trig locks, direct step notes and explicit
-SEQ keyboard mode, ENV as an independent original-texture grain drone, and
-separate layer sends into shared delay. Measure physical FM1 CPU with grains
-off/on before expanding this sampler to four tracks. Crush, sample
-selection/import and atmosphere following authored note pitches remain planned.
+Inspired by Caravel 0.6.0's bounded WALK arp. Start with a small played/latched
+note set; neighbour-note wandering, adjustable rests and a restricted register
+keep the phrase recognisable. Hold freezes a pleasing phrase; Keep captures it
+into the sequencer; Revert returns to the seed. ROOT comes first, with related
+Chatter rhythm/articulation exploration later. This is planned original behaviour
+in shared C, not an implemented generator or permission to add notes today.
 
-### Shared reverb (0.4.1-hw1)
+### Punch-in effects and persistence
 
-Implemented an original stereo room with global level/decay/damping/width and
-independent delay return, fed by the existing per-layer sends. Shared effect
-settings have Undo and refuse changes during recording. Global FX automation
-remains reserved for the planned silent lane; per-track filters and crush are
-not part of this release.
+- Explore a dedicated sixteen-key punch-in effects page for throws, repeats, filter moves and reverb blooms. Black-key Hold/latch and modifiers remain proposals. Preserve SEQ's keyboard contract; settle mappings through playing.
+- Add versioned session saving once parameter ownership settles. Stable IDs and migrations remain necessary. No persistence is implemented or authorised merely by listing it here.
+- LFO and PRESETS remain reserved/unavailable. Their detailed workflows and priority have not been settled.
+- Crush, sample selection/import and extending the granular atmosphere to other tracks remain deferred possibilities, subject to a separate scope and device budget. Note-following atmosphere, if pursued, must be an explicit optional mode.
 
-### Clouds-derived reverb and explicit ROOT sends — 0.4.3-hw1 (published experimental)
+## Awaiting acceptance
 
-Replace the sparse room with a MIT-licensed Clouds topology adaptation in C.
+The sparse room was replaced with a MIT-licensed Clouds topology adaptation in C.
 Ordinary ROOT note snapshots exclude Synth send as well as ENV; deliberate
-send locks/motion remain. FX shows actual sends during playback. This addresses
-the handover's routing and wash objectives; listening acceptance and physical
-CPU headroom remain open. See REVERB_EVALUATION.md for comparisons and limits.
+send locks/motion remain. FX shows actual sends during playback. Listening
+acceptance and physical CPU headroom remain open. See REVERB_EVALUATION.md for
+comparisons and limits.
 
 ### Grain improvement implementation — 0.5.0-hw1 (unpublished)
 
@@ -203,3 +290,37 @@ is not required merely to make capture fit. Firmware pool use is 206,708/344,064
 bytes, leaving 137,356 bytes before capture/USB additions. A 64,000-byte sample
 is now plausible, but incoming audio capture is still unimplemented. Formant,
 noise, harmonic atmospheres and stereo grain swirl remain future slices.
+
+These checks distinguish implemented features from accepted musical/device
+behaviour. They do not reopen accepted noncritical debt or automatically block
+the next palette slice.
+
+- **Listening:** Stephen's assessment of the 0.4.3 reverb wash at full send/return and useful lower Decay, on synth and empty-sequence ENV. Confirm the independent ROOT/ENV workflow and the organisms' useful ranges together.
+- **Physical FM1:** authorised device testing of boot/silence, panel controls and screen readability, velocity/note-off, mix/recording/Panic, USB behaviour, dense-pattern CPU/P/X readings and recovery. Compare grains/reverb off and on. No physical flashing, CPU measurement or recovery validation has been performed.
+- **Workflow:** physical reach and clarity of step versus keyboard roles, track/armed ownership, locks, audition and recovery. Automated mouse/touch tests are evidence of implementation, not a usability study.
+- **Browser coverage:** automated Chromium evidence exists; Safari and wider physical mobile coverage remain open.
+
+Published experimental is not the same status as listening-approved or physically
+validated. See [PRODUCT.md](PRODUCT.md) for the current experience and
+[HARDWARE.md](HARDWARE.md) for physical acceptance and recovery limits.
+
+## Delivery contract and evidence
+
+Every functional milestone requires both browser and a real validated `.fwsc`.
+Run `tools/check_milestone.sh`; missing dependencies or a failed firmware package
+gate leave the milestone incomplete. Preserve the pinned updater, identity/CRC/
+loader checks and recovery path. No physical flash, device access or bootloader
+change is authorised by software delivery.
+
+0.4.3-hw1 passed the full gate: eleven native suites, native/WASM bit parity,
+worklet, mouse/touch browser and simulated updater checks, platform-host traces,
+firmware package/instruction/memory checks and exact package comparison. Reverb
+sanitizer checks and publication byte verification are recorded in
+[REVERB_EVALUATION.md](REVERB_EVALUATION.md). Historical releases and hardware
+figures live in [HARDWARE.md](HARDWARE.md); older workflow proposals live in
+[WORKFLOW_RESEARCH.md](WORKFLOW_RESEARCH.md).
+
+Keep Bluetooth, Wi-Fi and CPU2 off, startup empty/silent, and sessions temporary
+until explicitly changed. Preserve upstream notices; original-project licensing
+remains undecided. Read [AGENTS.md](../AGENTS.md) and
+[ENGINEERING.md](ENGINEERING.md) for the complete milestone and review rules.
