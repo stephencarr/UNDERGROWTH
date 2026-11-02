@@ -20,7 +20,7 @@ int main(void){for(int rate=44100;rate<=48000;rate+=3900){
  lo=measure(rate,2,2,0,110,1,&a);hi=measure(rate,2,2,1,110,1,&b);assert(hi>lo*5);
  for(int v=0;v<3;v++){
   ug_init(rate);assert(ug_getvelocity(v,-1)==1);ug_velocity(v,-1,.35f);ug_setparam(v,4,.8f);ug_stamp(v,0);
-  assert(ug_getvelocity(v,0)==.35f&&ug_lockmask(v,0)==(v==2?917503:127)&&ug_lockvalue(v,0,4)==.8f);
+  assert(ug_getvelocity(v,0)==.35f&&ug_lockmask(v,0)==(v==2?2047:127)&&ug_lockvalue(v,0,4)==.8f);
   ug_begin_edit();ug_velocity(v,0,.9f);ug_undo();assert(ug_getvelocity(v,0)==.35f);ug_undo();assert(ug_getvelocity(v,0)==.9f);
   ug_recmode(2);ug_arm(1,v);ug_setparam(v,6,.1f);ug_play(1);render(rate*3);ug_arm(0,v);
   assert(ug_lockvalue(v,0,6)==.1f&&!ug_step(v,1)&&ug_getvelocity(v,0)==.9f);ug_undo();assert(ug_lockvalue(v,0,6)==.5f);

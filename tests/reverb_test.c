@@ -16,7 +16,21 @@ static void wet_presence(int layer){
  presence_source(layer,1);double dry=0,wet=0;for(int at=0;at<44100;){int n=44100-at;if(n>256)n=256;ug_render(n);for(int i=0;i<n;i++){float d=reference[at+i],w=ug_buffer()[2*i];dry+=d*d;wet+=w*w;}at+=n;}
  printf("Full-return balance %s: wet/dry %.2f dB\n",layer?"ENV":"ROOT",10*log10(wet/dry));assert(wet>dry*.15&&wet<dry*4);
 }
+
+static void env_with_authored_notes(void){
+ static const int keys[16]={0,2,4,6,7,9,11,12,14,16,18,19,21,23,24,26};
+ ug_init(44100);ug_ui_init();ug_ui_select(0,2);ug_ui_button(9);
+ for(int i=0;i<16;i++){ug_ui_key(keys[i],1,1);ug_ui_key(keys[i],0,1);}
+ ug_ui_button(2);ug_ui_turn(0,1);ug_ui_turn(3,100);ug_ui_turn(5,1);ug_ui_turn(6,100);ug_setfx(0,1);ug_play(1);render(256);
+ /* Ordinary ROOT notes must not freeze the independent drone at its old
+  * draft level/send. This is the owner's stopped-edit-then-play workflow. */
+ for(int i=0;i<16;i++){assert(ug_effective(2,16)==1&&ug_effective(2,15)==1);assert(!(ug_lockmask(2,i)&(1<<16)));render(44100/4);}
+ /* Restart and Rejoin must keep the atmosphere independent too. */
+ ug_play(0);ug_play(1);render(256);ug_rejoin();assert(ug_effective(2,16)==1&&ug_effective(2,15)==1);
+ ug_panic();assert(render(256)==0);
+}
 int main(void){
+ env_with_authored_notes();
  wet_presence(0);wet_presence(1);
  /* A settled full send + full Reverb removes the direct attack before the
   * first room reflection. A zero-send track must retain its direct attack. */

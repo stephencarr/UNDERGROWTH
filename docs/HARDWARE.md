@@ -138,3 +138,14 @@ Final full-send/full-Reverb balance at 44.1 kHz measured +1.69 dB on ROOT and
 -0.60 dB on ENV relative to their dry reference, with the direct attack removed
 at maximum. The new regression also verifies a zero-send track retains its
 direct attack. This is an objective balance check, not listening approval.
+
+## Independent ROOT atmosphere — 0.4.2-hw1
+
+Ordinary ROOT note snapshots now exclude atmosphere parameters, so note entry
+does not restore stale ENV level/send values during playback. The full milestone
+gate passed: native regressions, native/WASM bit parity, mouse/touch browser and
+simulated updater checks, platform-host traces, package CRC/identity, instruction
+and memory checks. Image: 118668 bytes; data+bss: 40604/98304; pool: 236108/344064.
+Identity: FM-1_731000402. PR #10 review completed with no findings; its subsequent
+test-only change tolerates encoder floating-point rounding. No physical device
+access, flashing or FM1 CPU validation was performed.

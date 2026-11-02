@@ -18,6 +18,6 @@ node tests/flash_browser.cjs
 node tests/confirmed_updater.mjs
 node tests/flasher_handover.cjs
 python3 tools/firmware_build.py --host
-python3 tools/firmware_build.py --release "${UG_RELEASE:-0.4.1-hw1}"
-cmp "firmware/build/undergrowth-${UG_RELEASE:-0.4.1-hw1}.fwsc" "firmware/releases/undergrowth-${UG_RELEASE:-0.4.1-hw1}.fwsc"
+python3 tools/firmware_build.py --release "${UG_RELEASE:-0.4.2-hw1}"
+cmp "firmware/build/undergrowth-${UG_RELEASE:-0.4.2-hw1}.fwsc" "firmware/releases/undergrowth-${UG_RELEASE:-0.4.2-hw1}.fwsc"
 for vocabulary in firmware/web/words/*.json; do cmp "$vocabulary" "words/$(basename "$vocabulary")"; done
