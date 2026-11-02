@@ -33,7 +33,7 @@ class UndergrowthProcessor extends AudioWorkletProcessor {
   snapshot() {
     const e=this.e;e.ug_ui_refresh();
     const readText=ptr=>{const bytes=new Uint8Array(e.memory.buffer,ptr,64);let s='';for(let i=0;i<64&&bytes[i];i++)s+=String.fromCharCode(bytes[i]);return s;};
-    const panel={locks:!!e.ug_ui_state(7),meter:readText(e.ug_ui_meter(-1,0,0,0)),page:e.ug_ui_state(0),sub:e.ug_ui_state(1),voice:e.ug_ui_state(2),selected:e.ug_ui_state(3),octave:e.ug_ui_state(4),lights:e.ug_ui_state(6),lines:Array.from({length:9},(_,i)=>readText(e.ug_ui_line(i)))};
+    const panel={grains:Array.from({length:74},(_,i)=>e.ug_grain(i)),locks:!!e.ug_ui_state(7),meter:readText(e.ug_ui_meter(-1,0,0,0)),page:e.ug_ui_state(0),sub:e.ug_ui_state(1),voice:e.ug_ui_state(2),selected:e.ug_ui_state(3),octave:e.ug_ui_state(4),lights:e.ug_ui_state(6),lines:Array.from({length:9},(_,i)=>readText(e.ug_ui_line(i)))};
     panel.keyMode=e.ug_ui_state(10);panel.keyLights=e.ug_ui_state(8);panel.keyPlayhead=e.ug_ui_state(9);panel.clipboard=e.ug_ui_state(11);
     panel.keyLabels=Array.from({length:27},(_,i)=>readText(e.ug_ui_keylabel(i)));panel.knobLabels=Array.from({length:7},(_,i)=>readText(e.ug_ui_knoblabel(i)));
     this.port.postMessage({type:'state', panel, playing:e.ug_state(0), step:e.ug_state(1), recording:e.ug_state(2),
@@ -42,8 +42,8 @@ class UndergrowthProcessor extends AudioWorkletProcessor {
       motion:!!e.ug_state(10), motionMask:[e.ug_state(11),e.ug_state(12),e.ug_state(15),e.ug_state(22)],
       groove:[0,1].map(p=>e.ug_getgroove(p)),
       voices:Array.from({length:e.ug_state(23)},(_,v)=>({takeover:e.ug_state([6,7,13,20][v]), count:e.ug_state([8,9,14,21][v]),
-        level:e.ug_getlevel(v),muted:!!e.ug_getmute(v),velocity:e.ug_getvelocity(v,-1), base:[0,1,2,3,4,5,6].map(p=>e.ug_getparam(v,p)), effective:[0,1,2,3,4,5,6].map(p=>e.ug_effective(v,p)),
-        steps:Array.from({length:16},(_,s)=>({velocity:e.ug_getvelocity(v,s),note:e.ug_notevalue(s,0),gate:e.ug_notevalue(s,1),slide:!!e.ug_notevalue(s,2),on:!!e.ug_step(v,s),mask:e.ug_lockmask(v,s),lock:[0,1,2,3,4,5,6].map(p=>e.ug_lockvalue(v,s,p))}))}))});
+        level:e.ug_getlevel(v),muted:!!e.ug_getmute(v),velocity:e.ug_getvelocity(v,-1), base:Array.from({length:20},(_,i)=>i).map(p=>e.ug_getparam(v,p)), effective:Array.from({length:20},(_,i)=>i).map(p=>e.ug_effective(v,p)),
+        steps:Array.from({length:16},(_,s)=>({velocity:e.ug_getvelocity(v,s),note:e.ug_notevalue(s,0),gate:e.ug_notevalue(s,1),slide:!!e.ug_notevalue(s,2),on:!!e.ug_step(v,s),mask:e.ug_lockmask(v,s),lock:Array.from({length:20},(_,i)=>i).map(p=>e.ug_lockvalue(v,s,p))}))}))});
   }
   process(inputs, outputs) {
     const channels=outputs[0]; if(!channels?.length)return true;

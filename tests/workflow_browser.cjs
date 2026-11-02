@@ -45,7 +45,7 @@ const assert=require('node:assert/strict');
  assert((await state()).voices[0].steps.some(x=>x.on&&(x.mask&2)));
  await turn('ALGORITHM');assert.equal((await state()).recordTrack,0);await step(1);await page.waitForTimeout(80);assert(!(await state()).voices[1].steps.some(x=>x.on));await press('REC');await press('PLAY');
  // ROOT stamps draft pitch/gate/slide with the same lower keys.
- await turn('ALGORITHM');await press('ENV');await turn('SELECT');await turn('KNOB1','ArrowUp',7);await turn('KNOB2','ArrowDown',5);await turn('KNOB3');await press('SEQ');await step(4);await page.waitForTimeout(80);
+ await turn('ALGORITHM');await press('ENV');await press('EDIT');await turn('SELECT');await turn('KNOB1','ArrowUp',7);await turn('KNOB2','ArrowDown',5);await turn('KNOB3');await press('SEQ');await step(4);await page.waitForTimeout(80);
  s=await state();assert.equal(s.voices[2].steps[3].note,43);assert(Math.abs(s.voices[2].steps[3].gate-.5)<.001);assert(s.voices[2].steps[3].slide);
  for(const name of ['HOME','FX','SEL','ENV','LFO','EDIT','GLO','SAVE','ARP','SEQ']){await press(name);await press('PLAY');await page.waitForFunction(()=>UG.state.playing);await press('PLAY');await page.waitForFunction(()=>!UG.state.playing);}
  for(const width of [320,375,680]){await page.setViewportSize({width,height:850});assert(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth));}

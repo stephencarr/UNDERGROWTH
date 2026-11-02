@@ -93,3 +93,12 @@ Normal use is session-only with no project saving. Preserve the zero-storage-wri
 Update [PRODUCT.md](PRODUCT.md) for user-visible behavior and [ROADMAP.md](ROADMAP.md) for accepted decisions or changed priorities. Update this guide for architecture/tooling changes and [HARDWARE.md](HARDWARE.md) for build or physical acceptance evidence. Keep historical research explicitly historical. Older README sections contain superseded two-lane and recording descriptions; current source/tests and the later FM1 control section are the starting point when investigating a mismatch.
 
 The published product URL is https://stephencarr.github.io/UNDERGROWTH/. A commit, draft PR or successful local build does not by itself verify the deployed site.
+
+The draft ROOT trial expands parameter masks to 32 bits (20 slots), preserving
+legacy seven-slot stamping on the other organisms. ROOT's track-enable switch
+(slot 17) is excluded from locks/motion. Character occupies 7–10, atmosphere
+11–18, with independent atmosphere send at 16. `ug_grain` exports display-only
+telemetry. `root_atmosphere_test` covers the cloud and high-bit score semantics;
+`root_atmosphere_browser.cjs` exercises real mouse/touch panel paths. The texture
+is generated once at init, has no external sample licence, and is held in pool
+memory on FM1. The new parameters are included in native/WASM parity.

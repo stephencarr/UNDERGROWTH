@@ -4,6 +4,8 @@
 #include <stdint.h>
 void ug_init(int sample_rate);
 void ug_render(int frames);
+/* Grain display telemetry: cursor 0, active count 1, grain positions 2..9. */
+float ug_grain(int field);
 float *ug_buffer(void);
 void ug_play(int enabled);
 void ug_hit(int voice, float velocity);

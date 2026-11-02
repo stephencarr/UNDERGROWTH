@@ -24,12 +24,12 @@ try{for(const touch of [false,true]){
  await press('EDIT');await turn('KNOB4',-100);await press('ENV');await turn('KNOB1',-100);await press('White key 1');await wait(700);const compressed=await peak();
  await turn('KNOB1',100);await press('White key 1');await wait(700);let stretched=await peak();for(let i=0;i<12;i++){await wait(15);stretched=Math.max(stretched,await peak());}assert(stretched>.0001&&stretched>compressed*3,`stretch response ${compressed}/${stretched}`);
  await page.keyboard.press('Escape');await wait(100);assert.equal(await peak(),0);
- await turn('ALGORITHM');assert((await read()).includes('Release'));await turn('SELECT');assert((await read()).includes('C2'));
+ await turn('ALGORITHM');assert((await read()).includes('Position'));await press('EDIT');await turn('SELECT');assert((await read()).includes('C2'));
  await press('White key 1');assert.equal((await snap()).draftNote[0],29);assert((await read()).includes('F1'));
  await turn('KNOB1',7);await turn('KNOB2',-5);await turn('KNOB3',1);await turn('KNOB4',-30);
  const before=(await snap()).voices[2].steps;await press('SEL');assert(await peak()>.0001);assert.deepEqual((await snap()).voices[2].steps,before);
  await press('SEQ');await press('White key 4');s=await snap();assert.equal(s.voices[2].steps[3].note,36);assert(Math.abs(s.voices[2].steps[3].velocity-.7)<.001);
- await button('White key 4').click({delay:450});await wait(80);await turn('SELECT',2);await turn('KNOB1',7);assert.equal((await snap()).voices[2].steps[3].note,43);assert.equal((await snap()).draftNote[0],36);await press('SEQ');await press('White key 4');assert(!(await snap()).voices[2].steps[3].on);await press('White key 4');assert.equal((await snap()).voices[2].steps[3].note,43);
+ await button('White key 4').click({delay:450});await wait(80);await turn('SELECT',5);await turn('KNOB1',7);assert.equal((await snap()).voices[2].steps[3].note,43);assert.equal((await snap()).draftNote[0],36);await press('SEQ');await press('White key 4');assert(!(await snap()).voices[2].steps[3].on);await press('White key 4');assert.equal((await snap()).voices[2].steps[3].note,43);
  await page.keyboard.press('Escape');await wait(100);await page.screenshot({path:`/tmp/undergrowth-env-${touch?'touch':'mouse'}.png`,fullPage:true});
  await page.click('#view-toggle');await page.click('#voice-chatter');await wait(80);await page.click('#step-0');await wait(80);assert(!(await snap()).voices[1].steps[0].on);await page.click('#step-0');await wait(80);assert((await snap()).voices[1].steps[0].on);await page.locator('#step-0').click({delay:450});await page.waitForFunction(()=>UG.state.panel.locks);
  const slider=async(id,val)=>{await page.locator('#'+id).evaluate((el,value)=>{el.value=value;el.dispatchEvent(new Event('input',{bubbles:true}));el.dispatchEvent(new Event('change',{bubbles:true}));},String(val));await wait(80);};

@@ -91,3 +91,22 @@ Replaces the narrow skin/noise blend after the owner’s first audition: Body no
 The shared controller now owns HOME mixing, upper-key step tools, per-track navigation memory, key-role captions/light masks, and a recorder whose mode changes preserve the armed track. A typed clipboard preserves complete trigs; wrong-organism paste is refused. Explicit step audition hears stored locks/articulation on a rest without writing a trig or moving transport. Session mix levels/mutes use a 5 ms gain ramp, sit outside score Undo and motion, and leave shared delay tails to decay. Browser and hardware wrappers consume the same role/light state. The platform-host UX trace checks mixer state, clipboard/Undo, selected-step memory, REC ownership, help-page inertness, Panic and zero storage writes. See [UX design and research](UX_DESIGN.md). Physical ergonomics, screen reading, listening, CPU and recovery remain unvalidated.
 
 For `0.3.0-hw1`, the full milestone gate passed. App image: 109272 bytes; data+bss: 31948/98304 bytes; pool: 99724/344064 bytes. Package identity `FM-1_731000300`; CRC/loader and instruction checks passed. No physical FM1 access or flashing was performed.
+
+## ROOT Character and atmosphere trial — 0.4.0-hw1 (draft)
+
+Adds fixed-topology FM personality macros and a bounded eight-grain sampler in
+shared C. The texture is original and generated once at init; the sampler does
+not allocate or perform IO in render. Its pool holds 4096 float samples. Observe
+the existing physical CPU/P/X strip with ENV off/on and maximum density before
+accepting device headroom; no host timing substitutes for this comparison.
+Build/package and regression evidence is recorded separately from physical tests.
+No physical FM1 access, install, CPU measurement or listening approval is claimed.
+
+Validation for this draft passed the full milestone gate: native suites (including
+ROOT grains/high-bit locks), native/WASM bit parity, worklet, mouse/touch browser
+and updater simulations, platform-host traces, and FM1 package/CRC/identity,
+instruction and memory checks. Image: 116236 bytes; data+bss: 40332/98304 bytes;
+pool: 116108/344064 bytes. Identity: FM-1_731000400. In a final dense four-track
+host comparison, 10 seconds of audio took 0.1111 CPU seconds with grains off and
+0.1176 with grains on (about 5.9% relative added host cost). This is not an FM1
+CPU percentage. Physical grain-on/off CPU/P/X readings remain outstanding.
