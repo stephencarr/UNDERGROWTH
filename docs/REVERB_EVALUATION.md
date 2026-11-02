@@ -107,3 +107,10 @@ safety, platform-host traces, firmware CRC/identity/loader/instruction/memory
 checks and rebuilt-vs-checked-in package/vocabulary comparisons. Reverb tests
 also passed address/undefined-behaviour sanitizers (leak detection off).
 No physical device was accessed. Listening and FM1 CPU acceptance remain open.
+
+PR #11 review completed with one low-severity documentation finding: the
+initial README/installer wording implied full validation/publication while the
+gate was running. Full-gate success is now recorded above; README explicitly
+keeps candidate publication pending deployment verification. No DSP or routing
+findings were reported. This documentation correction needs no new functional
+review under AGENTS.md. Existing accepted noncritical workflow debt remains.
