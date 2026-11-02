@@ -252,7 +252,19 @@ void ug_ui_refresh(void){
  if(page==0&&sub==1&&!message[0]){lines[6][0]=0;add(lines[6],busy()?"Finish REC for global FX":"Raise track / ENV send to hear");}
  if(voice==2&&page==9&&!lock_menu&&!message[0]){lines[6][0]=0;add(lines[6],keyboard?"KEYBOARD: assign / REC: play":"STEPS / SEQ: keyboard");}
  if(voice==2&&page==2&&!message[0]){char strip[28];for(int i=0;i<26;i++)strip[i]='-';strip[26]=0;for(int i=2;i<10;i++){float x=ug_grain(i);if(x>=0)strip[(int)(x*25)]='o';}strip[(int)(ug_grain(0)*25)]='|';lines[6][0]=0;add(lines[6],strip);}
- if(count()>1){add(lines[7],"SELECT ");number(lines[7],lock_menu?(voice==2?(sub==0?1:sub==4?2:sub==3?3:sub==5?4:sub==6?5:6):(sub==0?1:sub==3?2:3)):sub+1);add(lines[7],"/");number(lines[7],count());const char *seq[7]={" Sound",""," Notes / vel"," Atmosphere"," Character"," Atmos mix"," Sends"};add(lines[7],page==9?seq[sub]:page==2||page==4?voice==2?(page==4?(sub==2?" Character":sub?" Notes / vel":" Sound"):(sub?" Atmos mix":" Atmosphere")):sub?" Draft notes / vel":page==2?" Environment":" Sound":page==6?sub==2?" Key guide":sub?" Recovery":" Mix":page==0?(sub==1?" Reverb":sub==2?" Delay":" Sends"):sub?" Global":" Track");}else add(lines[7],key_mode()==1?"Upper: tracks + tools":"ALGORITHM: track");
+ if(count()>1){
+  int ordinal=sub+1;const char *label=" Track";
+  if(lock_menu){
+   static const int root_order[8]={1,0,6,3,2,4,5,0},percussion_order[8]={1,0,3,2,0,5,0,4};
+   ordinal=sub>=0&&sub<8?(voice==2?root_order[sub]:percussion_order[sub]):1;
+   label=sub==0?" Sound":sub==2?" Notes / vel":sub==3?(voice==2?" Atmosphere":" Percussion ENV"):sub==4?" Character":sub==5?" Atmos mix":sub==6?" Sends":sub==7?" Atmosphere":" Track";
+  }else if(page==2){
+   label=voice==2?(sub==0?" Atmosphere":sub==1?" Atmos mix":" Grain variation"):(sub==0?" Percussion ENV":sub==1?" Velocity":sub==2?" Atmosphere":sub==3?" Atmos mix":" Character");
+  }else if(page==4)label=sub==0?" Sound":sub==1?" Notes / vel":" Character";
+  else if(page==6)label=sub==0?" Mix":sub==1?" Recovery":" Key guide";
+  else if(page==0)label=sub==0?" Sends":sub==1?" Reverb":" Delay";
+  add(lines[7],"SELECT ");number(lines[7],ordinal);add(lines[7],"/");number(lines[7],count());add(lines[7],label);
+ }else add(lines[7],key_mode()==1?"Upper: tracks + tools":"ALGORITHM: track");
  add(lines[8],ug_state(0)?"PLAY ":"STOP ");number(lines[8],ug_state(4));add(lines[8]," BPM");if(ug_state(18)){add(lines[8]," REC ");add(lines[8],modes[ug_state(17)]);add(lines[8]," ");add(lines[8],voices[ug_state(19)]);}
 }
 const char *ug_ui_line(int n){return n>=0&&n<9?lines[n]:"";}

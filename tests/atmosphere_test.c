@@ -31,6 +31,9 @@ int main(void){const int rates[]={8000,44100,48000,96000};
   ug_init(44100);ug_ui_init();ug_ui_select(0,v);ug_ui_button(2);ug_ui_turn(0,2);
   assert(strcmp(ug_ui_knoblabel(3),"Body"));ug_ui_turn(0,1);assert(!strcmp(ug_ui_knoblabel(5),"Enabled"));
   ug_ui_turn(5,1);assert(ug_getparam(v,17)==1);
+  ug_ui_button(9);ug_ui_key(0,1,1);ug_ui_tick(351);ug_ui_key(0,0,1);
+  for(int menu=0;menu<5;menu++){ug_ui_refresh();assert(strstr(ug_ui_line(7),"/5"));if(menu==3){assert(ug_ui_state(1)==7);assert(strstr(ug_ui_line(7),"SELECT 4/5 Atmosphere"));}if(menu==4)assert(strstr(ug_ui_line(7),"SELECT 5/5 Atmos mix"));ug_ui_turn(0,1);}
+  ug_ui_button(9);
   ug_ui_button(0);assert(!strcmp(ug_ui_knoblabel(4),"ENV send"));ug_ui_turn(4,50);assert(ug_getparam(v,16)>.49f);
  }
  assert(fabs(energy[0]-energy[1])>.01&&fabs(energy[1]-energy[3])>.01);

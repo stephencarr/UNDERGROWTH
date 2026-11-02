@@ -58,7 +58,7 @@ Linux x86-64 is the initial cross-build host. Follow [HARDWARE.md](HARDWARE.md) 
 python3 tools/prepare_firmware.py
 # Export FM1_BASE, AC79_SDK and JIELI_TOOLCHAIN using setup's printed paths.
 python3 tools/firmware_build.py --host
-python3 tools/firmware_build.py --release 0.6.0-hw1
+python3 tools/firmware_build.py --release 0.6.1-hw1
 ```
 
 Do not update pinned revisions or bypass hash, TLS, package identity, CRC, loader, instruction or memory checks merely to make a build succeed. The compiler download hosts are `pkgman.jieliapp.com` and `jl-update.oss-cn-shenzhen.aliyuncs.com`; environment network policy may need to allow required destinations.
@@ -69,7 +69,7 @@ With toolchains, browser dependencies and the local server ready, run:
 sh tools/check_milestone.sh
 ```
 
-This builds native/WASM, runs core/controller tests, parity/worklet and browser/updater checks, builds the platform host and real FM1 package, and compares firmware/vocabulary with published artifacts. `UG_RELEASE` selects the package version for the gate; the default is currently `0.6.0-hw1`. A new release needs matching checked-in artifacts, manifest, notices and installer references. Inspect the scripts before changing release versions rather than treating the environment variable as a complete release procedure.
+This builds native/WASM, runs core/controller tests, parity/worklet and browser/updater checks, builds the platform host and real FM1 package, and compares firmware/vocabulary with published artifacts. `UG_RELEASE` selects the package version for the gate; the default is currently `0.6.1-hw1`. A new release needs matching checked-in artifacts, manifest, notices and installer references. Inspect the scripts before changing release versions rather than treating the environment variable as a complete release procedure.
 
 Build outputs include `firmware/build/` and `build/releases/<version>/`. The package manifest records source/dependency identities and experimental/hardware-validation status. Missing compiler/dependencies or a failed package gate leaves a functional milestone incomplete. Never substitute a host binary or WASM for firmware.
 
@@ -261,3 +261,11 @@ traces, simulated updater safety, package identity/CRC/loader/instruction/memory
 checks and exact rebuilt package/vocabulary comparisons. Focused atmosphere and
 reverse-grain reproducer ASan/UBSan checks passed (leak detection off). Listening
 and physical FM1 CPU acceptance remain open; no flashing was performed.
+
+PR #16 reviews completed: Codex reported no findings; Copilot found a footer
+label-table bounds issue on the appended lock pages and an Expanded unlocked
+atmosphere fallback that followed the playhead. Both are corrected in the draft
+0.6.1-hw1 patch. Guarded page-number mapping and explicit footer labels replace
+the old short table. Native sanitizer coverage refreshes every lock page; real
+browser tests select an unlocked rest during locked playback and verify its
+draft value remains displayed. No extra features were added after review.

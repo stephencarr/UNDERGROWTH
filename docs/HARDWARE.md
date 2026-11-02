@@ -206,3 +206,17 @@ traces, simulated updater safety, package identity/CRC/loader/instruction/memory
 checks and exact rebuilt package/vocabulary comparisons. Focused atmosphere and
 reverse-grain reproducer ASan/UBSan checks passed (leak detection off). Listening
 and physical FM1 CPU acceptance remain open; no flashing was performed.
+
+### Atmosphere review corrections — 0.6.1-hw1 (unpublished)
+
+The corrected controller labels both new trig-menu pages with bounded ordinal
+mapping, and Expanded lock edits use the selected trig/draft ownership. Cross-build
+image is 126044 bytes, with pool allocation unchanged. The new footer navigation
+and draft-fallback regressions are part of the mandatory gate. No physical
+flashing, performance measurement or public Pages release is performed.
+
+The complete 0.6.1-hw1 milestone gate passed after these fixes, including the
+new native/sanitizer footer navigation and real mouse/touch selected-rest draft
+fallback regressions. Package/vocabulary comparison passed; image 126044 bytes,
+data+bss 40940/98304 and pool 206708/344064. Listening and physical acceptance
+remain outstanding. Public GitHub Pages is unchanged.

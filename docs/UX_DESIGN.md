@@ -223,3 +223,8 @@ order; appended Atmosphere and ATM MIX pages offer deliberate locks. ATM MIX is
 Level/Rate/Character/ENV send; Enabled is never a lock. Normal note stamping does
 not capture atmosphere settings. Expanded view edits the same parameters and
 shows effective values during playback. View changes never alter the armed track.
+
+Review correction in 0.6.1-hw1: all five percussion trig-menu pages now have
+correct footer labels/page numbers, including Atmosphere and ATM MIX. Expanded
+atmosphere sliders show the selected trig's lock or its draft fallback during
+playback; they never borrow another step's passing playhead value in lock edit.

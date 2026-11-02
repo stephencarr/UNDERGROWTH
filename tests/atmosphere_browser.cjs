@@ -18,5 +18,15 @@ const {chromium}=require('playwright'),assert=require('node:assert/strict');
   await page.waitForFunction(v=>UG.state.voices[v].base[11]>.79,voice);
   await click(page.locator('#view-toggle'));await page.evaluate(()=>UG.command('panic'));await page.waitForTimeout(250);assert(await peak()<1e-7);
  }
+ // Selected rest has no lock: it must show its draft while another trig owns playback.
+ await page.evaluate(()=>{UG.command('panic');UG.command('uiSelect',0,0);UG.command('param',0,11,.4);for(let s=0;s<16;s++)UG.command('lock',0,s,11,.9);UG.command('clearlock',0,1);UG.command('play',1);UG.command('uiButton',9);});
+ await page.waitForFunction(()=>UG.state.panel.page===9);
+ await btn('White key 2').dispatchEvent('pointerdown',{pointerId:1,pointerType:'mouse',button:0,buttons:1});await page.waitForTimeout(450);await btn('White key 2').dispatchEvent('pointerup',{pointerId:1,pointerType:'mouse',button:0,buttons:0});
+ await page.waitForFunction(()=>UG.state.panel.locks&&UG.state.panel.selected===1);
+ await turn('SELECT',3);await page.waitForFunction(()=>UG.state.panel.lines[7].includes('SELECT 4/5 Atmosphere'));
+ await click(page.locator('#view-toggle'));await page.waitForTimeout(100);
+ await page.waitForFunction(()=>UG.state.voices[0].effective[11]>.89);
+ assert(Math.abs(Number(await page.locator('#atmo-param-11').inputValue())-.4)<.001);
+ await click(page.locator('#view-toggle'));await page.evaluate(()=>UG.command('panic'));
  assert.deepEqual(errors,[]);await page.close();console.log('PASS '+(touch?'touch':'mouse')+' atmospheres: harmonic/noise/formant, explicit enable, empty-score audio, separate send, Expanded edit and Panic');
 }}finally{await browser.close();}})().catch(e=>{console.error(e);process.exitCode=1;});
