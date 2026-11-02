@@ -157,3 +157,24 @@ not inferred from the workflow result. No critical updater, storage or similar
 risks were reported. Review text based on the initial candidate described the
 full gate as pending; final successful gate evidence is recorded above. These
 workflow limitations remain accepted/deferred rather than being claimed fixed.
+
+## Temporary CHORD preview — 2 November 2026
+
+https://chord-pr-14-preview-preview-base.up.railway.app/
+
+Railway service `chord-pr-14-preview` (f0a8f0d1-6bbe-4b0f-b210-e28a02941f22)
+in UNDERGROWTH / preview-base (3f95df2a-12cc-40c9-9ce7-15d1630d2775).
+Deployment 792bb42e-a048-41bf-b74e-c05076df671d reached SUCCESS for CHORD commit
+e36cf56b3d55fc1f01bc4681692bb5d8e71d5a45. It is pinned to that reviewed candidate;
+the trigger commit changes no application code. This is an explicit temporary
+service because Railway did not backfill a PR #14 environment after preview
+activation, branch push or draft/ready refresh. It does not replace main or PR #15
+and does not inherit automatic PR-close cleanup. Track it for removal when a
+normal PR preview or published CHORD release supersedes it.
+
+Verification established source commit, successful build and Railway healthcheck.
+Direct public HTTP/browser verification was unavailable in this workspace due to
+network policy and no connected browser capability; do not claim a live listening
+audition. The same source's local browser/audio and firmware gate passed as above.
+To play: Enable audio, select CHORD with ALGORITHM or its Expanded card, open EDIT,
+then play panel keys or Q–I. Harmony and Palette tones pages select/edit its slots.
