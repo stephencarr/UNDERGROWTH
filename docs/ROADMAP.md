@@ -19,6 +19,8 @@ interrupt the palette-first priority. Accepted noncritical debt stays deferred.
 | Following chords | Flexible FM organism with a distinct role beyond ROOT | Planned; final name, controls and voice budget remain open. |
 | After the palette | Track filters, separate delay/reverb sends and further delay controls | Planned. Existing reverb controls and delay return are already implemented. |
 | Then | Silent global FX automation lane | Planned; one owner for shared-bus automation. |
+| After the palette; exact order open | Per-track trig-lock scenes and morphing | Requested; up to four scenes per track as the starting scope. |
+| After the palette; exact order open | Complete playful, exploratory UI overhaul | Requested; Teenage Engineering is a design reference, with an original UNDERGROWTH identity. |
 | Later | Controlled ROOT arp evolution and punch-in effects | Planned; mappings and sequencing details require playing tests. |
 | Later | Versioned session saving and other reserved workflows | Deferred; current sessions disappear on reload. |
 
@@ -140,6 +142,51 @@ Reverb level/Decay/Damping/Width are already available. Pre-delay and a reverb
 low-cut are candidates to evaluate after listening, not commitments for the
 current release. Additional room-size controls should likewise earn their place
 through playing. Avoid adding controls merely because the algorithm permits them.
+
+### Per-track trig-lock scenes and morphing
+
+Requested by Stephen, 2 November 2026. Each track has up to four trig-lock scenes
+as the initial scope. Scenes hold alternative sets of that track's per-trig
+settings. A track morph control moves between scenes by interpolating the
+settings themselves: each value travels from its source-scene value to the
+corresponding destination-scene value. This is parameter morphing, not an audio
+crossfade or four simultaneously rendered instruments.
+
+- Continuous settings interpolate smoothly, with exact scene values at the endpoints. A simple starting mapping is adjacent scene pairs along one control; the physical mapping and scene-selection workflow remain design work.
+- The musician must be able to capture/edit scenes and understand the active source, destination and morph position. Audition should preserve authored scene endpoints; deliberate edits and recording need a clear Undo transaction.
+- Scene scope is per-track trig settings. Shared delay/reverb character remains owned by global FX; scenes must not create competing global automation owners. The relationship to ROOT's independent ENV must be defined explicitly rather than implicitly snapshotting the drone again.
+- Before implementation, settle missing-lock/base fallback, how pitch/velocity/gate and discrete settings such as slide or chord shape participate, and precedence with manual takeover, motion and Rejoin. Trig on/off pattern changes are not implied by trig-lock scenes.
+- Decide whether/how the morph gesture is recordable and how scene capture uses the draft versus sounding values. These are open details, not implemented behaviour or permission to overwrite existing scenes during performance.
+
+Acceptance should cover exact endpoints, useful intermediate timbres, rest
+preservation, track isolation, predictable takeover/recording/Undo and bounded
+shared-C CPU/memory use with the full palette. Scene storage needs an explicit
+budget alongside the remaining device memory. Feature placement among the
+post-palette milestones remains open; this request does not reprioritise chords
+and FM.
+
+### Complete playful, exploratory UI overhaul
+
+Requested by Stephen, 2 November 2026. Redesign the instrument's layout,
+navigation, typography, colour, visual feedback and interaction language around
+a playful, exploratory experience. Teenage Engineering is the design reference:
+bold readable typography, purposeful graphic shapes, strong control groupings,
+expressive colour and inviting feedback. Develop an original UNDERGROWTH identity;
+this is a complete UI/workflow milestone, not a colour-only reskin.
+
+- Cover the browser's FM1 and Expanded views and the shared controller's physical-screen experience. Respect the real panel's fixed knobs, buttons, keys and non-touch screen; browser layouts can take advantage of their larger canvas.
+- Make sound shaping and exploration feel immediate. Use clear visual responses for organism character, grains, scenes/morph position, transport and effects, while keeping the musician's authored events and parameter ownership legible.
+- Keep draft versus trig versus live state, selected versus armed track, keyboard role, recording, scene capture and recovery unmistakable. Exploration must preserve deliberate note entry, predictable Undo/Panic and silent startup; it does not imply automatic composition.
+- Explore the navigation and page hierarchy as part of the overhaul. Preserve required musical capabilities, but do not treat every existing screen arrangement as fixed. Prototype the core choose → shape → plant → vary → perform → recover loop on the actual FM1 control constraints.
+- Retain keyboard, touch, pointer and assistive operation, readable contrast and comfortable targets. Colour and animation must not be the sole way to understand state. Expressive feedback must fit the physical display/render budget and avoid obscuring performance controls.
+
+Start with a coherent visual/interaction prototype and task walkthroughs, then
+carry the accepted design through shared C and the browser/device adapters.
+Acceptance includes musical task clarity, real pointer/touch/keyboard paths,
+small-screen layouts, hardware readability/ergonomics and the matching browser
+and experimental firmware gate. Exact placement relative to scenes and expanded
+effects remains open; the organism palette stays first unless Stephen changes
+that priority.
 
 ### Controlled ROOT arp evolution
 
