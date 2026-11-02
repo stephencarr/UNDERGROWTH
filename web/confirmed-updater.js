@@ -12,7 +12,11 @@ export async function verifyPair(access, pair, filter = () => true) {
   const lost = () => {if (!pairPresent(access, pair)) pair.invalidated = true;};
   access.addEventListener?.('statechange', lost);
   let found;
-  try { found = await new Updater(subset).find(filter); }
+  try {
+    const updater = new Updater(subset);
+    updater.allow(pair.input.name); // The user explicitly selected this exact pair, including renamed macOS ports.
+    found = await updater.find(filter);
+  }
   finally { access.removeEventListener?.('statechange', lost); }
   if (!found || !pairPresent(access, pair)) {
     found?.link.close();

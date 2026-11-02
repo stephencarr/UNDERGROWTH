@@ -29,4 +29,7 @@ assert.equal(b.sent.length,0,'Disconnected target must not fall back to another 
 access.inputs.set(a.input.id,a.input);access.outputs.set(a.output.id,a.output);a.invalidated=true;
 await assert.rejects(()=>verifyPair(access,a),/disconnected/);
 assert.equal(b.sent.length,0);
+const renamed=midiPair('Custom Mac Port','FM-1_620000100');
+const customAccess={inputs:new Map([[renamed.input.id,renamed.input]]),outputs:new Map([[renamed.output.id,renamed.output]])};
+const custom=await verifyPair(customAccess,renamed);custom.link.close();assert.equal(custom.id.text,'FM-1_620000100');assert(renamed.sent.length>0);
 console.log('PASS confirmed updater: exact pair despite reorder, disconnect/reconnect invalidation, install/resume never fall back');

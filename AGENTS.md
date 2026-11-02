@@ -13,5 +13,7 @@ Stephen requires every milestone to end with a flashable FM1 build, as well as t
 ## Review gate
 
 - Monitor this repository’s PR reviews, inline comments and review workflow results, including recently merged PRs.
-- Before merging or publishing, wait for the review workflow for the current PR head to finish, fetch all reviews and inline comments, and address or explicitly explain every actionable finding. A successful review workflow means the review ran; it does not mean there were no findings.
+- Before merging or publishing, wait for the review workflow for the current PR head to finish, fetch all reviews and inline comments, and triage findings. Block on device safety, unintended writes, data loss and broken core workflows; accept minor maintainability, polish and speculative edge cases as tech debt when their cost exceeds the likely benefit. Record accepted debt briefly instead of chasing a zero-comment review. A successful review workflow means the review ran; it does not mean there were no findings.
 - After pushing fixes, wait for the updated-head review and recheck findings. Never merge while the review is pending or running.
+
+Stephen explicitly prefers reasonable tech debt over perfection: once required gates pass and major risks are handled, ship without expanding optional testing or cleanup.
