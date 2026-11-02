@@ -69,3 +69,7 @@ support existing locks/motion; the shared effect settings have score Undo and
 are not edited during recording. Stop/mute preserve tails, while Panic clears
 them. A dedicated global FX automation lane, track filters, crush and sample
 import remain future work. Physical room/grain CPU headroom still needs FM1 use.
+
+At maximum Reverb and full send, that layer is essentially fully wet. Direct
+attack and the distinct delay return recede, giving a diffuse wash rather than
+only adding a quiet tail. Lower amounts retain definition.

@@ -124,7 +124,17 @@ render cost only. No FM1 access, flashing, listening or device CPU claim is made
 The full milestone gate passed for 0.4.1-hw1: ten native suites, active
 grains/reverb native-WASM bit parity, worklet, mouse/touch browser and simulated
 updater checks, platform-host traces and real package/CRC/identity, instruction
-and memory checks. Image: 118348 bytes; data+bss: 40588/98304 bytes; pool:
+and memory checks. Image: 118668 bytes; data+bss: 40604/98304 bytes; pool:
 236108/344064 bytes. Identity: FM-1_731000401. In the gate's dense four-track
-host comparison with grains engaged, 10 seconds rendered in 0.1238 CPU seconds
-with reverb off and 0.1574 with reverb on. These are host costs, not FM1 CPU.
+host comparison with grains engaged, 10 seconds rendered in 0.1153 CPU seconds
+with reverb off and 0.1436 with reverb on. These are host costs, not FM1 CPU.
+
+The final reverb range also checks full-level wet/dry balance on ROOT and ENV,
+with smoothed dry attenuation at maximum Reverb/full send. Feedback stays below
+one and extreme values remain finite. These changes require the final refreshed
+package/checksums, not the quieter early preview's binary.
+
+Final full-send/full-Reverb balance at 44.1 kHz measured +1.69 dB on ROOT and
+-0.60 dB on ENV relative to their dry reference, with the direct attack removed
+at maximum. The new regression also verifies a zero-send track retains its
+direct attack. This is an objective balance check, not listening approval.

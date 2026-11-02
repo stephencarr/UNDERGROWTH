@@ -37,7 +37,7 @@ static struct { int offset[12], length[12], position[12]; float low[8], now[5], 
 static void room_clear(void);
 
 static float master_target, master_now;
-static float levels[NVOICE],level_now[NVOICE];
+static float levels[NVOICE],level_now[NVOICE],dry_now[NVOICE],cloud_dry;
 static unsigned char muted[NVOICE];
 static Step clipboard;
 static int clipboard_voice;
@@ -92,7 +92,7 @@ void ug_init(int sample_rate) {
  zero(delaybuf,sizeof delaybuf);zero(&room,sizeof room);room_clear();zero(output,sizeof output);zero(takeover,sizeof takeover);
  zero(manual,sizeof manual);zero(trigger_count,sizeof trigger_count);zero(record_skip,sizeof record_skip);
  zero(muted,sizeof muted);clipboard_voice=-1;zero(&clipboard,sizeof clipboard);
- for(int v=0;v<NVOICE;v++){levels[v]=level_now[v]=1;audition_step[v]=-1;}
+ cloud_dry=1;for(int v=0;v<NVOICE;v++){dry_now[v]=1;levels[v]=level_now[v]=1;audition_step[v]=-1;}
  sample_clock=0;zero(last_trigger,sizeof last_trigger);
  zero(&backbeat,sizeof backbeat);zero(&root_fm,sizeof root_fm);zero(grains,sizeof grains);grain_cursor=grain_level=0;grain_wait=0;grain_serial=0;root_freq=root_target=65.406392f;root_gate=0;root_live=-1;
  for(int s=0;s<NSTEPS;s++){score.steps[2][s].note=36;score.steps[2][s].gate=.75f;}
@@ -355,7 +355,7 @@ static void room_render(float input,float *left,float *right){
  *left=*right=0;
  if(score.fx[0]==0&&room.now[0]<.00001f){if(room.active)room_clear();room.now[0]=0;return;}
  room.active=1;
- float feedback=.35f+room.now[1]*.57f,damping=.8f-room.now[2]*.75f;
+ float feedback=.55f+room.now[1]*.40f,damping=.8f-room.now[2]*.75f;
  float side[2]={0,0};
  for(int c=0;c<8;c++){
   int at=room.offset[c]+room.position[c];float delayed=room_buffer[at];
@@ -373,7 +373,8 @@ static void room_render(float input,float *left,float *right){
   if(++room.position[a]>=room.length[a])room.position[a]=0;
  }
  float middle=(side[0]+side[1])*.5f,spread=(side[0]-side[1])*.5f*room.now[3];
- *left=(middle+spread)*room.now[0];*right=(middle-spread)*room.now[0];
+ /* Full aux return should be a prominent room, not a barely audible tail. */
+ *left=(middle+spread)*room.now[0]*8;*right=(middle-spread)*room.now[0]*8;
 }
 void ug_render(int frames){
  if(frames<0)frames=0;
@@ -383,8 +384,12 @@ void ug_render(int frames){
   if(playing){if(first){advance();first=0;}else{tickphase+=(uint32_t)(tempo*4);if(tickphase>=step_duration()){tickphase-=step_duration();advance();}}}
   if(playing&&pending_chatter>0&&--pending_chatter==0){trigger(1,pending_velocity,1);pending_chatter=-1;}
   float dry=0,send=0;
+  /* The top of Reverb washes sent layers fully wet without boosting/clipping
+   * the dry attack. Unsent layers keep their direct sound. */
+  float wash=room.now[0]*room.now[0];wash*=wash;
   for(int v=0;v<NVOICE;v++){
    level_now[v]+=((muted[v]?0:levels[v])-level_now[v])*(1.0f/(rate*.005f));
+   float layer_send=ug_effective(v,3);dry_now[v]+=(1-wash*layer_send-dry_now[v])*room.smoothing;
    Voice *q=&voices[v];if(q->env<0.000015f&&q->burst_left==0&&(v!=3||q->sweep<0.000015f)){q->env=0;continue;}
    float body=ug_effective(v,0),edge=ug_effective(v,1),length=ug_effective(v,2);
    float e4=ug_effective(v,4),e5=ug_effective(v,5),e6=ug_effective(v,6);
@@ -462,9 +467,10 @@ void ug_render(int frames){
    /* Response has a strong direct effect on onset; DNA adds only a small pressure colour. */
    float attack_time=v==2?.0003f+e6*e6*.04f:v==1?.0002f+(1-e6)*.001f:.0003f+(1-e6)*(1-e6)*(v==2?.04f:.012f);
    float attack=clamp((float)q->age/(rate*attack_time),0,1);q->age++;sample*=q->vel*attack;
-   sample*=level_now[v];dry+=sample;send+=sample*ug_effective(v,3);
+   sample*=level_now[v];dry+=sample*dry_now[v];send+=sample*layer_send;
   }
-  float cloud=atmosphere()*level_now[2];dry+=cloud;send+=cloud*ug_effective(2,16);
+  float cloud_send=ug_effective(2,16);cloud_dry+=(1-wash*cloud_send-cloud_dry)*room.smoothing;
+  float cloud=atmosphere()*level_now[2];dry+=cloud*cloud_dry;send+=cloud*cloud_send;
   int read=delaypos-delaylen;if(read<0)read+=DELAY;
   delay_lp+=(delaybuf[read]-delay_lp)*0.13f;
   float write=send+delay_lp*0.52f;
@@ -472,7 +478,7 @@ void ug_render(int frames){
   if(delay_lp<0.0000001f&&delay_lp>-0.0000001f)delay_lp=0;
   master_now+=(master_target-master_now)*0.002f;
   float room_left,room_right;room_render(send,&room_left,&room_right);
-  float mixed=dry+delay_lp*room.now[4];
+  float mixed=dry+delay_lp*room.now[4]*(1-wash);
   output[2*i]=clamp((mixed+room_left)*master_now,-.95f,.95f);
   output[2*i+1]=clamp((mixed+room_right)*master_now,-.95f,.95f);sample_clock++;
  }

@@ -157,3 +157,17 @@ FX trig/motion automation remains deferred to the planned silent FX lane. Stop
 and track mutes allow effect tails to decay; Panic clears the room immediately.
 The original fixed-size room uses four damped combs and two diffusers per stereo
 side, with bounded feedback and smoothed controls. It allocates no runtime memory.
+
+Reverb's range was tuned after the owner found the original full return too
+quiet. Full send plus full Reverb now washes the layer essentially fully wet;
+the direct layer and distinct delay return recede smoothly at the top of the
+range. Lower settings retain definition. The return has eight times the first
+trial's gain and a longer bounded decay range; it does not depend on output
+clipping to obscure the dry attack. Full-level native checks cover comparable
+wet/dry energy on ROOT and ENV plus removal of the direct pre-reflection attack.
+
+Accepted/deferred PR #8 review debt: new ROOT Expanded sliders show draft values
+rather than effective values during motion/playback; toggling ENV Enabled as the
+first Motion/Both edit is not captured in the take snapshot; and changing global
+FX inside an open trig menu can combine later trig edits with its Undo boundary.
+These are noncritical workflow/feedback issues, not fixed by this release.
