@@ -104,14 +104,16 @@ is generated once at init, has no external sample licence, and is held in pool
 memory on FM1. The new parameters are included in native/WASM parity.
 ## Railway browser previews
 
-Railway's UNDERGROWTH project uses persistent `preview-base`, now sourced from
-`main`. PR #9 added the shared hosting helpers. Automatic per-PR environments
-are the intended workflow, but the project-level switch/base selection still
-needs dashboard verification: the connected tools do not expose that setting,
-and this workspace cannot reach Railway CLI sign-in through its network policy.
-Do not infer automatic previews are working merely from a healthy base service.
-The grain work is in draft PR #15; verify an actual PR environment and its commit
-before sharing a grain preview. GitHub Pages remains
+Railway's UNDERGROWTH project uses persistent `preview-base`, sourced from
+`main`, as the base for automatic PR environments. Stephen enabled the project
+setting on 2026-11-02. PR #15 was marked ready and reopened to trigger creation
+for this already-open PR; Railway provisioned `UNDERGROWTH-pr-15` from
+`codex/grain-atmospheres` with its own automatic domain:
+https://undergrowth-preview-undergrowth-pr-15.up.railway.app .
+Verify deployment SUCCESS and the deployed commit on every update. This workspace's
+network policy blocks direct HTTP/browser access to Railway domains; deployment
+metadata is available through the connected Railway tools, but a live browser
+smoke test may require an environment that can reach the preview. GitHub Pages remains
 the accepted instrument. Railway only packages the checked-in browser bundle;
 the normal milestone gate must build matching WASM/firmware before a functional
 change is accepted. Hosting configuration does not replace musical validation.
