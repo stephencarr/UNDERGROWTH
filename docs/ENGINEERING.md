@@ -102,3 +102,24 @@ telemetry. `root_atmosphere_test` covers the cloud and high-bit score semantics;
 `root_atmosphere_browser.cjs` exercises real mouse/touch panel paths. The texture
 is generated once at init, has no external sample licence, and is held in pool
 memory on FM1. The new parameters are included in native/WASM parity.
+## Railway browser previews
+
+Railway's UNDERGROWTH project uses `preview-base` as the base environment,
+tracking `codex/railway-previews`, with automatic PR environments enabled.
+The hosting setup remains on that branch until its merge is separately authorized. GitHub Pages remains
+the accepted instrument. Railway only packages the checked-in browser bundle;
+the normal milestone gate must build matching WASM/firmware before a functional
+change is accepted. Hosting configuration does not replace musical validation.
+
+`railway.json` builds with `tools/prepare_preview.py` and runs the standard-library
+Python server in `tools/serve_preview.py` on `$PORT`. Only `/`, `/index.html` and
+`/version.json` are public routes; the root bundle embeds its scripts and WASM.
+The version badge identifies branch, commit and PR when Railway supplies them.
+There is no repository directory serving, directory listing or preview flasher.
+Unknown paths, including source, credentials and firmware paths, return 404.
+
+Run `python3 tests/preview_server_test.py` to verify the access boundary. PR
+previews update on branch pushes and Railway removes their environments when
+PRs close or merge. A Railway-provided domain on the base service enables
+automatic domains for PR environments. Verify deployment SUCCESS, version.json
+and a real browser audio/ROOT workflow before handing someone a preview URL.

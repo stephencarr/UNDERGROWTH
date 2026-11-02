@@ -134,3 +134,8 @@ No physical device access or flashing is part of this trial's software validatio
 Prior PR #7 review findings (audition ownership, Expanded groove during Hits,
 and Finish motion during Both) are accepted/deferred noncritical debt for this
 trial. They are not represented as fixed by the ROOT changes.
+
+ROOT trial PR #8 review debt: when switching from Device Keyboard mode to Expanded,
+the step grid inherits Keyboard mode. Return to Steps with SEQ before using the
+Expanded step grid. This reversible note-editing issue is accepted/deferred
+noncritical debt; it is not represented as fixed by the hosting setup.
