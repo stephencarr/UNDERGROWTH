@@ -18,9 +18,11 @@ Startup and empty Play are silent. Enabling audio prepares the instrument withou
 2. Open SEQ. Its sixteen lower keys address sixteen steps for every organism. First activation of an untouched step captures draft sound, ENV and velocity; ROOT also captures pitch, gate and slide.
 3. Tap to toggle a step. Turning it off preserves authored data for reactivation. Hold for 350 ms to open the persistent trig-lock menu without toggling. SELECT changes its Sound, ENV and Notes / velocity pages; SEQ closes it. Editing a rest keeps it silent.
 4. Play and perform. Stored locks determine a step's sound; manual takeover temporarily overrides them. Rejoin or finishing the take releases takeover. The draft must never be contaminated by a passing playhead's lock.
-5. REC selects Hits, Motion or Both for an armed track. Hits overdubs live events; Motion writes touched values on existing hits; Both supports touched values on new and existing hits. Rests remain rests in motion-only recording. One Undo restores the whole take. Viewing another track does not change the armed track.
+5. REC arms and shows Hits, Motion or Both for a fixed track. Changing mode finishes the previous take and arms the next mode on that same track; finishing stays on the working page. Hits overdubs live events; Motion writes touched values on existing hits; Both supports touched values on new and existing hits. Rests remain rests in motion-only recording. One Undo restores the whole take. Viewing another track does not change the armed track.
 
 ROOT has separate pitch/gate/slide/velocity articulation. Velocity is authored strength for all tracks; playback Human does not rewrite it. Swing is global; Human currently affects sequenced Chatter. Track Send feeds the existing shared, fixed filtered delay. Global transport must work across pages. Stop ends recording; Panic clears voices and effect tails without erasing the score.
+
+HOME mixes four track levels and mutes independently of authored score Undo and motion. In HOME / step-entry SEQ, the upper keys provide track selection, Undo/Rejoin/audition and (in SEQ) same-organism full-trig copy/paste. Each track remembers its selected step and editing pages. SEL auditions instead of cycling tracks; in SEQ it hears the selected trig’s locks/articulation without creating a hit. EDIT and ENV both have an articulation page. See the [hardware-first workflow and research](UX_DESIGN.md).
 
 The default browser view follows the FM1 panel; Expanded view shares the same running engine and score. Labels, keyboard roles, draft versus step ownership, armed track and unavailable features should remain visible. Touch, pointer, keyboard and assistive activation need coherent behavior.
 
@@ -30,7 +32,7 @@ The default browser view follows the FM1 panel; Expanded view shares the same ru
 | --- | --- |
 | Musical engine | Four 16-step lanes, sound/ENV locks, velocity, ROOT articulation, groove, recording, takeover/Rejoin and Undo. |
 | Browser | Shared C/WASM engine and panel controller, JavaScript IO/drawing, FM1 and Expanded views. |
-| Firmware | Shared C plus FM1 adapter; experimental `0.2.1-hw1` package and validation record are checked in. |
+| Firmware | Shared C plus FM1 adapter; experimental `0.3.0-hw1` package and validation record are checked in. |
 | Device evidence | Cross-build/package and host checks are recorded as passed. No physical flash, playing, CPU-headroom or recovery validation is established. |
 | Persistence | Session-only. Reload/close loses the score. SAVE is unavailable. |
 | Effects | Fixed shared delay with track sends. Track filters, reverb, adjustable global effects and a silent FX automation lane are planned. |

@@ -19,8 +19,10 @@ function draw(){const s=ug()?.state,p=s?.panel;const signature=JSON.stringify([p
  const meter=p?.meter||'CPU -- / FM1 only';ctx.fillStyle='#142e23';ctx.font='10px monospace';ctx.fillText(meter,8,237);
  const readout=lines.filter(Boolean).join(' · ')+' · '+meter;document.getElementById('panel-readout').textContent=readout;lcd.setAttribute('aria-label',readout);
  for(const [name,b] of Object.entries(hardware.buttons)){const on=!!(p?.lights&(1<<buttons.indexOf(name)));b.g.classList.toggle('lit',on);b.hit.setAttribute('aria-pressed',String(on));}
- hardware.keys.forEach((k,i)=>{const note=29+i+(p?.octave||0)*12,outside=v===2&&p?.page!==9&&(note<24||note>60);k.g.style.opacity=outside?'.35':'1';k.hit.setAttribute('aria-disabled',String(outside));});
- hardware.whiteKeys.forEach((key,i)=>{hardware.keys[key].g.classList.toggle('lit',!!s?.voices[v].steps[i].on);hardware.keys[key].g.classList.toggle('held',!!s?.playing&&s.step===i);});
+ hardware.keys.forEach((k,i)=>{const label=p?.keyLabels?.[i]||'',outside=label==='OUT';k.g.style.opacity=outside?'.35':'1';k.hit.setAttribute('aria-disabled',String(outside));k.hit.setAttribute('aria-description',label);k.hit.title=label;k.caption.textContent=label;k.g.classList.toggle('lit',!!(p?.keyLights&(1<<i)));k.g.classList.toggle('latched',!!(p?.keyPlayhead&(1<<i)));k.hit.setAttribute('aria-pressed',String(!!(p?.keyLights&(1<<i))));});
+ for(let i=0;i<7;i++){const k=hardware.knobs[encoders[i]],label=p?.knobLabels?.[i]||encoders[i];k.hit.setAttribute('aria-description',label);k.hit.title=label;}
+ document.getElementById('panel-task').textContent=lines[0];document.getElementById('panel-context').textContent=[lines[1],lines[6],lines[7]].filter(Boolean).join(' · ');
+ document.getElementById('panel-transport').textContent=lines[8];
  document.getElementById('device-status').textContent=document.getElementById('audio-status').textContent;document.getElementById('device-audio').textContent=document.getElementById('enable-audio').textContent;
 }
 document.getElementById('device-audio').onclick=async()=>{await ug().enableAudio();last='';draw();};

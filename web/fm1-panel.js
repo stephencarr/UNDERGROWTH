@@ -77,7 +77,7 @@ const keys = [];
 })(36, 340, 928, 270);
 
 // UNDERGROWTH adaptation: match the photographed dark keybed and white key markers.
-keys.forEach(k=>{const b=k.g.getBBox();el('line',{x1:b.x+b.width/2,y1:b.y+10,x2:b.x+b.width/2,y2:b.y+b.height*.5,stroke:'#e0e4dd','stroke-width':4,'stroke-linecap':'round'},k.g);});
+keys.forEach(k=>{const b=k.g.getBBox();el('line',{x1:b.x+b.width/2,y1:b.y+10,x2:b.x+b.width/2,y2:b.y+b.height*.5,stroke:'#e0e4dd','stroke-width':4,'stroke-linecap':'round'},k.g);k.caption=text(k.g,b.x+b.width/2,b.y+b.height-12,'',11);});
 // ---------------------------------------------------------------- the controls
 // The drawing is only a picture (pointer-events: none). Each control gets an invisible HTML target over it,
 // which is also what the keyboard and a screen reader use: browsers (iOS Safari above all) honour touch-action

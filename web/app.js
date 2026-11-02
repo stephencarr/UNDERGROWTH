@@ -49,10 +49,13 @@ $('stop').onclick=()=>command('play',0);
 $('panic').onclick=()=>command('panic');
 $('tempo').onchange=()=>command('tempo',Math.round(Number($('tempo').value)||110));
 $('master').oninput=()=>command('master',Number($('master').value));
-$('record').onclick=()=>{command('uiButton',9);command('record',-1);};
-$('motion').onclick=()=>{dragging=null;command('uiButton',9);command('motion',-1);paint();};
-$('rejoin').onclick=()=>command('rejoin');
-$('undo').onclick=()=>{command('uiButton',9);command('undo');};
+$('record').onclick=()=>command('uiButton',11);
+$('record-mode').onchange=()=>command('uiRecordMode',Number($('record-mode').value));
+$('motion').onclick=()=>{dragging=null;if(state?.armed&&state.recordMode===2)command('uiButton',11);else{command('uiRecordMode',2);if(!state?.armed)command('uiButton',11);}};
+$('rejoin').onclick=()=>command('uiAction',1);
+$('undo').onclick=()=>command('uiAction',0);
+for(let v=0;v<4;v++){$('level-'+v).oninput=()=>command('level',v,Number($('level-'+v).value));$('mute-'+v).onclick=()=>command('mute',v,-1);}
+for(const [id,action] of [['copy-step',3],['paste-step',4],['hear-step',5]])$(id).onclick=()=>{if(state?.panel.page!==9)command('uiButton',9);command('uiAction',action);};
 $('clear-pattern').onclick=()=>command('clear');
 $('clear-lock').onclick=()=>command('uiEdit',11,0);
 $('lock-close').onclick=()=>command('uiButton',9);
@@ -119,16 +122,19 @@ function paint(){
  $('transport-status').textContent=state.playing?'Playing':'Stopped';
  $('step-status').textContent=state.step>=0?`${String(state.step+1).padStart(2,'0')} / 16`:'— / 16';
  $('play').classList.toggle('active',!!state.playing);$('play').setAttribute('aria-pressed',String(!!state.playing));
- $('record').classList.toggle('active',!!state.recording);$('record').setAttribute('aria-pressed',String(!!state.recording));
- $('record').textContent=state.recording?'Recording hits':'Record hits';
+ $('record').classList.toggle('active',state.armed);$('record').setAttribute('aria-pressed',String(state.armed));
+ $('record').textContent=state.armed?'Finish take':'Record '+['','hits','motion','both'][state.recordMode];$('record-mode').value=state.recordMode;
  $('motion').classList.toggle('active',state.motion);$('motion').setAttribute('aria-pressed',String(state.motion));
  $('motion').textContent=state.motion?'Finish motion':'Record motion';
  const touched=params.filter((_,p)=>state.motionMask[voice]&(1<<p)).map(id=>id.startsWith('env-')?environmentLabels[voice][Number(id.slice(-1))-4]:id);
  $('motion-help').textContent=state.motion?`${state.playing?'RECORDING':'ARMED'} · ${names[voice]} · ${!v.steps.some(s=>s.on)?'No hits in this voice yet. Finish motion and plant some steps first.':touched.length?'Capturing '+touched.join(', ')+' on existing hits.':'Move a sound slider to begin capturing.'} Finish motion or Stop to hear the recorded locks. Undo restores the whole take.`:
  'Motion overdub: arm Record motion, play your rhythm, then move a sound slider. Each existing hit captures that value as a step lock.';
- $('clear-pattern').disabled=state.motion;
+ for(let v=0;v<4;v++){if(document.activeElement!==$('level-'+v))$('level-'+v).value=state.voices[v].level;$('mute-'+v).setAttribute('aria-pressed',String(state.voices[v].muted));$('mute-'+v).textContent=(state.voices[v].muted?'Unmute ':'Mute ')+names[v];}
+ $('copy-step').disabled=state.armed;$('paste-step').disabled=state.armed||state.panel.clipboard!==voice;$('hear-step').disabled=state.armed;
+ $('copy-step').textContent='Copy step '+(selected+1);$('paste-step').textContent='Paste at '+(selected+1);
+ $('clear-pattern').disabled=state.armed||state.motion;
  for(const id of ['swing','human'])$(id).disabled=state.motion;
- $('undo').disabled=!state.undo;$('clear-lock').disabled=!lock||!st.mask;
+ $('undo').disabled=!state.undo||state.armed;$('clear-lock').disabled=!lock||!st.mask||state.armed;
  if(document.activeElement!==$('tempo'))$('tempo').value=state.tempo;
  $('rejoin').disabled=state.motion||!state.voices.some(v=>v.takeover);
  for(const b of document.querySelectorAll('[data-step]')){

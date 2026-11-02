@@ -60,6 +60,12 @@ The inspected implementation offers diatonic triads/sevenths plus fixed major, m
 
 Each new organism has its own recognisable synthesis identity, useful sound macros and ENV controls, velocity response, and the existing draft/step/lock/motion workflow. Implement it in shared C and finish each slice with the browser and matching experimental FM1 firmware. Audition it with the existing organisms. New sequencing modes, arp evolution, expanded global effects and general UI polish follow the basic palette. Accept noncritical prototype debt; only critical defects interrupt this sequence.
 
+## Implemented workflow pass — hardware first
+
+Stephen requested an overnight study and overhaul of the whole workflow, starting at the human hardware interface. [UX_DESIGN.md](UX_DESIGN.md) records the external UX/manual research, design choices, physical mapping and task acceptance scenarios. This is a design hypothesis to play, not a usability-study result.
+
+HOME becomes a four-track session mixer; lower keys 1–4 toggle mutes. SEQ retains sixteen step keys and tap/hold semantics; upper keys expose tracks, typed full-trig copy/paste, Undo, Rejoin, audition and lock-page navigation. SEL auditions rather than ambiguously choosing a track. EDIT adds a quick articulation page. Selected steps and section pages are remembered per track. REC mode changes retain the same armed owner; finishing preserves the working page. Device and Expanded views share that recorder/mix. Key labels and light masks come from shared C. No saving, arp, new effect or additional organism is implied. Physical testing and Stephen’s workflow acceptance remain open; chord stabs and FM remain next.
+
 ## Later — controlled ROOT arp evolution
 
 Inspired by the bounded movement of Caravel 0.6.0's WALK arp. Start with a small played/latched note set; neighbour-note wandering, adjustable rests and a restricted register keep the phrase recognisable. Hold freezes a pleasing phrase; Keep captures it into the sequencer; Revert returns to the seed. ROOT comes first, with related Chatter rhythm/articulation exploration later. Implement original behaviour in shared C for browser and firmware. This is a roadmap item, not part of the current step-editing fix.
