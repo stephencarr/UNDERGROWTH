@@ -90,3 +90,84 @@ Remaining questions for Stephen’s next play: do the upper-key roles stay memor
 ### Validation recorded for 0.3.0-hw1
 
 The complete milestone gate passed locally: native invariants, native/WASM bit parity including paste and mix changes, mouse/touch workflows and layout, simulated updater safety, platform-host scripts including the new UX trace, and the pinned compiler’s package/instruction/memory checks. App image 109272 bytes; data+bss 31948/98304 bytes; pool 99724/344064 bytes. Review and live deployment verification remain the publication gates. These checks do not measure user task speed, listening approval or physical FM1 usability.
+
+## ROOT trial — 0.4.0-hw1 (draft)
+
+Only ROOT adopts this workflow; the other organisms retain their current controls.
+EDIT has Sound (Tone, Colour, Decay, Attack), Notes/velocity, then Character
+(Structure, Intensity, Feedback, Motion). The fixed carrier/modulator topology
+belongs to ROOT's DNA; these macros shape ratios, index, bounded feedback and
+modulation decay. Hold a step and SELECT through Sound, Character, Atmosphere,
+Atmos mix, Sends and Notes to author locks. Sound/Character/atmosphere macros and
+both sends support locks, motion and take Undo. The prior cross-track takeover
+reset is fixed: stamping another lane cannot clear ROOT's live edits.
+
+In ROOT SEQ, the knobs immediately address selected-step Note, Gate, Slide and
+Velocity. Press SEQ again to switch between Steps and Keyboard. In Keyboard,
+keys assign and audition the selected step's pitch without enabling a rest.
+Hits/Both recording plays and records notes instead of assigning the selected
+step. OCT-/+ changes the playable octave. EDIT's Notes page still sets the draft
+pitch; the main EDIT page is a live keyboard without changing draft pitch.
+
+ENV now controls an independent eight-grain maximum drone using an original
+4096-sample woven texture generated at init, nominal sample rate 22050 Hz. The
+first page has Position, Grain size, Density and Pitch (C1–C4); the second has
+Level, Scan, Enabled and ENV send. Enable is a track switch, excluded from trig
+locks and motion; Play is also required. Default is off. Stop fades it out;
+Panic clears it immediately. ROOT mute/level affect both layers. The browser
+plots the source, scan playhead and actual grain positions; the FM1 shows a
+compact shared-controller grain/playhead strip. No file import, source selector,
+note-following mode or additional effects are implied by this trial.
+
+FX's ROOT track page has Synth send and ENV send, both feeding the existing
+shared filtered delay. Synth send remains parameter 3; atmosphere send is 16.
+The sequencer can lock these amounts; it does not own an additional gain stage.
+Reverb, crush and additional effect routing remain future work.
+
+For CPU comparison on a physical FM1, observe the existing CPU/P/X meter with
+the same pattern and effects: first ENV Enabled OFF, then ON. Repeat with large
+grains and maximum density. Record steady CPU, peak and any overrun-count change.
+Peak and X are cumulative; restart for independent peak comparisons. Desktop
+render timing and cross-build memory checks do not establish device headroom.
+No physical device access or flashing is part of this trial's software validation.
+
+Prior PR #7 review findings (audition ownership, Expanded groove during Hits,
+and Finish motion during Both) are accepted/deferred noncritical debt for this
+trial. They are not represented as fixed by the ROOT changes.
+
+ROOT trial PR #8 review debt: when switching from Device Keyboard mode to Expanded,
+the step grid inherits Keyboard mode. Return to Steps with SEQ before using the
+Expanded step grid. This reversible note-editing issue is accepted/deferred
+noncritical debt; it is not represented as fixed by the hosting setup.
+
+## Shared reverb — 0.4.1-hw1
+
+FX has three pages: track Sends, global Reverb, global Delay. All tracks feed the
+same stereo room using their existing Send; ROOT's synth and atmosphere sends
+remain independent and can be locked or motion-recorded per step. Reverb and
+delay receive the send in parallel. Reverb level, Decay, Damping and Width are
+shared settings. Delay has an independent return, so either effect can be heard
+alone. The room starts at zero return; raise a send and the Reverb knob to hear
+it. Repeated FX or SELECT advances pages. Expanded exposes the same five global
+values (including Delay return).
+
+Global FX edits participate in score Undo, are independent of selected track,
+and are refused during a take so they cannot replace its Undo snapshot. Global
+FX trig/motion automation remains deferred to the planned silent FX lane. Stop
+and track mutes allow effect tails to decay; Panic clears the room immediately.
+The original fixed-size room uses four damped combs and two diffusers per stereo
+side, with bounded feedback and smoothed controls. It allocates no runtime memory.
+
+Reverb's range was tuned after the owner found the original full return too
+quiet. Full send plus full Reverb now washes the layer essentially fully wet;
+the direct layer and distinct delay return recede smoothly at the top of the
+range. Lower settings retain definition. The return has eight times the first
+trial's gain and a longer bounded decay range; it does not depend on output
+clipping to obscure the dry attack. Full-level native checks cover comparable
+wet/dry energy on ROOT and ENV plus removal of the direct pre-reflection attack.
+
+Accepted/deferred PR #8 review debt: new ROOT Expanded sliders show draft values
+rather than effective values during motion/playback; toggling ENV Enabled as the
+first Motion/Both edit is not captured in the take snapshot; and changing global
+FX inside an open trig menu can combine later trig edits with its Undo boundary.
+These are noncritical workflow/feedback issues, not fixed by this release.

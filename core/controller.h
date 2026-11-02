@@ -3,7 +3,7 @@
 #define UG_CONTROLLER_H
 void ug_ui_init(void);
 void ug_ui_button(int button);
-/* Absolute menu edits: macros 0..6, velocity 7, ROOT pitch/gate/slide 8..10, clear locks 11. */
+/* Absolute menu edits: macros 0..6, velocity 7, ROOT pitch/gate/slide 8..10, clear locks 11; 20+p edits an extended macro lock (p 0..19). */
 void ug_ui_edit(int parameter,float value);
 /* Shared task actions: 0 Undo, 1 Rejoin, 2 Panic, 3 copy step, 4 paste step,
  * 5 audition. Mutating clipboard actions require step context and no take. */

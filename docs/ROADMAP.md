@@ -101,3 +101,19 @@ Accepted with Stephen on 2026-11-01: every future milestone must end with a real
 First hardware milestone: USB-only, single core, no Bluetooth/Wi-Fi. The host/browser tests, pinned cross-build and package validation passed; `build/releases/0.1.0-hw1/` contains an experimental `.fwsc`, manifest, checksums, build report and installer. The browser flasher is published as experimental; the firmware has not been flashed or tested on an FM1. See [hardware build and recovery notes](HARDWARE.md), including the Caravel 0.6.0/macOS route and remaining physical acceptance tests.
 
 Hardware diagnostics added to this pending milestone: persistent audio-budget CPU meter, observed peak and cumulative overruns on every display page, updated at 4 Hz. The browser explicitly marks device CPU unavailable; no simulated load is presented as hardware headroom.
+
+### ROOT-only trial (draft)
+
+Trial EDIT Sound/Character with per-trig locks, direct step notes and explicit
+SEQ keyboard mode, ENV as an independent original-texture grain drone, and
+separate layer sends into shared delay. Measure physical FM1 CPU with grains
+off/on before expanding this sampler to four tracks. Crush, sample
+selection/import and atmosphere following authored note pitches remain planned.
+
+### Shared reverb (0.4.1-hw1)
+
+Implemented an original stereo room with global level/decay/damping/width and
+independent delay return, fed by the existing per-layer sends. Shared effect
+settings have Undo and refuse changes during recording. Global FX automation
+remains reserved for the planned silent lane; per-track filters and crush are
+not part of this release.

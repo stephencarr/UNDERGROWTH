@@ -91,3 +91,50 @@ Replaces the narrow skin/noise blend after the owner’s first audition: Body no
 The shared controller now owns HOME mixing, upper-key step tools, per-track navigation memory, key-role captions/light masks, and a recorder whose mode changes preserve the armed track. A typed clipboard preserves complete trigs; wrong-organism paste is refused. Explicit step audition hears stored locks/articulation on a rest without writing a trig or moving transport. Session mix levels/mutes use a 5 ms gain ramp, sit outside score Undo and motion, and leave shared delay tails to decay. Browser and hardware wrappers consume the same role/light state. The platform-host UX trace checks mixer state, clipboard/Undo, selected-step memory, REC ownership, help-page inertness, Panic and zero storage writes. See [UX design and research](UX_DESIGN.md). Physical ergonomics, screen reading, listening, CPU and recovery remain unvalidated.
 
 For `0.3.0-hw1`, the full milestone gate passed. App image: 109272 bytes; data+bss: 31948/98304 bytes; pool: 99724/344064 bytes. Package identity `FM-1_731000300`; CRC/loader and instruction checks passed. No physical FM1 access or flashing was performed.
+
+## ROOT Character and atmosphere trial — 0.4.0-hw1 (draft)
+
+Adds fixed-topology FM personality macros and a bounded eight-grain sampler in
+shared C. The texture is original and generated once at init; the sampler does
+not allocate or perform IO in render. Its pool holds 4096 float samples. Observe
+the existing physical CPU/P/X strip with ENV off/on and maximum density before
+accepting device headroom; no host timing substitutes for this comparison.
+Build/package and regression evidence is recorded separately from physical tests.
+No physical FM1 access, install, CPU measurement or listening approval is claimed.
+
+Validation for this draft passed the full milestone gate: native suites (including
+ROOT grains/high-bit locks), native/WASM bit parity, worklet, mouse/touch browser
+and updater simulations, platform-host traces, and FM1 package/CRC/identity,
+instruction and memory checks. Image: 116236 bytes; data+bss: 40332/98304 bytes;
+pool: 116108/344064 bytes. Identity: FM-1_731000400. In a final dense four-track
+host comparison, 10 seconds of audio took 0.1111 CPU seconds with grains off and
+0.1176 with grains on (about 5.9% relative added host cost). This is not an FM1
+CPU percentage. Physical grain-on/off CPU/P/X readings remain outstanding.
+
+## ROOT with shared reverb — 0.4.1-hw1
+
+Adds an original stereo room to the shared sends, controlled on FX's Reverb page
+with level, Decay, Damping and Width. The Delay page adds an independent return.
+The room owns a fixed 30,000-float pool buffer covering 8–96 kHz; no IO/allocation
+occurs in render. Default reverb return is zero. Panic clears the buffer. Existing
+CPU/P/X diagnostics remain the physical acceptance path: compare the same dense
+pattern with grains on and reverb off/on. Host measurements are comparative
+render cost only. No FM1 access, flashing, listening or device CPU claim is made.
+
+The full milestone gate passed for 0.4.1-hw1: ten native suites, active
+grains/reverb native-WASM bit parity, worklet, mouse/touch browser and simulated
+updater checks, platform-host traces and real package/CRC/identity, instruction
+and memory checks. Image: 118668 bytes; data+bss: 40604/98304 bytes; pool:
+236108/344064 bytes. Identity: FM-1_731000401. In the gate's dense four-track
+host comparison with grains engaged, 10 seconds rendered in 0.1153 CPU seconds
+with reverb off and 0.1436 with reverb on. These are host costs, not FM1 CPU.
+
+The final reverb range also checks full-level wet/dry balance on ROOT and ENV,
+with smoothed dry attenuation at maximum Reverb/full send. Feedback stays below
+one and extreme values remain finite. These changes require the final refreshed
+package/checksums, not the quieter early preview's binary.
+
+Final full-send/full-Reverb balance at 44.1 kHz measured +1.69 dB on ROOT and
+-0.60 dB on ENV relative to their dry reference, with the direct attack removed
+at maximum. The new regression also verifies a zero-send track retains its
+direct attack. This is an objective balance check, not listening approval.

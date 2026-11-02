@@ -1,10 +1,17 @@
 const $=id=>document.getElementById(id);
 const names=['Kick','Chatter','ROOT','Backbeat'];
 const params=['body','edge','length','send','env-4','env-5','env-6'];
-const environmentLabels=[['Damping','Drop','Response'],['Stretch','Fracture','Grain'],['Glide','Weight','Response'],['Damping','Spread','Response']];
+const environmentLabels=[['Damping','Drop','Response'],['Stretch','Fracture','Grain'],['Glide','Weight','Attack'],['Damping','Spread','Response']];
 const noteName=n=>['C','C♯','D','D♯','E','F','F♯','G','G♯','A','A♯','B'][n%12]+(Math.floor(n/12)-1);
 for(const b of document.querySelectorAll('[data-step]')){const label=document.createElement('span');label.className='note-label';b.append(label);}
 let context,node,state,voice=0,selected=0,starting=null,dragging=null;
+const rootTrial=document.createElement('section');rootTrial.className='sound-section';rootTrial.hidden=true;rootTrial.innerHTML='<h2>ROOT · Character & Atmosphere</h2><p>Character shapes the FM voice. Atmosphere is an independent drone: enable it, then Play. Both layers send to the shared delay. Hold a step to lock these values.</p><div class="root-trial-grid"></div>';
+document.querySelector('main.instrument footer').before(rootTrial);
+const rootTrialParams=[[7,'Structure'],[8,'Intensity'],[9,'Feedback'],[10,'Motion'],[11,'Position'],[12,'Grain size'],[13,'Density'],[14,'Atmosphere pitch'],[15,'Atmosphere level'],[16,'Atmosphere send'],[17,'Atmosphere enabled'],[18,'Scan speed']];
+for(const [p,label] of rootTrialParams){const field=document.createElement('label');field.textContent=label+' ';const input=document.createElement('input');input.type='range';input.min='0';input.max='1';input.step=p===17?'1':'.01';input.id='root-param-'+p;input.setAttribute('aria-label',label);field.append(input);const output=document.createElement('output');output.id='root-value-'+p;field.append(output);rootTrial.querySelector('div').append(field);}
+const fxSection=document.createElement('section');fxSection.className='sound-section';fxSection.innerHTML='<h2>FX · Shared space</h2><p>Raise a track Send or ROOT’s ENV send to feed the effects. At full Reverb, sent layers become a diffuse wash and the direct sound and clear delay recede.</p><div class="root-trial-grid"></div>';
+document.querySelector('main.instrument footer').before(fxSection);
+for(const [p,name] of ['Reverb','Decay','Damping','Width','Delay return'].entries()){const label=document.createElement('label');label.textContent=name;const input=document.createElement('input');input.type='range';input.min=0;input.max=1;input.step=.01;input.id='fx-'+p;input.setAttribute('aria-label',name);label.append(input);const output=document.createElement('output');output.id='fx-value-'+p;label.append(output);fxSection.querySelector('div').append(label);}
 const musical=[...document.querySelector('main.instrument').querySelectorAll('button,input,select')].filter(el=>!['enable-audio','voice-kick','voice-chatter','voice-root','voice-backbeat'].includes(el.id));
 for(const el of musical)el.disabled=true;
 function command(type,...args){if(node)node.port.postMessage({type,args});}
@@ -80,6 +87,8 @@ for(const [p,id] of params.entries()){
  };
  el.onchange=()=>{dragging=null;};el.addEventListener('blur',()=>dragging=null);
 }
+for(const [p] of rootTrialParams){const el=$('root-param-'+p);el.oninput=()=>{const first=dragging!==el.id;dragging=el.id;const value=Number(el.value);if(lockEditing())command('uiEdit',20+p,value);else command(first?'editparam':'param',2,p,value);};el.onchange=()=>dragging=null;el.onblur=()=>dragging=null;}
+for(let p=0;p<5;p++){const el=$('fx-'+p);el.oninput=()=>{const first=dragging!==el.id;dragging=el.id;command(first?'editfx':'fx',p,Number(el.value));};el.onchange=()=>dragging=null;el.onblur=()=>dragging=null;}
 $('velocity').oninput=()=>{if(!state||state.armed||state.motion||state.recording)return;const first=dragging!=='velocity';dragging='velocity';if(lockEditing())command('uiEdit',7,Number($('velocity').value));else command(first?'editvelocity':'velocity',voice,-1,Number($('velocity').value));};
 $('velocity').onchange=()=>dragging=null;
 $('velocity').addEventListener('blur',()=>dragging=null);
@@ -126,6 +135,10 @@ function paint(){
  $('record').textContent=state.armed?'Finish take':'Record '+['','hits','motion','both'][state.recordMode];$('record-mode').value=state.recordMode;
  $('motion').classList.toggle('active',state.motion);$('motion').setAttribute('aria-pressed',String(state.motion));
  $('motion').textContent=state.motion?'Finish motion':'Record motion';
+ for(let p=0;p<5;p++){const el=$('fx-'+p);el.disabled=!!(state.armed||state.motion||state.recording);if(dragging!==el.id)el.value=state.fx[p];$('fx-value-'+p).textContent=Math.round(state.fx[p]*100)+'%';}
+ rootTrial.hidden=voice!==2;
+ if(voice===2)for(const [p] of rootTrialParams){const el=$('root-param-'+p),x=lock&&(st.mask&(1<<p))?st.lock[p]:v.base[p];el.disabled=p===17&&lock;if(dragging!==el.id)el.value=x;$('root-value-'+p).textContent=p===14?noteName(24+Math.round(x*36)):p===17?(x>.5?'On':'Off'):Math.round(x*100)+'%';}
+ for(const [id,label] of [['body',voice===2?'Tone':'Body'],['edge',voice===2?'Colour':'Edge'],['length',voice===2?'Decay':'Length']])$(id).closest('label').querySelector('.macro-top > span').textContent=label;
  const touched=params.filter((_,p)=>state.motionMask[voice]&(1<<p)).map(id=>id.startsWith('env-')?environmentLabels[voice][Number(id.slice(-1))-4]:id);
  $('motion-help').textContent=state.motion?`${state.playing?'RECORDING':'ARMED'} · ${names[voice]} · ${!v.steps.some(s=>s.on)?'No hits in this voice yet. Finish motion and plant some steps first.':touched.length?'Capturing '+touched.join(', ')+' on existing hits.':'Move a sound slider to begin capturing.'} Finish motion or Stop to hear the recorded locks. Undo restores the whole take.`:
  'Motion overdub: arm Record motion, play your rhythm, then move a sound slider. Each existing hit captures that value as a step lock.';

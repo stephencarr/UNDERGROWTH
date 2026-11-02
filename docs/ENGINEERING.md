@@ -58,7 +58,7 @@ Linux x86-64 is the initial cross-build host. Follow [HARDWARE.md](HARDWARE.md) 
 python3 tools/prepare_firmware.py
 # Export FM1_BASE, AC79_SDK and JIELI_TOOLCHAIN using setup's printed paths.
 python3 tools/firmware_build.py --host
-python3 tools/firmware_build.py --release 0.3.0-hw1
+python3 tools/firmware_build.py --release 0.4.1-hw1
 ```
 
 Do not update pinned revisions or bypass hash, TLS, package identity, CRC, loader, instruction or memory checks merely to make a build succeed. The compiler download hosts are `pkgman.jieliapp.com` and `jl-update.oss-cn-shenzhen.aliyuncs.com`; environment network policy may need to allow required destinations.
@@ -69,7 +69,7 @@ With toolchains, browser dependencies and the local server ready, run:
 sh tools/check_milestone.sh
 ```
 
-This builds native/WASM, runs core/controller tests, parity/worklet and browser/updater checks, builds the platform host and real FM1 package, and compares firmware/vocabulary with published artifacts. `UG_RELEASE` selects the package version for the gate; the default is currently `0.3.0-hw1`. A new release needs matching checked-in artifacts, manifest, notices and installer references. Inspect the scripts before changing release versions rather than treating the environment variable as a complete release procedure.
+This builds native/WASM, runs core/controller tests, parity/worklet and browser/updater checks, builds the platform host and real FM1 package, and compares firmware/vocabulary with published artifacts. `UG_RELEASE` selects the package version for the gate; the default is currently `0.4.1-hw1`. A new release needs matching checked-in artifacts, manifest, notices and installer references. Inspect the scripts before changing release versions rather than treating the environment variable as a complete release procedure.
 
 Build outputs include `firmware/build/` and `build/releases/<version>/`. The package manifest records source/dependency identities and experimental/hardware-validation status. Missing compiler/dependencies or a failed package gate leaves a functional milestone incomplete. Never substitute a host binary or WASM for firmware.
 
@@ -81,7 +81,7 @@ Documentation-only edits need documentation checks; they do not establish a new 
 - Preserve empty/silent startup; first-stamp draft capture; tap-toggle data retention; hold/menu transactions and Undo; rests during lock/motion edits; armed-track ownership; ROOT release; Panic and USB-loss behavior.
 - Test both touch and mouse activation. Passing `.click()` does not establish that a real touch invokes an action once.
 - Read PR reviews, inline comments and review workflow results, including recent merged work. A finished review job is not evidence of no findings. The milestone contract accepts noncritical debt and requires attention to critical risks; documentation-only edits do not need another review cycle.
-- State what was tested locally, published, audibly evaluated and physically tested separately. The checked-in `0.3.0-hw1` report records cross-build success; no physical FM1 acceptance is established.
+- State what was tested locally, published, audibly evaluated and physically tested separately. The checked-in `0.4.1-hw1` report records cross-build success; no physical FM1 acceptance is established.
 - Preserve installer identity checks, exact selected MIDI-pair confirmation, backup acknowledgement and cancellation semantics. Never use force-install flags, replace a bootloader, access a device or flash as a side effect of software validation. Physical flashing requires separate explicit authorization.
 
 Mix levels/mutes are separate session performance state; score Undo and recorded locks do not change them. The typed step clipboard and audition context live in the C core. Both wrappers consume shared key roles/light masks. Native/WASM parity includes clipboard paste and mixer changes; `tests/hardware_ux_browser.cjs` and `tests/hardware/ux.txt` cover the corresponding browser/platform paths. See [UX_DESIGN.md](UX_DESIGN.md) for control roles, research and acceptance tasks.
@@ -94,6 +94,14 @@ Update [PRODUCT.md](PRODUCT.md) for user-visible behavior and [ROADMAP.md](ROADM
 
 The published product URL is https://stephencarr.github.io/UNDERGROWTH/. A commit, draft PR or successful local build does not by itself verify the deployed site.
 
+The draft ROOT trial expands parameter masks to 32 bits (20 slots), preserving
+legacy seven-slot stamping on the other organisms. ROOT's track-enable switch
+(slot 17) is excluded from locks/motion. Character occupies 7–10, atmosphere
+11–18, with independent atmosphere send at 16. `ug_grain` exports display-only
+telemetry. `root_atmosphere_test` covers the cloud and high-bit score semantics;
+`root_atmosphere_browser.cjs` exercises real mouse/touch panel paths. The texture
+is generated once at init, has no external sample licence, and is held in pool
+memory on FM1. The new parameters are included in native/WASM parity.
 ## Railway browser previews
 
 Railway's UNDERGROWTH project uses persistent `preview-base` for the selected
@@ -121,3 +129,13 @@ and a real browser audio/ROOT workflow before handing someone a preview URL.
 Accepted/deferred preview review debt (PR #9): the bundled UX design guide link
 still points to a path outside the public route allowlist and returns 404. The
 allowlist stays restricted; repairing that navigation is noncritical follow-up.
+
+Shared FX live in the score's five global values: reverb return/decay/damping/
+width and delay return. `ug_setfx` / `ug_getfx` expose them to both adapters; they
+cannot be changed during a take. The shared room has a 30,000-float pool arena
+and twelve rate-scaled delay lines, with no render allocation. Wet zero fades
+the return and clears the bounded arena once before bypass. The existing sends
+feed delay and reverb in parallel; no global setting is assigned to instrument
+trig locks. `reverb_test` covers silence, stereo/mono tails, decay, send isolation,
+ENV feed, extreme sample rates and controls, Panic, global Undo and REC guards.
+`reverb_browser.cjs` exercises real mouse/touch controls and AudioWorklet tails.
