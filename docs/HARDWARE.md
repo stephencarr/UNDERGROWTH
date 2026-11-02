@@ -1,6 +1,6 @@
 # UNDERGROWTH: first FM1 hardware milestone
 
-**Status: the host, browser and pinned FM1 cross-build gate passed. `build/releases/0.1.1-hw1/` contains an experimental firmware package and its validation record. It has not been flashed or physically validated.**
+**Status: the host, browser and pinned FM1 cross-build gate passed. `build/releases/0.1.2-hw1/` contains an experimental firmware package and its validation record. It has not been flashed or physically validated.**
 
 The owner uses macOS and currently runs **Caravel 0.6.0**. Keep it installed while preparing this milestone; returning to stock is not a prerequisite established by the available documentation.
 
@@ -24,10 +24,10 @@ Linux x86-64 is the initial build host. macOS users will receive a prebuilt expe
 python3 tools/prepare_firmware.py
 # Set FM1_BASE, AC79_SDK and JIELI_TOOLCHAIN to the paths printed by setup.
 python3 tools/firmware_build.py --host
-python3 tools/firmware_build.py --release 0.1.1-hw1
+python3 tools/firmware_build.py --release 0.1.2-hw1
 ```
 
-For the complete milestone gate, set ZIG to Zig 0.13, run a local web server for Chromium tests, and run `sh tools/check_milestone.sh`. The browser tests use `TEST_URL` (localhost by default). If any required dependency is unavailable, the gate fails; there is no placeholder firmware or waived hardware target. The successful Linux build used the SHA-256-verified compiler archive from `firmware/dependencies.json`; the resulting `.fwsc` and `SHA256SUMS` are in `build/releases/0.1.1-hw1/`.
+For the complete milestone gate, set ZIG to Zig 0.13, run a local web server for Chromium tests, and run `sh tools/check_milestone.sh`. The browser tests use `TEST_URL` (localhost by default). If any required dependency is unavailable, the gate fails; there is no placeholder firmware or waived hardware target. The successful Linux build used the SHA-256-verified compiler archive from `firmware/dependencies.json`; the resulting `.fwsc` and `SHA256SUMS` are in `build/releases/0.1.2-hw1/`.
 
 A successful cross-build must include:
 
@@ -36,7 +36,7 @@ A successful cross-build must include:
 - Independent package identity, loader marker and UFW/part CRC validation, including corrupted-package rejection.
 - Source/dependency identity, SHA-256 hashes and licence notices. The initial output is explicitly experimental, with `hardware_validated: false`.
 
-The `flash.html` page offers a Chrome/Edge desktop route to the pinned `firmware/releases/undergrowth-0.1.1-hw1.fwsc`. It checks SHA-256, FM1 identity and UFW CRCs before requesting USB MIDI SysEx access. Device identification and backup acknowledgement precede the install command. Its updater is the pinned fm1-base Web MIDI implementation; a port shown under another name can be selected explicitly. The browser gate tests verification and confirmation with simulated MIDI only. The page must be served over HTTPS or localhost; opening it as a local file is not supported. The hosted page is https://stephencarr.github.io/UNDERGROWTH/flash.html; no local server is needed.
+The `flash.html` page offers a Chrome/Edge desktop route to the pinned `firmware/releases/undergrowth-0.1.2-hw1.fwsc`. It checks SHA-256, FM1 identity and UFW CRCs before requesting USB MIDI SysEx access. Device identification and backup acknowledgement precede the install command. Its updater is the pinned fm1-base Web MIDI implementation; a port shown under another name can be selected explicitly. The browser gate tests verification and confirmation with simulated MIDI only. The page must be served over HTTPS or localhost; opening it as a local file is not supported. The hosted page is https://stephencarr.github.io/UNDERGROWTH/flash.html; no local server is needed.
 
 ## Caravel 0.6.0 to UNDERGROWTH: preparation, not an instruction to flash yet
 
@@ -67,3 +67,11 @@ Every hardware page has a bottom strip: `CPU 42% P68% X0 EXP`, with a load bar. 
 The strip updates at 4 Hz independently of page changes, outside the audio interrupt. Load at 80% turns amber; 95% or any recorded overrun turns red. Values above 100% remain visible numerically; only the bar saturates. These thresholds are visual indicators, not automatic voice shedding. Host simulation is labelled HOST. The browser displays `CPU -- / FM1 only`, because desktop/browser timing would not establish FM1 headroom.
 
 Meter formatting and redraw cadence are covered by controller and platform-host tests. The cross-build passed; actual FM1 readings still require the hardware acceptance work above.
+
+## Review fixes in 0.1.2-hw1
+
+Step on/off preserves authored sound locks, velocity and ROOT note settings. Only an untouched step captures the draft on its first activation. Overlapping short presses are tracked independently. Reselecting the same trig retains the menu’s Undo snapshot, and opening its menu releases live takeover so edits can be heard. Expanded sliders share the same menu transaction.
+
+The flasher binds the initial update to the explicitly identified input/output pair and identity. When USB re-enumeration changes ports, the owner must identify and confirm the same physical FM1 again; Web MIDI cannot establish physical identity automatically. Escape and Cancel never authorize a write, including retries.
+
+USB connection loss or host sleep invokes Panic, silencing notes and stopping playback/recording. This uses the pinned platform’s USB-host loss notification and its USB power badge transition for device mode. The host tests simulate the latter transition; physical unplug/recovery tests remain outstanding. Screen-reader vocabulary is published at the firmware’s advertised `words/010e19d6e9.json` path and retained for installed releases.

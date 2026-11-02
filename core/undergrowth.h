@@ -14,6 +14,7 @@ void ug_recmode(int mode);
 void ug_draftnote(int note,float gate,int slide);
 float ug_draftvalue(int parameter);
 void ug_stamp(int voice,int step);
+void ug_toggle_authored(int voice,int step);
 void ug_erase(int voice,int step);
 void ug_note(int step,int note,float gate,int slide);
 float ug_notevalue(int step,int parameter);

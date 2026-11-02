@@ -31,7 +31,7 @@ Inspired by the bounded movement of Caravel 0.6.0's WALK arp. Start with a small
 
 ## Current interaction fix — tap steps, hold for trig locks
 
-A short SEQ tap toggles its step on/off. Holding for 350 ms opens the single trig-lock menu, without toggling or creating a hit. SELECT switches Sound, ENV and Notes / velocity; SEQ closes it. The menu remains open after releasing the key. Remove competing SEQ actions/lock pages and Expanded view's separate lock-mode switch. Expanded steps use the same hold gesture. Rest edits preserve rests; canceled presses never toggle; whole menu edits on one step support Undo.
+A short SEQ tap toggles its step on/off while preserving authored trig data; only a previously untouched step captures the draft. Holding for 350 ms opens the single trig-lock menu, without toggling or creating a hit. SELECT switches Sound, ENV and Notes / velocity; SEQ closes it. The menu remains open after releasing the key. Remove competing SEQ actions/lock pages and Expanded view's separate lock-mode switch. Expanded steps use the same hold gesture. Rest edits preserve rests; canceled presses never toggle; whole menu edits on one step support Undo.
 
 ## Next — effects
 

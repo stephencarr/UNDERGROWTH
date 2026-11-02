@@ -11,6 +11,9 @@ node tests/panel_input.cjs
 node tests/workflow_browser.cjs
 node tests/environment_browser.cjs
 node tests/flash_browser.cjs
+node tests/confirmed_updater.mjs
+node tests/flasher_handover.cjs
 python3 tools/firmware_build.py --host
-python3 tools/firmware_build.py --release "${UG_RELEASE:-0.1.1-hw1}"
-cmp "firmware/build/undergrowth-${UG_RELEASE:-0.1.1-hw1}.fwsc" "firmware/releases/undergrowth-${UG_RELEASE:-0.1.1-hw1}.fwsc"
+python3 tools/firmware_build.py --release "${UG_RELEASE:-0.1.2-hw1}"
+cmp "firmware/build/undergrowth-${UG_RELEASE:-0.1.2-hw1}.fwsc" "firmware/releases/undergrowth-${UG_RELEASE:-0.1.2-hw1}.fwsc"
+cmp firmware/web/words/010e19d6e9.json words/010e19d6e9.json

@@ -9,3 +9,9 @@ Stephen requires every milestone to end with a flashable FM1 build, as well as t
 - Label builds experimental until real FM1 validation. Desktop CPU timings and native/WASM parity do not establish device performance or recovery success.
 - Review upstream licence notices before distributing a firmware bundle. Do not assign an original-project open-source licence without asking Stephen.
 - End completed changes with https://stephencarr.github.io/UNDERGROWTH/ and explicitly state published versus draft. Do not publish an incomplete hardware milestone as though it were ready.
+
+## Review gate
+
+- Monitor this repository’s PR reviews, inline comments and review workflow results, including recently merged PRs.
+- Before merging or publishing, wait for the review workflow for the current PR head to finish, fetch all reviews and inline comments, and address or explicitly explain every actionable finding. A successful review workflow means the review ran; it does not mean there were no findings.
+- After pushing fixes, wait for the updated-head review and recheck findings. Never merge while the review is pending or running.

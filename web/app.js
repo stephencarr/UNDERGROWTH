@@ -52,9 +52,9 @@ $('master').oninput=()=>command('master',Number($('master').value));
 $('record').onclick=()=>{command('uiButton',9);command('record',-1);};
 $('motion').onclick=()=>{dragging=null;command('uiButton',9);command('motion',-1);paint();};
 $('rejoin').onclick=()=>command('rejoin');
-$('undo').onclick=()=>command('undo');
+$('undo').onclick=()=>{command('uiButton',9);command('undo');};
 $('clear-pattern').onclick=()=>command('clear');
-$('clear-lock').onclick=()=>{command('begin');command('clearlock',voice,selected);};
+$('clear-lock').onclick=()=>command('uiEdit',11,0);
 $('lock-close').onclick=()=>command('uiButton',9);
 $('lock-play').onclick=()=>command('play',1);
 const stepKeys=[0,2,4,6,7,9,11,12,14,16,18,19,21,23,24,26];
@@ -73,11 +73,11 @@ for(const [p,id] of params.entries()){
  const begin=()=>{const first=dragging!==id;dragging=id;return first;};
  el.oninput=()=>{
   const first=begin();const val=Number(el.value);$(`${id}-value`).textContent=Math.round(val*100);
-  if(lockEditing()){if(first)command('begin');command('lock',voice,selected,p,val);}else command(first?'editparam':'param',voice,p,val);
+  if(lockEditing()){command('uiEdit',p,val);}else command(first?'editparam':'param',voice,p,val);
  };
  el.onchange=()=>{dragging=null;};el.addEventListener('blur',()=>dragging=null);
 }
-$('velocity').oninput=()=>{if(!state||state.armed||state.motion||state.recording)return;const first=dragging!=='velocity';dragging='velocity';command(first?'editvelocity':'velocity',voice,lockEditing()?selected:-1,Number($('velocity').value));};
+$('velocity').oninput=()=>{if(!state||state.armed||state.motion||state.recording)return;const first=dragging!=='velocity';dragging='velocity';if(lockEditing())command('uiEdit',7,Number($('velocity').value));else command(first?'editvelocity':'velocity',voice,-1,Number($('velocity').value));};
 $('velocity').onchange=()=>dragging=null;
 $('velocity').addEventListener('blur',()=>dragging=null);
 const grooveText=(id,value)=>id==='swing'?`${(50+value*100/6).toFixed(1)}%`:`${Math.round(value*100)}%`;
@@ -153,10 +153,9 @@ for(const b of document.querySelectorAll('[data-note]')){
  b.onpointerup=release;b.onpointercancel=release;b.onlostpointercapture=release;
  b.onclick=e=>{if(e.detail===0){setVoice(2);command('key',Number(b.dataset.note),1);setTimeout(release,180);}};
 }
-const noteEdit=()=>command('note',selected,Number($('root-note').value),Number($('root-gate').value),$('root-slide').checked?1:0);
-
-for(const id of ['root-note','root-slide'])$(id).onchange=()=>{command('begin');noteEdit();};
-$('root-gate').oninput=()=>{if(dragging!=='root-gate'){command('begin');dragging='root-gate';}noteEdit();};
+$('root-note').onchange=()=>command('uiEdit',8,Number($('root-note').value));
+$('root-slide').onchange=()=>command('uiEdit',10,$('root-slide').checked?1:0);
+$('root-gate').oninput=()=>{dragging='root-gate';command('uiEdit',9,Number($('root-gate').value));};
 $('root-gate').onchange=()=>dragging=null;
 document.addEventListener('keyup',e=>{if(heldKeys.has(e.code)){command('key',rootKeys[e.code],0);heldKeys.delete(e.code);}});
 window.addEventListener('blur',()=>{for(const key of heldKeys)command('key',rootKeys[key],0);heldKeys.clear();});

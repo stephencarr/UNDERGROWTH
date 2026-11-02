@@ -7,7 +7,7 @@ class UndergrowthProcessor extends AudioWorkletProcessor {
     this.buffer = new Float32Array(this.e.memory.buffer, this.e.ug_buffer(), 512);
     this.frames = 0;
     this.commands = {
-      uiTurn:'ug_ui_turn',uiButton:'ug_ui_button',uiKey:'ug_ui_key',uiSelect:'ug_ui_select',uiGesture:'ug_ui_gesture',velocity:'ug_velocity', keyvelocity:'ug_keyvelocity', arm:'ug_arm', recmode:'ug_recmode', draftnote:'ug_draftnote', stamp:'ug_stamp', erase:'ug_erase', note: 'ug_note', key: 'ug_key', motion: 'ug_motion', groove: 'ug_groove', play: 'ug_play', hit: 'ug_hit', record: 'ug_record', tempo: 'ug_tempo', master: 'ug_master',
+      uiEdit:'ug_ui_edit',uiTurn:'ug_ui_turn',uiButton:'ug_ui_button',uiKey:'ug_ui_key',uiSelect:'ug_ui_select',uiGesture:'ug_ui_gesture',velocity:'ug_velocity', keyvelocity:'ug_keyvelocity', arm:'ug_arm', recmode:'ug_recmode', draftnote:'ug_draftnote', stamp:'ug_stamp', erase:'ug_erase', note: 'ug_note', key: 'ug_key', motion: 'ug_motion', groove: 'ug_groove', play: 'ug_play', hit: 'ug_hit', record: 'ug_record', tempo: 'ug_tempo', master: 'ug_master',
       toggle: 'ug_togglestep', param: 'ug_setparam', step: 'ug_setstep', lock: 'ug_setlock', clearlock: 'ug_clearlock',
       begin: 'ug_begin_edit', undo: 'ug_undo', clear: 'ug_clear', rejoin: 'ug_rejoin', panic: 'ug_panic'
     };

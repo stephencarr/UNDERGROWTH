@@ -18,3 +18,8 @@ void app_input_only(void);
 void app_say(const char *a,const char *b);
 #define APP_HOST_EXPECT
 int app_expect(const char *what,int *got);
+
+#ifdef PLAT_HOST
+#define APP_HOST_CMD
+int app_host_cmd(const char *cmd,const char *a,const char *b,const char *c,const char *d);
+#endif
