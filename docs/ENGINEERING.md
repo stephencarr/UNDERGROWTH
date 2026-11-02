@@ -125,3 +125,7 @@ previews update on branch pushes and Railway removes their environments when
 PRs close or merge. A Railway-provided domain on the base service enables
 automatic domains for PR environments. Verify deployment SUCCESS, version.json
 and a real browser audio/ROOT workflow before handing someone a preview URL.
+
+Accepted/deferred preview review debt (PR #9): the bundled UX design guide link
+still points to a path outside the public route allowlist and returns 404. The
+allowlist stays restricted; repairing that navigation is noncritical follow-up.
