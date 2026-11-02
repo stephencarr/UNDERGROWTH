@@ -4,9 +4,9 @@ import {Updater} from './vendor/fm1-base/fm1ota.js';
 import {pairs} from './vendor/fm1-base/fm1ports.js';
 import {ConfirmedUpdater, pairPresent, verifyPair} from './confirmed-updater.js';
 
-const FILE='firmware/releases/undergrowth-0.1.2-hw1.fwsc';
-const SHA='6a37964507f60aa2eb6671aea764f26ed4bdef8a77c2a6f6c56826ba939bb8b7';
-const PRODUCT='FM-1_731000102';
+const FILE='firmware/releases/undergrowth-0.2.0-hw1.fwsc';
+const SHA='e10cae01b329f694f42d70a036696bb42b6fb01fa165d39ed812a28fedc638ad';
+const PRODUCT='FM-1_731000200';
 const $=id=>document.getElementById(id);
 let image=null,access=null,updater=null,device=null,target=null,writing=false,probing=false,transitionPair=null,installApproved=false;
 const status=(id,message,error=false)=>{const el=$(id);el.textContent=message;if(error)el.dataset.error='';else delete el.dataset.error;};
@@ -31,7 +31,7 @@ if(!globalThis.isSecureContext||!navigator.requestMIDIAccess||!crypto.subtle){
     const parts=ufwEntries(logical);
     if(parts[0]?.len!==0x93000||!parts[100])throw new Error('Firmware is missing expected FM1 sections.');
     image=logical;
-    status('package-status',`Verified UNDERGROWTH 0.1.2-hw1 · ${raw.length.toLocaleString()} bytes · ${PRODUCT}`);
+    status('package-status',`Verified UNDERGROWTH 0.2.0-hw1 · ${raw.length.toLocaleString()} bytes · ${PRODUCT}`);
     refresh();
   }catch(error){status('package-status',`Package check failed: ${error.message}`,true);}
 }

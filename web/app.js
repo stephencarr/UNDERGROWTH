@@ -1,11 +1,11 @@
 const $=id=>document.getElementById(id);
-const names=['Kick','Chatter','ROOT'];
+const names=['Kick','Chatter','ROOT','Backbeat'];
 const params=['body','edge','length','send','env-4','env-5','env-6'];
-const environmentLabels=[['Damping','Drop','Response'],['Stretch','Fracture','Grain'],['Glide','Weight','Response']];
+const environmentLabels=[['Damping','Drop','Response'],['Stretch','Fracture','Grain'],['Glide','Weight','Response'],['Damping','Spread','Response']];
 const noteName=n=>['C','C♯','D','D♯','E','F','F♯','G','G♯','A','A♯','B'][n%12]+(Math.floor(n/12)-1);
 for(const b of document.querySelectorAll('[data-step]')){const label=document.createElement('span');label.className='note-label';b.append(label);}
 let context,node,state,voice=0,selected=0,starting=null,dragging=null;
-const musical=[...document.querySelector('main.instrument').querySelectorAll('button,input,select')].filter(el=>!['enable-audio','voice-kick','voice-chatter','voice-root'].includes(el.id));
+const musical=[...document.querySelector('main.instrument').querySelectorAll('button,input,select')].filter(el=>!['enable-audio','voice-kick','voice-chatter','voice-root','voice-backbeat'].includes(el.id));
 for(const el of musical)el.disabled=true;
 function command(type,...args){if(node)node.port.postMessage({type,args});}
 function status(text){$('audio-status').textContent=text;}
@@ -162,12 +162,12 @@ window.addEventListener('blur',()=>{for(const key of heldKeys)command('key',root
 document.addEventListener('keydown',e=>{
  if(e.code==='Escape'&&node){e.preventDefault();command('panic');return;}
  if(e.repeat||e.ctrlKey||e.metaKey||e.altKey||['INPUT','TEXTAREA','SELECT'].includes(e.target.tagName))return;
- if(e.code==='Digit3'){setVoice(2);return;}if(e.code==='Digit1'){setVoice(0);return;}if(e.code==='Digit2'){setVoice(1);return;}
+ if(e.code==='Digit4'){setVoice(3);return;}if(e.code==='Digit3'){setVoice(2);return;}if(e.code==='Digit1'){setVoice(0);return;}if(e.code==='Digit2'){setVoice(1);return;}
  if(!node)return;
  if(rootKeys[e.code]){e.preventDefault();heldKeys.add(e.code);setVoice(2);command('key',rootKeys[e.code],1);return;}
  if(e.code==='Space'&&e.target.tagName!=='BUTTON'){e.preventDefault();command('play',-1);}
  if(e.code==='KeyA'||e.code==='KeyZ')hit(0);
- if(e.code==='KeyS'||e.code==='KeyX')hit(1);
+ if(e.code==='KeyS'||e.code==='KeyX')hit(1);if(e.code==='KeyD')hit(3);
 
 });
 document.addEventListener('visibilitychange',()=>{if(document.hidden)command('panic');});

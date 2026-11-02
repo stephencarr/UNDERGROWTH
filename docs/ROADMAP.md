@@ -25,7 +25,42 @@ Response on Kick and ROOT directly controls onset firmness over a pronounced ran
 
 Acceptance: silent startup and empty transport; distinct audible/measured ENV extremes; full draft stamping including ENV/velocity; per-step ENV/velocity edits and Undo; motion captures new ENV controls without creating hits; recorded velocities survive playback/Human; ROOT note names, direct draft pitch entry and audition; native/WASM parity and actual browser AudioWorklet output.
 
-## Planned — controlled ROOT arp evolution
+## Next slice — complete the organism palette
+
+Stephen's next priority is the remaining organisms, following Kick, Chatter and ROOT. Complete a useful basic sound palette before adding further features and polishing the instrument. Preserve musically productive overdub behaviour during this slice; only critical defects should interrupt it.
+
+### Immediate slice — Backbeat
+
+A fourth independent organism: woody knocks and skin-like cracks through wire-noise snare and clap textures. Body controls depth and skin-mode balance; Edge brings in bright wire noise; Length controls decay; Send feeds the existing delay. ENV provides Length, Damping, Spread (bounded clap clusters) and Response (attack firmness). This is original synthesis, without samples. Preserve the existing trig-lock, velocity, motion and Undo workflow. Browser and matching experimental FM1 firmware are required for this slice. No additional sequencing features or noncritical lock cleanup is implied.
+
+### Following Backbeat: chord stabs and a flexible FM tone
+
+Stephen chose Backbeat as the immediate next slice, followed by chord stabs and the flexible FM organism. Working labels below describe the future roles; final organism names are open. Build Backbeat first, then the chord organism, then the FM organism. Together with Kick, Chatter and ROOT, these establish the basic sound palette before broader features and polish.
+
+**Chord organism — always chords.** Morph from rounded, filtered dub stabs through bright, hollow 90s dance/house/rave chord colours, with long, swelling and sustained ambient articulations. Ambient capability belongs in the sound and articulation, rather than depending entirely on a future reverb. Timbre morphing and harmonic selection are separate: changing the colour need not replace the chosen chord. No single-note/OFF chord mode or silent fallback to a root-only voice is part of this organism.
+
+- Configure a small session-only chord palette. Proposed starting scope: eight editable slots, each combining a chord shape with voicing/inversion and spread. Start with useful built-in shapes; include the ability to author a slot's intervals, within a bounded voice budget.
+- Keys choose chord roots; palette slots supply the harmonic shape. Chord slot/shape, root, inversion and spread can vary per trig alongside the sound and ENV locks. A trig captures its actual chord definition, not just a mutable palette-slot reference: later palette changes must not silently rewrite existing trigs.
+- Use intentional sound controls with a broad musical range, plus articulation suitable for both short stabs and slow ambient chords. Velocity, motion, Undo, Stop and Panic follow the existing shared workflow. Keep at least two distinct chord tones through range handling and timbre morphing; bounded polyphony and retrigger/tail behaviour need audition and FM1 budget checks.
+
+**FM organism — warm and bright, with a wide morphing range.** A coherent playable FM voice spanning melodic/plucked/bell-like tones, inharmonic and atonal textures, sustained drones, very short micro-sounds and grainy/fractured articulations. Design it to receive pitched note events from keys, the sequencer and the later arp. Arp implementation is still a later feature.
+
+- Expose independent musical dimensions for colour/brightness, harmonic-to-inharmonic structure, feedback/roughness, and temporal behaviour. These are continuous sound-design dimensions, not merely a list of presets on one morph knob. Final knob names and page allocation are to be chosen through playing.
+- Articulation should reach from tiny bursts through plucks and evolving sustained tones. Grain-like behaviour means synthesised temporal fragmentation in this slice; no sample/granular playback engine is implied. Warm melodic settings should remain easy to find without preventing more extreme settings.
+- Trig locks and motion must reach the defining synthesis and articulation controls, so successive steps can produce strongly contrasting colours within one organism. Pitch/root and note attributes stay distinct from sound morphing. Bounded/smoothed parameter changes, note-off and Panic remain required; the CPU/voice budget must be checked in the matching firmware.
+
+### Caravel 0.6.0 chord reference
+
+Reference revision: `b50bad57dcf32862f36661a5fc2996e13392b93e`, `firmware/src/chord.c` and the CHORD/SCL controls in `firmware/src/params.c`:
+https://github.com/bonszaimusic/caravel/blob/b50bad57dcf32862f36661a5fc2996e13392b93e/firmware/src/chord.c
+
+The inspected implementation offers diatonic triads/sevenths plus fixed major, minor, dominant seventh, major seventh, minor seventh, sus4 and power shapes. It separates CLOSE/OPEN/inversions/added-bass voicing from chord quality, with ROOT/SCALE mapping and NEW/STACK latch elsewhere in the input model. Its chord builder uses at most four tones; mono/legato/unison modes can reduce a chord to its root. UNDERGROWTH takes the separation of harmony and voicing as design guidance, adds an explicitly editable palette, and keeps its dedicated chord organism chordal. Caravel's inspected code does not establish the proposed eight-slot editable bank; that is our own design proposal. No Caravel source has been incorporated.
+
+### Slice contract
+
+Each new organism has its own recognisable synthesis identity, useful sound macros and ENV controls, velocity response, and the existing draft/step/lock/motion workflow. Implement it in shared C and finish each slice with the browser and matching experimental FM1 firmware. Audition it with the existing organisms. New sequencing modes, arp evolution, expanded global effects and general UI polish follow the basic palette. Accept noncritical prototype debt; only critical defects interrupt this sequence.
+
+## Later — controlled ROOT arp evolution
 
 Inspired by the bounded movement of Caravel 0.6.0's WALK arp. Start with a small played/latched note set; neighbour-note wandering, adjustable rests and a restricted register keep the phrase recognisable. Hold freezes a pleasing phrase; Keep captures it into the sequencer; Revert returns to the seed. ROOT comes first, with related Chatter rhythm/articulation exploration later. Implement original behaviour in shared C for browser and firmware. This is a roadmap item, not part of the current step-editing fix.
 
@@ -33,7 +68,7 @@ Inspired by the bounded movement of Caravel 0.6.0's WALK arp. Start with a small
 
 A short SEQ tap toggles its step on/off while preserving authored trig data; only a previously untouched step captures the draft. Holding for 350 ms opens the single trig-lock menu, without toggling or creating a hit. SELECT switches Sound, ENV and Notes / velocity; SEQ closes it. The menu remains open after releasing the key. Remove competing SEQ actions/lock pages and Expanded view's separate lock-mode switch. Expanded steps use the same hold gesture. Rest edits preserve rests; canceled presses never toggle; whole menu edits on one step support Undo.
 
-## Next — effects
+## After the organism palette — effects
 
 1. Track filters with cutoff/resonance, and separate delay/reverb sends.
 2. Global delay time, feedback, tone and return; reverb size, damping and return.

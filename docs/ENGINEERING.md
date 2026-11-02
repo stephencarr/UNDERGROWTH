@@ -32,7 +32,7 @@ python3 -m pip install --target .tools ziglang==0.13.0
 export ZIG="$PWD/.tools/ziglang/zig"
 set -e
 sh tools/build.sh
-for test in core groove motion root workflow environment controller; do
+for test in core groove motion root workflow environment controller backbeat; do
   "./build/${test}_test"
 done
 node tests/parity.mjs
@@ -58,7 +58,7 @@ Linux x86-64 is the initial cross-build host. Follow [HARDWARE.md](HARDWARE.md) 
 python3 tools/prepare_firmware.py
 # Export FM1_BASE, AC79_SDK and JIELI_TOOLCHAIN using setup's printed paths.
 python3 tools/firmware_build.py --host
-python3 tools/firmware_build.py --release 0.1.2-hw1
+python3 tools/firmware_build.py --release 0.2.0-hw1
 ```
 
 Do not update pinned revisions or bypass hash, TLS, package identity, CRC, loader, instruction or memory checks merely to make a build succeed. The compiler download hosts are `pkgman.jieliapp.com` and `jl-update.oss-cn-shenzhen.aliyuncs.com`; environment network policy may need to allow required destinations.
@@ -69,7 +69,7 @@ With toolchains, browser dependencies and the local server ready, run:
 sh tools/check_milestone.sh
 ```
 
-This builds native/WASM, runs core/controller tests, parity/worklet and browser/updater checks, builds the platform host and real FM1 package, and compares firmware/vocabulary with published artifacts. `UG_RELEASE` selects the package version for the gate; the default is currently `0.1.2-hw1`. A new release needs matching checked-in artifacts, manifest, notices and installer references. Inspect the scripts before changing release versions rather than treating the environment variable as a complete release procedure.
+This builds native/WASM, runs core/controller tests, parity/worklet and browser/updater checks, builds the platform host and real FM1 package, and compares firmware/vocabulary with published artifacts. `UG_RELEASE` selects the package version for the gate; the default is currently `0.2.0-hw1`. A new release needs matching checked-in artifacts, manifest, notices and installer references. Inspect the scripts before changing release versions rather than treating the environment variable as a complete release procedure.
 
 Build outputs include `firmware/build/` and `build/releases/<version>/`. The package manifest records source/dependency identities and experimental/hardware-validation status. Missing compiler/dependencies or a failed package gate leaves a functional milestone incomplete. Never substitute a host binary or WASM for firmware.
 
@@ -81,7 +81,7 @@ Documentation-only edits need documentation checks; they do not establish a new 
 - Preserve empty/silent startup; first-stamp draft capture; tap-toggle data retention; hold/menu transactions and Undo; rests during lock/motion edits; armed-track ownership; ROOT release; Panic and USB-loss behavior.
 - Test both touch and mouse activation. Passing `.click()` does not establish that a real touch invokes an action once.
 - Read PR reviews, inline comments and review workflow results, including recent merged work. A finished review job is not evidence of no findings. The milestone contract accepts noncritical debt and requires attention to critical risks; documentation-only edits do not need another review cycle.
-- State what was tested locally, published, audibly evaluated and physically tested separately. The checked-in `0.1.2-hw1` report records cross-build success; no physical FM1 acceptance is established.
+- State what was tested locally, published, audibly evaluated and physically tested separately. The checked-in `0.2.0-hw1` report records cross-build success; no physical FM1 acceptance is established.
 - Preserve installer identity checks, exact selected MIDI-pair confirmation, backup acknowledgement and cancellation semantics. Never use force-install flags, replace a bootloader, access a device or flash as a side effect of software validation. Physical flashing requires separate explicit authorization.
 
 Normal use is session-only with no project saving. Preserve the zero-storage-write host expectation and leave Bluetooth, Wi-Fi and CPU2 off. Do not assign a licence to original code. Retain installed-release vocabulary and third-party notices when updating distribution files.

@@ -1,6 +1,6 @@
 # UNDERGROWTH · rhythm + ROOT study 02
 
-A browser-first rhythm study: two original synthesized percussion voices and ROOT monophonic bass, a blank 16-step canvas, step locks and immediate performance controls. Nothing composes or plays by itself.
+A browser-first rhythm study: three original synthesized percussion voices—Kick, Chatter and Backbeat—and ROOT monophonic bass, a blank 16-step canvas, step locks and immediate performance controls. Nothing composes or plays by itself.
 
 **New contributors and agents:** start with [product orientation](docs/PRODUCT.md), [engineering orientation](docs/ENGINEERING.md) and the [milestone contract](AGENTS.md). These guides describe the current shared browser/FM1 architecture and distinguish implemented behavior from proposals. Older study sections below retain historical descriptions; the later FM1 device-view controls describe the current panel workflow.
 
@@ -8,7 +8,7 @@ A browser-first rhythm study: two original synthesized percussion voices and ROO
 
 Every milestone must now produce a validated FM1 firmware package as well as this browser prototype. The panel controller and screen text have moved into shared C, and `firmware/` provides the physical-panel/audio adapter. Bluetooth and Wi-Fi are disabled. See [hardware build, Caravel 0.6.0 migration and recovery](docs/HARDWARE.md).
 
-The full milestone gate passed with the pinned Jieli compiler on Linux x86-64. It produced an **experimental** `undergrowth-0.1.2-hw1.fwsc` in `build/releases/0.1.2-hw1/`, with a build report, manifest, checksums, installer and licence notices. The package has not been flashed or tested on an FM1. The browser instrument and experimental flasher are published together on GitHub Pages.
+The full milestone gate passed with the pinned Jieli compiler on Linux x86-64. It produced an **experimental** `undergrowth-0.2.0-hw1.fwsc` in `build/releases/0.2.0-hw1/`, with a build report, manifest, checksums, installer and licence notices. The package has not been flashed or tested on an FM1. The browser instrument and experimental flasher are published together on GitHub Pages.
 
 The browser links to `flash.html`, a Chrome/Edge desktop installer view. It verifies the included `.fwsc` against its fixed SHA-256 and package CRCs before enabling device identification. USB MIDI SysEx permission, FM1 identity and an explicit backup acknowledgement are required before installation. The pinned fm1-base Web MIDI updater handles the transfer and interrupted-update resume, with each changed MIDI pair explicitly re-identified and confirmed by the owner; the view does not offer a bootloader replacement. The browser flow has simulated-port tests, but direct Caravel 0.6.0 installation and recovery have not been tested on hardware. Open https://stephencarr.github.io/UNDERGROWTH/flash.html in desktop Chrome or Edge; no local server is needed.
 
@@ -98,7 +98,7 @@ The original source licence has not yet been selected; see LICENSING.md. Hosting
 
 ## ROOT bass
 
-Select **ROOT** (or press **3**) for its independent 16-step note lane. Tap a step to turn it on or off. Hold a step to edit its pitch (C1–C4), gate, slide and velocity in the trig-lock menu. Close the menu to return to toggling steps. Note labels show the phrase on the grid. All three lanes share transport, tempo and Swing; Human continues to affect chatter only.
+Select **ROOT** (or press **3**) for its independent 16-step note lane. Tap a step to turn it on or off. Hold a step to edit its pitch (C1–C4), gate, slide and velocity in the trig-lock menu. Close the menu to return to toggling steps. Note labels show the phrase on the grid. All four lanes share transport, tempo and Swing; Human continues to affect chatter only.
 
 Hold the on-screen keys, or **Q W E R T Y U I**, to play C2 through C3 in C major. Releasing the current key releases the monophonic voice; the most recently pressed note wins. These are live controls, independent of step selection. **Record hits** also overdubs live bass pitches onto the nearest swung step, using that step's gate and slide settings; held duration is not recorded yet.
 
@@ -110,7 +110,7 @@ ROOT uses the same per-step locks, manual override/Rejoin, motion overdubs and w
 
 The default view now uses the open-source fm1-base emulator panel template (revision and licence in LICENSING.md): eight physical knobs including Master, fourteen buttons, 27 keys and a 240×240 non-touch screen. Drag knobs vertically, scroll on them, or focus and use arrow keys/Page Up/Page Down. The previous interface is available through **Expanded view**. Both views use the same running C/WASM engine and score.
 
-- ALGORITHM / SEL: choose Kick, Chatter or ROOT. SELECT switches subpages on HOME, SEQ, ENV and FX.
+- ALGORITHM / SEL: choose Kick, Chatter, ROOT or Backbeat. SELECT switches subpages on HOME, SEQ, ENV and FX.
 - EDIT / HOME: draft Body, Edge, Length and Send. Playback locks do not change this draft. HOME's second page offers Undo/redo, Rejoin and Panic: KNOB1 selects, SEL applies. Hold HOME for Panic; Escape also silences.
 - SEQ: the sixteen lower keys address steps for every voice. An empty step captures the sound macros, ENV controls and draft velocity (ROOT also captures draft pitch/gate/slide). Tap an occupied step to turn it off while retaining its authored locks, velocity and ROOT note settings for reactivation. Hold a step for 350 ms to open its trig-lock menu without toggling. The menu stays open after release; SELECT switches Sound, ENV and Notes / velocity. Press SEQ to close it. Undo is on HOME’s recovery page.
 - ENV page 1: Kick Length/Damping/Drop/Response; Chatter Stretch/Fracture/Grain/Length; ROOT Release/Glide/Weight/Response. All are track editable, trig lockable and motion recordable. Response directly changes onset firmness as well as scaling the subtle velocity colour.
@@ -132,3 +132,14 @@ The [roadmap and accepted design decision](docs/ROADMAP.md) define **strong inte
 All tracks have draft and per-trig velocity (0–100%). Stamping captures it; live recording preserves supplied velocity; ordinary taps use the draft. Human scales playback velocity without rewriting it. Velocity, pitch, gate and slide are event attributes, edited separately from continuous ENV motion. In Expanded view, hold a grid step to open the same trig-lock editor. Its sliders edit the selected trig; closing it returns the sliders to the draft. New ENV sliders share the same lock/motion editor.
 
 The screen controller remains browser-only. Session saving, expanded global effects, punch-in effects and hardware validation remain on the roadmap; no firmware has been flashed.
+
+## Backbeat organism
+
+Select Backbeat with ALGORITHM, press **4**, or choose its card in Expanded view. **D** or **Tap backbeat** plays it live. Its own sixteen-step lane, trig locks, velocity and scoped Hits/Motion/Both recording use the same controls as the other organisms.
+
+- **Body:** higher values deepen the two skin resonances and emphasise their fundamental; lower values give a higher, woodier knock.
+- **Edge:** increases bright wire/noise content, moving toward snare/clap textures.
+- **Length:** extends body and wire decay. **Send** feeds the existing dark delay.
+- **ENV:** Length, Damping (shorter/darker), Spread (a wider cluster of clap components at noisier Edge settings), and Response (attack firmness). Spread articulates the sound of one hit; it does not add sequencer trigs.
+
+This is original synthesis, with no samples. Velocity controls strength and adds small bounded colour; tempo adds the same subtle bounded decay response. Human continues to affect only Chatter. Chord stabs and a flexible melodic/atonal/drone/grainy FM organism are planned after Backbeat; see the roadmap.

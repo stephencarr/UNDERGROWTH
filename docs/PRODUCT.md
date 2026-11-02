@@ -6,7 +6,7 @@ Read this first for intent, then [engineering orientation](ENGINEERING.md) for i
 
 ## Musical identity
 
-The three current organisms are Kick, Chatter and ROOT. Kick is synthesized percussion; Chatter is synthetic, grain-like noise/resonant fragmentation; ROOT is monophonic harmonic bass. Chatter is not a sample player. Each has a recognisable identity rather than a generic synthesizer editor.
+The four current organisms are Kick, Chatter, ROOT and Backbeat. Kick is synthesized percussion; Chatter is synthetic, grain-like noise/resonant fragmentation; ROOT is monophonic harmonic bass. Backbeat combines two skin resonances and filtered wire noise, with clap-like clusters at wider Spread settings. The percussion is synthesised, without samples. Each has a recognisable identity rather than a generic synthesizer editor.
 
 The accepted direction is **strong intentional controls, subtle hard-wired DNA**. ENV means **Environment**, not a conventional ADSR editor. Its controls must produce useful, pronounced changes. Smaller, bounded and deterministic responses to velocity, tempo or musical context add character without rewriting the musician's score or generating notes. See the organism/control table in [ROADMAP.md](ROADMAP.md).
 
@@ -14,7 +14,7 @@ Startup and empty Play are silent. Enabling audio prepares the instrument withou
 
 ## The player's workflow
 
-1. Choose Kick, Chatter or ROOT with ALGORITHM and shape the track's draft sound on EDIT/ENV.
+1. Choose Kick, Chatter, ROOT or Backbeat with ALGORITHM and shape the track's draft sound on EDIT/ENV.
 2. Open SEQ. Its sixteen lower keys address sixteen steps for every organism. First activation of an untouched step captures draft sound, ENV and velocity; ROOT also captures pitch, gate and slide.
 3. Tap to toggle a step. Turning it off preserves authored data for reactivation. Hold for 350 ms to open the persistent trig-lock menu without toggling. SELECT changes its Sound, ENV and Notes / velocity pages; SEQ closes it. Editing a rest keeps it silent.
 4. Play and perform. Stored locks determine a step's sound; manual takeover temporarily overrides them. Rejoin or finishing the take releases takeover. The draft must never be contaminated by a passing playhead's lock.
@@ -28,9 +28,9 @@ The default browser view follows the FM1 panel; Expanded view shares the same ru
 
 | Area | Current state |
 | --- | --- |
-| Musical engine | Three 16-step lanes, sound/ENV locks, velocity, ROOT articulation, groove, recording, takeover/Rejoin and Undo. |
+| Musical engine | Four 16-step lanes, sound/ENV locks, velocity, ROOT articulation, groove, recording, takeover/Rejoin and Undo. |
 | Browser | Shared C/WASM engine and panel controller, JavaScript IO/drawing, FM1 and Expanded views. |
-| Firmware | Shared C plus FM1 adapter; experimental `0.1.2-hw1` package and validation record are checked in. |
+| Firmware | Shared C plus FM1 adapter; experimental `0.2.0-hw1` package and validation record are checked in. |
 | Device evidence | Cross-build/package and host checks are recorded as passed. No physical flash, playing, CPU-headroom or recovery validation is established. |
 | Persistence | Session-only. Reload/close loses the score. SAVE is unavailable. |
 | Effects | Fixed shared delay with track sends. Track filters, reverb, adjustable global effects and a silent FX automation lane are planned. |

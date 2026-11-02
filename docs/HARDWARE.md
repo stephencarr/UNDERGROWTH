@@ -1,6 +1,6 @@
 # UNDERGROWTH: first FM1 hardware milestone
 
-**Status: the host, browser and pinned FM1 cross-build gate passed. `build/releases/0.1.2-hw1/` contains an experimental firmware package and its validation record. It has not been flashed or physically validated.**
+**Status: the host, browser and pinned FM1 cross-build gate passed. `build/releases/0.2.0-hw1/` contains an experimental firmware package and its validation record. It has not been flashed or physically validated.**
 
 The owner uses macOS and currently runs **Caravel 0.6.0**. Keep it installed while preparing this milestone; returning to stock is not a prerequisite established by the available documentation.
 
@@ -8,7 +8,7 @@ The owner uses macOS and currently runs **Caravel 0.6.0**. Keep it installed whi
 
 `core/undergrowth.c` owns sound and score; `core/controller.c` owns pages, track/step selection, encoders, buttons, key roles, recording mode, audition and screen text. The browser uses those same functions through WASM. `firmware/app.c` adapts fm1-base's physical panel, display and 24-bit stereo callback.
 
-The application is single-core, without Bluetooth/Wi-Fi. It exposes USB MIDI and USB audio output from the instrument; USB playback into the instrument is disabled initially. MIDI channels 1/2 trigger Kick/Chatter; channel 3 plays ROOT C1–C4 with input velocity. Unsupported MIDI messages are ignored. Clock sync is not implemented. Physical capacitive-key velocity is supplied by the pinned platform's touch driver and requires playing tests on the real device.
+The application is single-core, without Bluetooth/Wi-Fi. It exposes USB MIDI and USB audio output from the instrument; USB playback into the instrument is disabled initially. MIDI channels 1/2 trigger Kick/Chatter; channel 3 plays ROOT C1–C4 with input velocity; channel 4 triggers Backbeat. Unsupported MIDI messages are ignored. Clock sync is not implemented. Physical capacitive-key velocity is supplied by the pinned platform's touch driver and requires playing tests on the real device.
 
 Panel events enter a bounded queue and are consumed by the audio interrupt. A full queue requests Panic and clears queued events rather than risking a stuck note. Drawing is outside the audio interrupt, only when text changes. The core's 88,200-byte delay buffer uses `.pool` on the FM1. No heap allocations occur in the render path. Linker-map budgets and actual CPU headroom are still required: host timing is not a device measurement.
 
@@ -24,10 +24,10 @@ Linux x86-64 is the initial build host. macOS users will receive a prebuilt expe
 python3 tools/prepare_firmware.py
 # Set FM1_BASE, AC79_SDK and JIELI_TOOLCHAIN to the paths printed by setup.
 python3 tools/firmware_build.py --host
-python3 tools/firmware_build.py --release 0.1.2-hw1
+python3 tools/firmware_build.py --release 0.2.0-hw1
 ```
 
-For the complete milestone gate, set ZIG to Zig 0.13, run a local web server for Chromium tests, and run `sh tools/check_milestone.sh`. The browser tests use `TEST_URL` (localhost by default). If any required dependency is unavailable, the gate fails; there is no placeholder firmware or waived hardware target. The successful Linux build used the SHA-256-verified compiler archive from `firmware/dependencies.json`; the resulting `.fwsc` and `SHA256SUMS` are in `build/releases/0.1.2-hw1/`.
+For the complete milestone gate, set ZIG to Zig 0.13, run a local web server for Chromium tests, and run `sh tools/check_milestone.sh`. The browser tests use `TEST_URL` (localhost by default). If any required dependency is unavailable, the gate fails; there is no placeholder firmware or waived hardware target. The successful Linux build used the SHA-256-verified compiler archive from `firmware/dependencies.json`; the resulting `.fwsc` and `SHA256SUMS` are in `build/releases/0.2.0-hw1/`.
 
 A successful cross-build must include:
 
@@ -36,7 +36,7 @@ A successful cross-build must include:
 - Independent package identity, loader marker and UFW/part CRC validation, including corrupted-package rejection.
 - Source/dependency identity, SHA-256 hashes and licence notices. The initial output is explicitly experimental, with `hardware_validated: false`.
 
-The `flash.html` page offers a Chrome/Edge desktop route to the pinned `firmware/releases/undergrowth-0.1.2-hw1.fwsc`. It checks SHA-256, FM1 identity and UFW CRCs before requesting USB MIDI SysEx access. Device identification and backup acknowledgement precede the install command. Its updater is the pinned fm1-base Web MIDI implementation; a port shown under another name can be selected explicitly. The browser gate tests verification and confirmation with simulated MIDI only. The page must be served over HTTPS or localhost; opening it as a local file is not supported. The hosted page is https://stephencarr.github.io/UNDERGROWTH/flash.html; no local server is needed.
+The `flash.html` page offers a Chrome/Edge desktop route to the pinned `firmware/releases/undergrowth-0.2.0-hw1.fwsc`. It checks SHA-256, FM1 identity and UFW CRCs before requesting USB MIDI SysEx access. Device identification and backup acknowledgement precede the install command. Its updater is the pinned fm1-base Web MIDI implementation; a port shown under another name can be selected explicitly. The browser gate tests verification and confirmation with simulated MIDI only. The page must be served over HTTPS or localhost; opening it as a local file is not supported. The hosted page is https://stephencarr.github.io/UNDERGROWTH/flash.html; no local server is needed.
 
 ## Caravel 0.6.0 to UNDERGROWTH: preparation, not an instruction to flash yet
 
@@ -77,3 +77,7 @@ The flasher binds the initial update to the explicitly identified input/output p
 USB connection loss or host sleep invokes Panic, silencing notes and stopping playback/recording. This uses the pinned platform’s USB-host loss notification and its USB power badge transition for device mode. The host tests simulate the latter transition; physical unplug/recovery tests remain outstanding. Screen-reader vocabulary is published at the firmware’s advertised `words/010e19d6e9.json` path and retained for installed releases.
 
 Pending short taps resolve before the lock-menu transaction starts. On USB loss, the adapter quarantines USB packets across render blocks until the backlog is drained and the connection is ready again; non-USB input remains usable and each render still handles at most 32 MIDI packets.
+
+## Backbeat milestone — 0.2.0-hw1
+
+Adds a fourth shared-C organism and independent score lane. Body/Edge blend skin resonance with wire noise; ENV Damping/Spread/Response shape decay, clap clusters and attack. The browser and physical panel select it with ALGORITHM; USB MIDI channel 4 triggers it. The new screen-reader vocabulary is `words/1a16a581bf.json`; the previous release vocabulary is retained. Chord stabs and the flexible FM organism are roadmap items. Physical sound/CPU validation remains outstanding.
