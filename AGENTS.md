@@ -1,5 +1,9 @@
 # UNDERGROWTH milestone contract
 
+## Start here
+
+Read [product orientation](docs/PRODUCT.md) for the instrument's purpose, current workflow and limits, then [engineering orientation](docs/ENGINEERING.md) for architecture, setup and validation. Consult [the roadmap](docs/ROADMAP.md) for accepted decisions and [hardware notes](docs/HARDWARE.md) before firmware work. Keep these guides current when behavior or architecture changes; historical research is not an implementation specification.
+
 Stephen requires every milestone to end with a flashable FM1 build, as well as the browser prototype. This requirement was accepted on 2026-11-01.
 
 - Audio, sequencing, panel navigation, edit semantics and screen text belong in shared C. Browser and device wrappers handle their respective IO only.

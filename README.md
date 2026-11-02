@@ -2,6 +2,8 @@
 
 A browser-first rhythm study: two original synthesized percussion voices and ROOT monophonic bass, a blank 16-step canvas, step locks and immediate performance controls. Nothing composes or plays by itself.
 
+**New contributors and agents:** start with [product orientation](docs/PRODUCT.md), [engineering orientation](docs/ENGINEERING.md) and the [milestone contract](AGENTS.md). These guides describe the current shared browser/FM1 architecture and distinguish implemented behavior from proposals. Older study sections below retain historical descriptions; the later FM1 device-view controls describe the current panel workflow.
+
 ## Hardware milestone in progress
 
 Every milestone must now produce a validated FM1 firmware package as well as this browser prototype. The panel controller and screen text have moved into shared C, and `firmware/` provides the physical-panel/audio adapter. Bluetooth and Wi-Fi are disabled. See [hardware build, Caravel 0.6.0 migration and recovery](docs/HARDWARE.md).
