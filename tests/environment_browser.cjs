@@ -29,13 +29,13 @@ try{for(const touch of [false,true]){
  await turn('KNOB1',7);await turn('KNOB2',-5);await turn('KNOB3',1);await turn('KNOB4',-30);
  const before=(await snap()).voices[2].steps;await press('SEL');assert(await peak()>.0001);assert.deepEqual((await snap()).voices[2].steps,before);
  await press('SEQ');await press('White key 4');s=await snap();assert.equal(s.voices[2].steps[3].note,36);assert(Math.abs(s.voices[2].steps[3].velocity-.7)<.001);
- await button('White key 4').click({delay:450});await wait(80);await turn('SELECT',2);await turn('KNOB1',7);assert.equal((await snap()).voices[2].steps[3].note,43);assert.equal((await snap()).draftNote[0],36);
+ await button('White key 4').click({delay:450});await wait(80);await turn('SELECT',2);await turn('KNOB1',7);assert.equal((await snap()).voices[2].steps[3].note,43);assert.equal((await snap()).draftNote[0],36);await press('SEQ');await press('White key 4');assert(!(await snap()).voices[2].steps[3].on);await press('White key 4');assert.equal((await snap()).voices[2].steps[3].note,43);
  await page.keyboard.press('Escape');await wait(100);await page.screenshot({path:`/tmp/undergrowth-env-${touch?'touch':'mouse'}.png`,fullPage:true});
  await page.click('#view-toggle');await page.click('#voice-chatter');await wait(80);await page.click('#step-0');await wait(80);assert(!(await snap()).voices[1].steps[0].on);await page.click('#step-0');await wait(80);assert((await snap()).voices[1].steps[0].on);await page.locator('#step-0').click({delay:450});await page.waitForFunction(()=>UG.state.panel.locks);
  const slider=async(id,val)=>{await page.locator('#'+id).evaluate((el,value)=>{el.value=value;el.dispatchEvent(new Event('input',{bubbles:true}));el.dispatchEvent(new Event('change',{bubbles:true}));},String(val));await wait(80);};
  await slider('env-4',.9);await slider('velocity',.2);s=await snap();assert(Math.abs(s.voices[1].steps[0].lock[4]-.9)<.001);assert(Math.abs(s.voices[1].steps[0].velocity-.2)<.001);
- await page.click('#undo');await wait(80);assert.equal((await snap()).voices[1].steps[0].velocity,1);
- await page.click('#lock-close');await page.click('#motion');await slider('env-6',.25);await page.click('#play');await page.waitForFunction(()=>Math.abs(UG.state.voices[1].steps[0].lock[6]-.25)<.001);await page.click('#panic');await wait(100);assert.equal(await peak(),0);
+ await page.click('#undo');await wait(80);assert.equal((await snap()).voices[1].steps[0].velocity,1);assert(Math.abs((await snap()).voices[1].steps[0].lock[4]-.75)<.001);
+ assert.equal((await snap()).panel.locks,false);await page.click('#motion');await slider('env-6',.25);await page.click('#play');await page.waitForFunction(()=>Math.abs(UG.state.voices[1].steps[0].lock[6]-.25)<.001);await page.click('#panic');await wait(100);assert.equal(await peak(),0);
  for(const width of [320,375,680]){await page.setViewportSize({width,height:850});assert(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth));}
  assert.deepEqual(errors,[]);await page.close();console.log('PASS '+(touch?'touch':'mouse')+' ENV: velocity stamps/locks, environment locks/motion/Undo, Chatter stretch audio, ROOT pitch entry/audition, narrow layout');
 }}finally{await browser.close();}})().catch(e=>{console.error(e);process.exitCode=1;});

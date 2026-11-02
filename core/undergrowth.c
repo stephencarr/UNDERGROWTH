@@ -9,7 +9,7 @@
 #define MAX_BLOCK 256
 #define DELAY 22050
 
-typedef struct { unsigned char on, mask; float lock[NPARAM]; int note; float velocity, gate; unsigned char slide; } Step;
+typedef struct { unsigned char on, mask, authored; float lock[NPARAM]; int note; float velocity, gate; unsigned char slide; } Step;
 typedef struct { Step steps[NVOICE][NSTEPS]; float base[NVOICE][NPARAM]; float swing, human, velocity[NVOICE]; Step draft_note; } Score;
 typedef struct {
  float phase, env, sweep, noise_lp, vel, dna_decay;
@@ -115,17 +115,23 @@ float ug_draftvalue(int p){return p==0?score.draft_note.note:p==1?score.draft_no
 /* Velocity is authored event data, separate from macro-lock masks. -1 means draft. */
 void ug_velocity(int v,int step,float value){
  if(!valid_voice(v)||step < -1||step>=NSTEPS||take_active||motion||recording)return;
- if(step<0)score.velocity[v]=clamp(value,0,1);else score.steps[v][step].velocity=clamp(value,0,1);
+ if(step<0)score.velocity[v]=clamp(value,0,1);else {score.steps[v][step].velocity=clamp(value,0,1);score.steps[v][step].authored=1;}
 }
 float ug_getvelocity(int v,int step){return !valid_voice(v)||step < -1||step>=NSTEPS?0:step<0?score.velocity[v]:score.steps[v][step].velocity;}
 void ug_stamp(int v,int step){
  if(!valid_voice(v)||!valid_step(step)||recording||motion)return;
- ug_begin_edit();Step *st=&score.steps[v][step];st->on=1;st->velocity=score.velocity[v];st->mask=(1u<<NPARAM)-1;
+ ug_begin_edit();Step *st=&score.steps[v][step];st->authored=1;st->on=1;st->velocity=score.velocity[v];st->mask=(1u<<NPARAM)-1;
  for(int p=0;p<NPARAM;p++)st->lock[p]=score.base[v][p];
  if(v==2){st->note=score.draft_note.note;st->gate=score.draft_note.gate;st->slide=score.draft_note.slide;}
  record_skip[v]&=~(1u<<step);zero(takeover,sizeof takeover);
 }
-void ug_erase(int v,int step){if(!valid_voice(v)||!valid_step(step)||recording||motion)return;if(!score.steps[v][step].on&&!score.steps[v][step].mask)return;ug_begin_edit();zero(&score.steps[v][step],sizeof(Step));score.steps[v][step].velocity=1;if(v==2){score.steps[v][step].note=36;score.steps[v][step].gate=.75f;}record_skip[v]&=~(1u<<step);}
+void ug_toggle_authored(int v,int step){
+ if(!valid_voice(v)||!valid_step(step)||take_active||recording||motion)return;
+ Step *st=&score.steps[v][step];
+ if(!st->authored&&!st->on){ug_stamp(v,step);return;}
+ ug_begin_edit();st->on=!st->on;record_skip[v]&=~(1u<<step);
+}
+void ug_erase(int v,int step){if(!valid_voice(v)||!valid_step(step)||recording||motion)return;if(!score.steps[v][step].authored&&!score.steps[v][step].on&&!score.steps[v][step].mask)return;ug_begin_edit();zero(&score.steps[v][step],sizeof(Step));score.steps[v][step].velocity=1;if(v==2){score.steps[v][step].note=36;score.steps[v][step].gate=.75f;}record_skip[v]&=~(1u<<step);}
 static void capture_motion(int v,int step){
  if(!motion||!recording_voice(v))return;
  Step *s=&score.steps[v][step];
@@ -164,17 +170,17 @@ float ug_effective(int v,int p) {
  if(playing&&valid_step(step_index)&&(score.steps[v][step_index].mask&(1u<<p)))return score.steps[v][step_index].lock[p];
  return score.base[v][p];
 }
-void ug_setstep(int v,int s,int on) {if(valid_voice(v)&&valid_step(s)){score.steps[v][s].on=on?1:0;record_skip[v]&=~(1u<<s);}}
-void ug_togglestep(int v,int s) {if(valid_voice(v)&&valid_step(s)){score.steps[v][s].on=!score.steps[v][s].on;record_skip[v]&=~(1u<<s);}}
+void ug_setstep(int v,int s,int on) {if(valid_voice(v)&&valid_step(s)){score.steps[v][s].authored=1;score.steps[v][s].on=on?1:0;record_skip[v]&=~(1u<<s);}}
+void ug_togglestep(int v,int s) {if(valid_voice(v)&&valid_step(s)){score.steps[v][s].authored=1;score.steps[v][s].on=!score.steps[v][s].on;record_skip[v]&=~(1u<<s);}}
 int ug_step(int v,int s) {return valid_voice(v)&&valid_step(s)?score.steps[v][s].on:0;}
 void ug_setlock(int v,int s,int p,float value){
  if(!valid_voice(v)||!valid_step(s)||!valid_param(p))return;
- score.steps[v][s].mask|=(1u<<p);score.steps[v][s].lock[p]=clamp(value,0,1);
+ score.steps[v][s].authored=1;score.steps[v][s].mask|=(1u<<p);score.steps[v][s].lock[p]=clamp(value,0,1);
 }
 void ug_clearlock(int v,int s){if(valid_voice(v)&&valid_step(s))score.steps[v][s].mask=0;}
 int ug_lockmask(int v,int s){return valid_voice(v)&&valid_step(s)?score.steps[v][s].mask:0;}
 float ug_lockvalue(int v,int s,int p){return valid_voice(v)&&valid_step(s)&&valid_param(p)?score.steps[v][s].lock[p]:0;}
-void ug_note(int s,int note,float gate,int slide){if(!valid_step(s))return;score.steps[2][s].note=note<24?24:note>60?60:note;score.steps[2][s].gate=clamp(gate,.1f,1.5f);score.steps[2][s].slide=slide?1:0;}
+void ug_note(int s,int note,float gate,int slide){if(!valid_step(s))return;score.steps[2][s].authored=1;score.steps[2][s].note=note<24?24:note>60?60:note;score.steps[2][s].gate=clamp(gate,.1f,1.5f);score.steps[2][s].slide=slide?1:0;}
 float ug_notevalue(int s,int p){if(!valid_step(s))return 0;Step *q=&score.steps[2][s];return p==0?q->note:p==1?q->gate:p==2?q->slide:0;}
 static void trigger(int v,float velocity,int sequenced){
  if(sequenced)capture_motion(v,step_index);
@@ -208,7 +214,7 @@ void ug_keyvelocity(int note,int down,float velocity){
  root_live=note;
  if(recording&&playing&&recording_voice(2)){int nearest=step_index<0?0:step_index;if(tickphase>step_duration()/2)nearest=(nearest+1)%NSTEPS;
   take_snapshot();if(!score.steps[2][nearest].on&&(step_index<0||nearest!=step_index))record_skip[2]|=1u<<nearest;
-  score.steps[2][nearest].on=1;score.steps[2][nearest].note=note;score.steps[2][nearest].velocity=velocity;
+  score.steps[2][nearest].authored=1;score.steps[2][nearest].on=1;score.steps[2][nearest].note=note;score.steps[2][nearest].velocity=velocity;
   if(take_active){score.steps[2][nearest].gate=score.draft_note.gate;score.steps[2][nearest].slide=score.draft_note.slide;}
   capture_motion(2,nearest);
  }
@@ -224,7 +230,7 @@ void ug_hit(int v,float velocity){
   if(!score.steps[v][nearest].on||score.steps[v][nearest].velocity!=velocity){
    take_snapshot();
    if(!score.steps[v][nearest].on&&(step_index<0||nearest!=step_index))record_skip[v]|=(1u<<nearest);
-   score.steps[v][nearest].on=1;score.steps[v][nearest].velocity=velocity;
+   score.steps[v][nearest].authored=1;score.steps[v][nearest].on=1;score.steps[v][nearest].velocity=velocity;
   }
   capture_motion(v,nearest);
  }
@@ -232,7 +238,7 @@ void ug_hit(int v,float velocity){
  trigger(v,velocity,0);
 }
 void ug_clear(void){
- int changed=0;for(int v=0;v<NVOICE;v++)for(int s=0;s<NSTEPS;s++)if(score.steps[v][s].on||score.steps[v][s].mask)changed=1;
+ int changed=0;for(int v=0;v<NVOICE;v++)for(int s=0;s<NSTEPS;s++)if(score.steps[v][s].authored||score.steps[v][s].on||score.steps[v][s].mask)changed=1;
  if(changed){ug_begin_edit();zero(score.steps,sizeof score.steps);for(int v=0;v<NVOICE;v++)for(int st=0;st<NSTEPS;st++)score.steps[v][st].velocity=1;for(int s=0;s<NSTEPS;s++){score.steps[2][s].note=36;score.steps[2][s].gate=.75f;}}ug_panic();
 }
 void ug_panic(void){ug_play(0);zero(voices,sizeof voices);zero(delaybuf,sizeof delaybuf);delay_lp=0;zero(output,sizeof output);}

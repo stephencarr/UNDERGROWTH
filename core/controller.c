@@ -2,8 +2,12 @@
 #include "controller.h"
 #include "undergrowth.h"
 static int page,sub,voice,selected,octave,action,held,edited,gesture;
-static float value,gesture_age,audition_ms,hold_ms;
-static int lock_menu,pending;
+static float value,gesture_age,audition_ms;
+static float press_ms[16];
+static unsigned char presses[16];
+static int lock_menu;
+static void cancel_presses(void){for(int i=0;i<16;i++){presses[i]=0;press_ms[i]=0;}held=-1;}
+static void select_step(int n){if(selected!=n)edited=0;selected=n;}
 static int audition_note,notes[27];
 static char lines[9][64];
 static const int whites[16]={0,2,4,6,7,9,11,12,14,16,18,19,21,23,24,26};
@@ -16,11 +20,21 @@ static float bound(float x,float a,float b){return x<a?a:x>b?b:x;}
 static int count(void){return lock_menu?3:page==9?1:page==6||page==0||page==2?2:1;}
 static int busy(void){return ug_state(18)||ug_state(10)||ug_state(2);}
 static int note_page(void){return (page==2&&sub==1)||(lock_menu&&sub==2);}
-void ug_ui_init(void){page=6;sub=voice=selected=octave=action=edited=0;held=gesture=audition_note=-1;lock_menu=pending=0;value=gesture_age=audition_ms=hold_ms=0;for(int i=0;i<27;i++)notes[i]=-1;}
+void ug_ui_init(void){page=6;sub=voice=selected=octave=action=edited=0;held=gesture=audition_note=-1;lock_menu=0;cancel_presses();value=gesture_age=audition_ms=0;for(int i=0;i<27;i++)notes[i]=-1;}
 void ug_ui_gesture(int reset){if(reset||gesture_age>300)gesture=-1;gesture_age=0;}
-void ug_ui_select(int field,int n){if(field==0&&n>=0&&n<3){voice=n;held=-1;edited=lock_menu=pending=0;sub=0;}if(field==1&&n>=0&&n<16){if(selected!=n)edited=0;selected=n;}gesture=-1;}
-static void open_locks(void){lock_menu=1;pending=0;sub=0;gesture=-1;edited=0;}
+void ug_ui_select(int field,int n){if(field==0&&n>=0&&n<3){voice=n;cancel_presses();edited=lock_menu=0;sub=0;}if(field==1&&n>=0&&n<16){select_step(n);}gesture=-1;}
+static int pending_other(int key){for(int i=0;i<16;i++)if(i!=key&&presses[i]==1&&press_ms[i]<350)return 1;return 0;}
+static void open_locks(void){ug_rejoin();lock_menu=1;if(held>=0)presses[held]=2;sub=0;gesture=-1;edited=0;}
 static void snapshot(void){if(!lock_menu||!edited){ug_begin_edit();if(lock_menu)edited=1;}}
+void ug_ui_edit(int p,float x){
+ if(!lock_menu||busy()||p<0||p>11)return;
+ if(p>=8&&p<=10&&voice!=2)return;
+ snapshot();gesture=-1;
+ if(p<7)ug_setlock(voice,selected,p,bound(x,0,1));
+ else if(p==7)ug_velocity(voice,selected,x);
+ else if(p==11)ug_clearlock(voice,selected);
+ else {int n=(int)ug_notevalue(selected,0),s=(int)ug_notevalue(selected,2);float g=ug_notevalue(selected,1);if(p==8)n=(int)x;else if(p==9)g=x;else s=x!=0;ug_note(selected,n,g,s);}
+}
 static void macro(int p,int d){
  if(ug_state(18)&&ug_state(19)!=voice)return;
  int target=lock_menu?selected:held>=0?held:page==9&&sub==3?selected:-1,lock=target>=0&&!busy(),key=100+(lock?target+1:0)*8+p;
@@ -32,10 +46,10 @@ static void macro(int p,int d){
 }
 void ug_ui_turn(int e,int d){
  if(e<0||e>6||!d)return;ug_ui_gesture(0);
- if(pending&&held>=0&&!busy())open_locks();
+ if(held>=0&&presses[held]==1&&!busy()){for(int i=0;i<16;i++)if(i!=held&&presses[i]==1)return;open_locks();}
  if(e==0){if(lock_menu){sub=sub==0?(d>0?3:2):sub==3?(d>0?2:0):(d>0?0:3);gesture=-1;return;}int n=count();sub=(sub+(d>0?1:-1)+n)%n;gesture=-1;return;}
  if(e==1){ug_ui_select(0,(voice+(d>0?1:-1)+3)%3);return;}
- if(e==2){lock_menu=pending=0;held=-1;page=14;sub=0;gesture=-1;return;}
+ if(e==2){lock_menu=0;cancel_presses();page=14;sub=0;gesture=-1;return;}
  int p=e-3;
  if(lock_menu&&busy())return;
  if(page==11){if(!p)ug_recmode((int)bound(ug_state(17)+(d>0?1:-1),1,3));return;}
@@ -58,7 +72,7 @@ void ug_ui_turn(int e,int d){
  if(page==6||page==4||page==9)macro(p,d);
 }
 void ug_ui_button(int b){
- if(b<0||b>13)return;gesture=-1;pending=0;held=-1;
+ if(b<0||b>13)return;gesture=-1;cancel_presses();
  if(b!=1&&b!=10&&b!=12&&b!=13){lock_menu=0;edited=0;}
  if(b==10){ug_play(-1);return;}
  if(b==11){page=11;sub=action=0;ug_arm(-1,voice);return;}
@@ -79,15 +93,16 @@ void ug_ui_button(int b){
 void ug_ui_key(int offset,int down,float velocity){
  if(offset<0||offset>=27)return;int index=-1;for(int i=0;i<16;i++)if(whites[i]==offset)index=i;
  if(down<=0){
-  if(index==held){
-   if(down==0&&pending&&!busy()&&page==9&&!sub&&!lock_menu){if(ug_step(voice,index))ug_erase(voice,index);else ug_stamp(voice,index);}
-   held=-1;pending=0;if(!lock_menu)edited=0;
+  if(index>=0&&presses[index]){
+   if(down==0&&presses[index]==1&&press_ms[index]<350&&!busy()&&page==9)ug_toggle_authored(voice,index);
+   presses[index]=0;press_ms[index]=0;
+   if(index==held)held=-1;
   }
   if(notes[offset]>=0){ug_key(notes[offset],0);notes[offset]=-1;}gesture=-1;return;
  }
  if(page==9&&index>=0&&!(ug_state(18)&&ug_state(2))){
-  if(held==index)return;
-  selected=held=index;edited=0;hold_ms=0;pending=!lock_menu&&!sub&&!busy();return;
+  if(presses[index])return;
+  select_step(index);held=index;press_ms[index]=0;presses[index]=!lock_menu&&!busy()?1:2;return;
  }
  if(ug_state(18)&&ug_state(19)!=voice)return;
  if(voice==2){int note=29+offset+octave*12;if(note<24||note>60)return;
@@ -95,7 +110,17 @@ void ug_ui_key(int offset,int down,float velocity){
   notes[offset]=note;audition_note=-1;ug_keyvelocity(note,1,velocity);
  }else ug_hit(voice,velocity);
 }
-void ug_ui_tick(float ms){gesture_age+=ms;if(pending&&held>=0){hold_ms+=ms;if(hold_ms>=350&&!busy()&&page==9&&!sub)open_locks();}if(audition_note>=0){audition_ms-=ms;if(audition_ms<=0){ug_key(audition_note,0);audition_note=-1;}}}
+void ug_ui_tick(float ms){
+ gesture_age+=ms;
+ int due=-1;
+ for(int i=0;i<16;i++)if(presses[i]==1){press_ms[i]+=ms;if(press_ms[i]>=350&&due<0)due=i;}
+ // Finish all potential short taps before starting a lock-menu Undo transaction.
+ if(due>=0&&!busy()&&page==9&&!pending_other(due)){
+  for(int i=0;i<16;i++)if(presses[i]==1&&press_ms[i]>=350)presses[i]=2;
+  if(!lock_menu){select_step(due);held=due;open_locks();}
+ }
+ if(audition_note>=0){audition_ms-=ms;if(audition_ms<=0){ug_key(audition_note,0);audition_note=-1;}}
+}
 int ug_ui_state(int f){switch(f){case 0:return page;case 1:return sub;case 2:return voice;case 3:return selected;case 4:return octave;case 5:return count();case 7:return lock_menu;case 6:{int b=page<14&&page!=11?1<<page:0;if(ug_state(0))b|=1<<10;if(ug_state(18))b|=1<<11;return b;}default:return 0;}}
 static void add(char *s,const char *t){int n=0;while(s[n]&&n<63)n++;while(*t&&n<63)s[n++]=*t++;s[n]=0;}
 static void number(char *s,int n){char t[16];int i=0;if(n<0){add(s,"-");n=-n;}do{t[i++]='0'+n%10;n/=10;}while(n&&i<15);while(i){char c[2]={t[--i],0};add(s,c);}}

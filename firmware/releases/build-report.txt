@@ -11,9 +11,9 @@ loader: ota.bin 8340 B
   ok    .ram_text: 975 insns, no calls
   ok    no 64-bit multiply inlined beside a load
   ok    no soft-double routines (single-precision FPU only)
-  ok    image 100280 B; RAM .data+.bss 29576 B of 98304; pool 99724 B of 344064
+  ok    image 101148 B; RAM .data+.bss 29664 B of 98304; pool 99724 B of 344064
   ok    register access: felucca-bsp only (device/, include/ and the app clean)
 parts    USB audio in, velocity and pressure  (not built in: Bluetooth MIDI, Bluetooth MIDI devices, WiFi, USB audio out, screen mirroring, backup and restore, the second core, USB MIDI host)
-app      /workspace/UNDERGROWTH/firmware/build/undergrowth.bin  100280 B
+app      /workspace/UNDERGROWTH/firmware/build/undergrowth.bin  101148 B
 loader   /workspace/UNDERGROWTH/firmware/build/loader/ota.bin  8340 B
-package  /workspace/UNDERGROWTH/firmware/build/undergrowth-0.1.1-hw1.fwsc  611496 B, identity FM-1_731000101
+package  /workspace/UNDERGROWTH/firmware/build/undergrowth-0.1.2-hw1.fwsc  611496 B, identity FM-1_731000102
