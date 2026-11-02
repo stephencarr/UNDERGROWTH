@@ -197,3 +197,10 @@ remain open even after software validation.
 Shared-core takeover correction; no adapter/USB/storage change. Matching package
 FM-1_731000501 passed initial CRC/loader/instruction/memory checks. Full gate
 and review remain pending. No physical FM1 access or flashing was performed.
+
+0.5.1 software validation completed: full `tools/check_milestone.sh` passed,
+including twelve native suites, native/WASM parity with same-track stamping,
+real mouse/touch reproduction across a full loop, existing browser/worklet and
+updater checks, platform-host traces and exact rebuilt package/vocabulary checks.
+Identity FM-1_731000501; image 130448 bytes; data+bss 45044/98304; pool 312908/344064.
+Review and preview rollout are still pending. No physical device was accessed.

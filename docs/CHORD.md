@@ -193,3 +193,10 @@ The reproduction failed before the fix; five-track native regression and
 native/WASM parity pass after it. The full 0.5.1-hw1 gate/review and preview update
 are pending. Previously recorded 0.5.0 validation and accepted CHORD debt remain
 separate; this fix does not claim the other review findings are resolved.
+
+0.5.1 software validation completed: full `tools/check_milestone.sh` passed,
+including twelve native suites, native/WASM parity with same-track stamping,
+real mouse/touch reproduction across a full loop, existing browser/worklet and
+updater checks, platform-host traces and exact rebuilt package/vocabulary checks.
+Identity FM-1_731000501; image 130448 bytes; data+bss 45044/98304; pool 312908/344064.
+Review and preview rollout are still pending. No physical device was accessed.
