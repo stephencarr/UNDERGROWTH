@@ -191,3 +191,21 @@ tank, with four input diffusers and cross-coupled branches. Full send/Reverb
 removes direct audio; Decay reaches ambience at mid travel and a longer wash at
 maximum. Global ownership, Undo/REC guard, parallel delay, mute/Stop tails and
 Panic remain. See REVERB_EVALUATION.md; human listening remains outstanding.
+
+## CHORD candidate — fifth-track controls
+
+ALGORITHM now selects five tracks. Existing upper-key track/copy/paste shortcuts
+are retained; select CHORD with ALGORITHM. HOME's lower key 5 mutes CHORD; SELECT
+page 4 exposes its level on KNOB1. The first four levels remain on HOME page 1.
+CHORD EDIT cycles Sound, Notes/velocity, Harmony, Palette tones. ENV offers Attack,
+Release, Sweep, Decay. SEQ knobs directly edit selected Root/Gate/Velocity/Slot;
+repeated SEQ switches Steps/Keyboard. Palette edits preserve existing trigs.
+
+Held CHORD trig menus cycle Sound, Envelope, Harmony, Trig tones, Notes/velocity.
+They can edit a rest without enabling it; SEL auditions it. Explicit harmony
+locks expand the actual palette definition rather than retaining a live reference.
+Copy/paste is same-track, with Undo. The Expanded CHORD grid returns to Steps
+before editing so it does not inherit the panel keyboard role. Expanded has a
+fifth card/mixer and harmony sliders; Q–I plays chords while CHORD is selected.
+This adds the organism to the current UI; the planned full UI overhaul remains
+separate. See CHORD.md for controls and acceptance.

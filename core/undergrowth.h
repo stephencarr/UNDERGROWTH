@@ -20,6 +20,10 @@ void ug_toggle_authored(int voice,int step);
 void ug_erase(int voice,int step);
 void ug_note(int step,int note,float gate,int slide);
 float ug_notevalue(int step,int parameter);
+/* CHORD roots C2-C5; harmony is captured from four-tone palette parameters. */
+void ug_chordkey(int note,int down,float velocity);
+/* Sounding chord telemetry: bank 0/1, fields 0 active, 1..4 MIDI tones. */
+float ug_chordtone(int bank,int field);
 void ug_key(int note,int down);
 void ug_keyvelocity(int note,int down,float velocity);
 void ug_velocity(int voice,int step,float velocity);

@@ -7,7 +7,7 @@ const assert=require('node:assert/strict');
   const page=await browser.newPage();const errors=[];page.on('pageerror',e=>errors.push(String(e)));
   await page.addInitScript(()=>{navigator.requestMIDIAccess=async()=>{throw new Error('Test denial');};});
   await page.goto(base+'/flash.html');
-  await page.getByText('Verified UNDERGROWTH 0.4.3-hw1').waitFor();
+  await page.getByText('Verified UNDERGROWTH 0.5.0-hw1').waitFor();
   assert.equal(await page.locator('#install').isDisabled(),true);
   await page.locator('#connect').click();
   await page.getByText('MIDI access failed: Test denial').waitFor();
@@ -30,7 +30,7 @@ const assert=require('node:assert/strict');
    navigator.requestMIDIAccess=async()=>({inputs:new Map([['in',input]]),outputs:new Map([['out',output]])});
   });
   await identified.goto(base+'/flash.html');
-  await identified.getByText('Verified UNDERGROWTH 0.4.3-hw1').waitFor();
+  await identified.getByText('Verified UNDERGROWTH 0.5.0-hw1').waitFor();
   await identified.locator('#connect').click();
   await identified.getByText('Identified FM-1_620000100').waitFor();
   await identified.locator('#install').click();
@@ -50,7 +50,7 @@ const assert=require('node:assert/strict');
   assert.equal(await identified.evaluate(()=>window.__sends.some(d=>d[1]===0x22&&d[2]===0x24)),false);
   await identified.close();
   const damaged=await browser.newPage();
-  await damaged.route('**/firmware/releases/undergrowth-0.4.3-hw1.fwsc',async route=>{
+  await damaged.route('**/firmware/releases/undergrowth-0.5.0-hw1.fwsc',async route=>{
    const response=await route.fetch();const body=await response.body();body[body.length-1]^=1;
    await route.fulfill({response,body});
   });

@@ -167,3 +167,14 @@ safety, platform-host traces, firmware CRC/identity/loader/instruction/memory
 checks and rebuilt-vs-checked-in package/vocabulary comparisons. Reverb tests
 also passed address/undefined-behaviour sanitizers (leak detection off).
 No physical device was accessed. Listening and FM1 CPU acceptance remain open.
+
+## CHORD candidate — 0.5.0-hw1
+
+Adds a fifth track, four tones per chord and two overlapping banks, with eight
+editable session palette slots and actual harmony captured in each trig. All
+DSP/controller semantics remain shared C. USB MIDI channel 5 triggers chord roots.
+No additional pool arena: image 130448 bytes; data+bss 45044/98304; pool
+312908/344064. Identity FM-1_731000500. Initial package/CRC/loader/instruction/
+memory checks passed. Full milestone evidence follows after the gate. Compare
+physical CPU/P/X on a dense five-track phrase with grains/reverb engaged before
+accepting headroom. No physical device was accessed or flashed.

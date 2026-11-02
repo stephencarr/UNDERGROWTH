@@ -153,3 +153,21 @@ starts from that sounding value. Stopped controls edit the draft. Expanded
 Synth/ENV send sliders also show effective values in playback; other accepted
 Expanded feedback debt remains. `tools/reverb_audition.py` renders unnormalised
 ROOT/empty-sequence ENV WAVs and metrics for human audition.
+
+## CHORD candidate — 0.5.0-hw1
+
+The core now exposes five tracks; `ug_state(23)` is the count, with CHORD takeover,
+trigger count and motion mask at 24–26. `core/chord.h` implements two banks of four
+tones using original sine/polyBLEP saw/pulse synthesis and stable two-pole tone
+filtering. No extra pool buffer or render allocation. Slots 0–6 are Tone, Colour,
+Decay, Send, Attack, Release, Sweep; 7 root, 8 palette slot, 9 inversion, 10 spread,
+11 gate, 13–15 intervals above the root. Normal stamping excludes Send and unused
+slot 12 (mask 61431). Harmony is latched per hit; continuous sound controls smooth.
+
+Eight palettes live inside `Score`, including Undo. Selecting a slot expands its
+actual intervals/voicing into draft or explicit trig locks; playback never consults
+a mutable palette reference. `ug_chordkey` owns live/MIDI root gates and recording;
+`ug_chordtone` exposes read-only sounding-tone telemetry. Both adapters use shared
+controller pages; fifth-track mixing uses HOME SELECT page 4 and lower key 5.
+Tests include `chord_test`, `chord_browser.cjs`, `tests/hardware/chord.txt` and
+active chord events in native/WASM parity. See CHORD.md for current limits.
