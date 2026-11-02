@@ -124,7 +124,8 @@ remain open even after software validation.
 
 ## Accepted/deferred review debt
 
-PR #14's Codex review identified two noncritical workflow issues. They are
+PR #14's completed Codex and Copilot reviews identified five distinct
+noncritical workflow issues (two were reported by both). They are
 accepted/deferred under AGENTS.md; they do not change the successful software
 checks into a listening or physical-acceptance claim.
 
@@ -137,3 +138,22 @@ checks into a listening or physical-acceptance claim.
   detent rather than the value before a multi-detent gesture. Values remain editable;
   this is not a grouped-gesture Undo guarantee. The held trig-menu transaction and
   whole-recording-take Undo retain their tested behavior.
+
+- **Swing gate length:** CHORD's sequenced gate currently uses the straight-step
+  duration, so its percentage is not a fraction of the actual swung step. At full
+  Swing, nominal 100% is about 75% of a long step / 150% of a short one. Use straight
+  timing for exact gate-percent interpretation, or audition/adjust gates by ear.
+- **HOME footer:** the primary mix page also writes a fifth level row into its
+  status/footer line, which can crowd or concatenate help/status text. CHORD's
+  dedicated HOME page 4 remains the intended level control.
+- **F / Hear chord recording:** Hits/Both recording via this generic hit control
+  stores on/off and velocity but does not snapshot harmony. Subsequent draft
+  root/slot/interval edits can therefore change those trigs. Record with chord
+  keys or MIDI channel 5 to capture the actual root and harmony; ordinary SEQ
+  stamping also captures it correctly. Do not rely on F for harmonic recording.
+
+Review workflow 41501026130 completed successfully; its findings were read,
+not inferred from the workflow result. No critical updater, storage or similar
+risks were reported. Review text based on the initial candidate described the
+full gate as pending; final successful gate evidence is recorded above. These
+workflow limitations remain accepted/deferred rather than being claimed fixed.

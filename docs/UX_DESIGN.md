@@ -209,3 +209,9 @@ before editing so it does not inherit the panel keyboard role. Expanded has a
 fifth card/mixer and harmony sliders; Q–I plays chords while CHORD is selected.
 This adds the organism to the current UI; the planned full UI overhaul remains
 separate. See CHORD.md for controls and acceptance.
+
+PR #14 accepts/defers noncritical CHORD review debt: held-key/Hear overlap can
+latch at maximum Decay (Stop/Panic clears it); closed-menu step edits Undo per
+detent; gates use straight duration under Swing; HOME's fifth level row crowds
+the footer; F/Hear recording omits harmony snapshots. Use chord keys/MIDI or SEQ
+stamping for captured harmony. See CHORD.md for details and workarounds.
