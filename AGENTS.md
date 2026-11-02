@@ -10,10 +10,10 @@ Stephen requires every milestone to end with a flashable FM1 build, as well as t
 - Review upstream licence notices before distributing a firmware bundle. Do not assign an original-project open-source licence without asking Stephen.
 - End completed changes with https://stephencarr.github.io/UNDERGROWTH/ and explicitly state published versus draft. Do not publish an incomplete hardware milestone as though it were ready.
 
-## Review gate
+## Review gate for rapid prototyping
 
 - Monitor this repository’s PR reviews, inline comments and review workflow results, including recently merged PRs.
-- Before merging or publishing, wait for the review workflow for the current PR head to finish, fetch all reviews and inline comments, and triage findings. Block on device safety, unintended writes, data loss and broken core workflows; accept minor maintainability, polish and speculative edge cases as tech debt when their cost exceeds the likely benefit. Record accepted debt briefly instead of chasing a zero-comment review. A successful review workflow means the review ran; it does not mean there were no findings.
-- After pushing fixes, wait for the updated-head review and recheck findings. Never merge while the review is pending or running.
-
-Stephen explicitly prefers reasonable tech debt over perfection: once required gates pass and major risks are handled, ship without expanding optional testing or cleanup.
+- Before publishing substantive code changes, let their review finish and read its findings. A successful review workflow means the review ran; it does not mean there were no findings.
+- Stephen accepts all noncritical tech debt. Only critical risks block release: unintended flashing/writes, serious loss or corruption of user data, or failures of similar consequence. Assess the concrete impact rather than treating every review severity label as a blocker.
+- Record noncritical findings as accepted/deferred debt. Do not expand implementation, optional testing or cleanup to seek a zero-comment review. Documentation-only changes and accepted debt do not need additional review cycles.
+- Complete the mandatory milestone gate and verify fixes to critical issues, then ship. Never access or flash connected hardware without separate explicit authorization.
