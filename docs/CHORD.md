@@ -213,3 +213,12 @@ keyboard/MIDI recommendation above is not a guarantee against this case. No
 new updater/storage or similarly critical risk was identified. The 0.5.1 fix
 passes the full gate and is ready for preview rollout; this separate debt is not
 claimed fixed.
+
+0.5.1 preview rollout verified: Railway deployment
+4c615190-24cd-4c62-a18b-d2a99296b3a4 reached SUCCESS at commit
+cc5bf9589c75980cd5b4e55ebf039ea245e4f5c3 on the existing temporary CHORD service.
+The preview URL is unchanged. It now contains the same-track stamp fix; main
+has not been merged or published. Reloading loads the update but clears the
+session. Verification here is source identity and Railway health plus the local
+mouse/touch/audio and firmware gate; direct public browser verification remains
+unavailable in this workspace.
