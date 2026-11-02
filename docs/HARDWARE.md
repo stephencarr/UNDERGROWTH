@@ -150,7 +150,7 @@ Identity: FM-1_731000402. PR #10 review completed with no findings; its subseque
 test-only change tolerates encoder floating-point rounding. No physical device
 access, flashing or FM1 CPU validation was performed.
 
-## Clouds-derived reverb — 0.4.3-hw1 (draft)
+## Clouds-derived reverb — 0.4.3-hw1 (published experimental)
 
 The shared C Clouds tank uses 49,200 float pool samples, with no render-time
 allocation. Cross-build: image 119884 bytes; data+bss 40572/98304 bytes; pool

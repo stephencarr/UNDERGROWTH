@@ -1,6 +1,6 @@
 # Reverb evaluation — 2 November 2026
 
-Status: 0.4.3-hw1 candidate. Human listening and physical FM1 CPU acceptance
+Status: 0.4.3-hw1 published experimental. Human listening and physical FM1 CPU acceptance
 remain open. The 0.4.2 room passed signal tests but failed the owner's listening
 requirement: full settings should swallow the source, with ambience below full
 Decay. This comparison separates implicit Synth send locks from the room sound.
@@ -114,3 +114,13 @@ gate was running. Full-gate success is now recorded above; README explicitly
 keeps candidate publication pending deployment verification. No DSP or routing
 findings were reported. This documentation correction needs no new functional
 review under AGENTS.md. Existing accepted noncritical workflow debt remains.
+
+Publication verified on 2 November 2026: PR #11 merged as
+7709c148d4965abcc034ea89d2e2a355d967f1ef; Pages deployment 41495872376 succeeded.
+HTTPS downloads matched the local browser bundle, installer HTML/JS, firmware
+and MIT notice exactly. Browser bundle SHA-256:
+3a60e4ce3e4df5536a7f8f4de30c058118b06690a82218bb8c17dcfbd8c7204e.
+Firmware SHA-256:
+0ea6bab82468ab487959a288012fea86906f1b5f6c9e39a1777287a88986589a.
+Published instrument: https://stephencarr.github.io/UNDERGROWTH/ .
+These publication checks do not establish user listening or physical FM1 acceptance.

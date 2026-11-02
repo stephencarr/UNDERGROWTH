@@ -176,7 +176,7 @@ ROOT atmosphere independence (0.4.2-hw1): ordinary ROOT stamping captures slots
 0–10 only. Slots 11–18 are not implicitly locked by note entry. The continuous
 drone runs with no steps and retains its level/send when a bass sequence plays.
 
-## Clouds wash and explicit sends — 0.4.3-hw1 (draft)
+## Clouds wash and explicit sends — 0.4.3-hw1 (published experimental)
 
 ROOT ordinary notes capture synth Sound/Character and articulation, excluding
 Synth send (3) and every atmosphere parameter. A deliberate Sends-page trig
