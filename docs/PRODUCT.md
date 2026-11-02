@@ -15,7 +15,7 @@ Startup and empty Play are silent. Enabling audio prepares the instrument withou
 ## The player's workflow
 
 1. Choose Kick, Chatter, ROOT or Backbeat with ALGORITHM and shape the track's draft sound on EDIT/ENV.
-2. Open SEQ. Its sixteen lower keys address sixteen steps for every organism. First activation of an untouched step captures draft sound, ENV and velocity; ROOT also captures pitch, gate and slide.
+2. Open SEQ. Its sixteen lower keys address sixteen steps for every organism. First activation of an untouched step captures draft sound and velocity (and ENV on percussion tracks); ROOT also captures pitch, gate and slide.
 3. Tap to toggle a step. Turning it off preserves authored data for reactivation. Hold for 350 ms to open the persistent trig-lock menu without toggling. SELECT changes its Sound, ENV and Notes / velocity pages; SEQ closes it. Editing a rest keeps it silent.
 4. Play and perform. Stored locks determine a step's sound; manual takeover temporarily overrides them. Rejoin or finishing the take releases takeover. Adding steps on another track preserves the current track’s manual takeover. The draft must never be contaminated by a passing playhead's lock.
 5. REC arms and shows Hits, Motion or Both for a fixed track. Changing mode finishes the previous take and arms the next mode on that same track; finishing stays on the working page. Hits overdubs live events; Motion writes touched values on existing hits; Both supports touched values on new and existing hits. Rests remain rests in motion-only recording. One Undo restores the whole take. Viewing another track does not change the armed track.
@@ -32,7 +32,7 @@ The default browser view follows the FM1 panel; Expanded view shares the same ru
 | --- | --- |
 | Musical engine | Four 16-step lanes, sound/ENV locks, velocity, ROOT articulation, groove, recording, takeover/Rejoin and Undo. |
 | Browser | Shared C/WASM engine and panel controller, JavaScript IO/drawing, FM1 and Expanded views. |
-| Firmware | Shared C plus FM1 adapter; experimental `0.4.1-hw1` package and validation record are checked in. |
+| Firmware | Shared C plus FM1 adapter; experimental `0.4.2-hw1` package and validation record are checked in. |
 | Device evidence | Cross-build/package and host checks are recorded as passed. No physical flash, playing, CPU-headroom or recovery validation is established. |
 | Persistence | Session-only. Reload/close loses the score. SAVE is unavailable. |
 | Effects | Fixed shared delay with track sends. Track filters, reverb, adjustable global effects and a silent FX automation lane are planned. |
@@ -73,3 +73,10 @@ import remain future work. Physical room/grain CPU headroom still needs FM1 use.
 At maximum Reverb and full send, that layer is essentially fully wet. Direct
 attack and the distinct delay return recede, giving a diffuse wash rather than
 only adding a quiet tail. Lower amounts retain definition.
+
+### Independent ROOT atmosphere fix (0.4.2-hw1)
+
+Ordinary ROOT steps capture only synth Sound/Character settings. They no longer
+capture the atmosphere's pitch, grain controls, level or send. ENV needs Enabled
+ON, a nonzero Level and PLAY; an empty sequence works. Changing ENV while stopped
+then playing a bass sequence preserves the chosen drone settings and FX send.

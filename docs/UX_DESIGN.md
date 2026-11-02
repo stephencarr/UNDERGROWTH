@@ -171,3 +171,7 @@ rather than effective values during motion/playback; toggling ENV Enabled as the
 first Motion/Both edit is not captured in the take snapshot; and changing global
 FX inside an open trig menu can combine later trig edits with its Undo boundary.
 These are noncritical workflow/feedback issues, not fixed by this release.
+
+ROOT atmosphere independence (0.4.2-hw1): ordinary ROOT stamping captures slots
+0–10 only. Slots 11–18 are not implicitly locked by note entry. The continuous
+drone runs with no steps and retains its level/send when a bass sequence plays.

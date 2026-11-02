@@ -164,7 +164,7 @@ void ug_velocity(int v,int step,float value){
 float ug_getvelocity(int v,int step){return !valid_voice(v)||step < -1||step>=NSTEPS?0:step<0?score.velocity[v]:score.steps[v][step].velocity;}
 void ug_stamp(int v,int step){
  if(!valid_voice(v)||!valid_step(step)||recording||motion)return;
- ug_begin_edit();Step *st=&score.steps[v][step];st->authored=1;st->on=1;st->velocity=score.velocity[v];st->mask=((1u<<(v==2?NPARAM:7))-1)&~(1u<<17);
+ ug_begin_edit();Step *st=&score.steps[v][step];st->authored=1;st->on=1;st->velocity=score.velocity[v];st->mask=(1u<<(v==2?11:7))-1; /* ROOT captures synth only; ENV is an independent drone. */
  for(int p=0;p<NPARAM;p++)st->lock[p]=score.base[v][p];
  if(v==2){st->note=score.draft_note.note;st->gate=score.draft_note.gate;st->slide=score.draft_note.slide;}
  record_skip[v]&=~(1u<<step);takeover[v]=0;
