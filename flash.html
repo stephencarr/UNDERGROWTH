@@ -11,12 +11,12 @@
   <nav><a href="index.html">← UNDERGROWTH instrument</a></nav>
   <p class="eyebrow">FM1 / experimental firmware</p>
   <h1>Flash UNDERGROWTH</h1>
-  <p class="lede">Install the experimental <strong>0.4.3-hw1</strong> build from Chrome or Edge on a desktop computer. The browser uses USB MIDI with SysEx permission. This build passed the software gate but has not been tried on a physical FM1.</p>
+  <p class="lede">Install the experimental <strong>0.5.0-hw1</strong> build from Chrome or Edge on a desktop computer. The browser uses USB MIDI with SysEx permission. This build passed the software gate but has not been tried on a physical FM1.</p>
   <section aria-labelledby="package-heading">
     <h2 id="package-heading">1. Verify the package</h2>
     <p id="package-status" role="status">Checking the included firmware…</p>
-    <p class="mono">Target: FM-1_731000403 · SHA-256: <span id="package-hash">0ea6bab82468ab487959a288012fea86906f1b5f6c9e39a1777287a88986589a</span></p>
-    <p><a href="firmware/releases/undergrowth-0.4.3-hw1.fwsc" download>Download this .fwsc</a> · <a href="docs/HARDWARE.md">Build and recovery notes</a> · <a href="LICENSING.md">Third-party notices</a></p>
+    <p class="mono">Target: FM-1_731000500 · SHA-256: <span id="package-hash">17de738c4cea84ea817189c1bb22b1ea534adac5fff4e0726d3a7ceb29277c12</span></p>
+    <p><a href="firmware/releases/undergrowth-0.5.0-hw1.fwsc" download>Download this .fwsc</a> · <a href="docs/HARDWARE.md">Build and recovery notes</a> · <a href="LICENSING.md">Third-party notices</a></p>
   </section>
   <section aria-labelledby="prepare-heading">
     <h2 id="prepare-heading">2. Prepare your FM1</h2>
@@ -47,7 +47,7 @@
   <form method="dialog">
     <h2 id="confirm-heading">Confirm FM1 installation</h2>
     <p id="confirm-device"></p>
-    <p>Target: UNDERGROWTH 0.4.3-hw1 (experimental). The FM1 may enter update mode and restart. When its MIDI ports change, identify and confirm the same physical FM1 again to continue. Keep it connected until this page reports completion.</p>
+    <p>Target: UNDERGROWTH 0.5.0-hw1 (experimental). The FM1 may enter update mode and restart. When its MIDI ports change, identify and confirm the same physical FM1 again to continue. Keep it connected until this page reports completion.</p>
     <label class="ack"><input id="backup-ok" type="checkbox"> I have a verified full flash backup and my Caravel project export, or I accept losing them.</label>
     <div class="actions"><button value="cancel" class="secondary">Cancel</button><button id="confirm-install" value="install" disabled>Install on FM1</button></div>
   </form>

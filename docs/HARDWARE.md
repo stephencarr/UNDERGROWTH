@@ -167,3 +167,23 @@ safety, platform-host traces, firmware CRC/identity/loader/instruction/memory
 checks and rebuilt-vs-checked-in package/vocabulary comparisons. Reverb tests
 also passed address/undefined-behaviour sanitizers (leak detection off).
 No physical device was accessed. Listening and FM1 CPU acceptance remain open.
+
+## Grain refinement — 0.5.0-hw1 (unpublished)
+
+Hardware reserves a 22,650-sample float tank for its fixed 44.1 kHz codec rather
+than the native/browser 49,200-sample arena. Delay lengths/topology are unchanged;
+22,587 slots are used, and profile impulse output matches bit-for-bit. Saves
+106,200 bytes. Cross-build image: 120268 bytes; data+bss 40604/98304; pool
+206708/344064 (137356 bytes spare). Identity FM-1_731000500. Package CRC/loader,
+instruction and memory checks passed. Surprise uses bounded seeded scatter and
+occasional octave/reverse grains, with an eight-grain limit and no runtime
+allocation. Physical CPU and listening remain unvalidated. No flashing performed.
+
+Validation recorded for this draft on 2026-11-02: the complete milestone gate
+passed, including twelve native suites, compact/native reverb impulse identity,
+native/WASM bit parity with Surprise, worklet, mouse/touch workflows, simulated
+installer cancellation/identity/corruption/re-enumeration checks, platform-host
+traces, real .fwsc CRC/identity/loader/instruction/memory checks, and package and
+vocabulary comparisons. Focused grain ASan/UBSan checks also passed (leak checks
+off). No subjective listening approval, physical FM1 CPU measurement, publication
+or flashing is claimed. USB sample capture remains future work.

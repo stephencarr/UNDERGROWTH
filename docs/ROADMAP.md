@@ -1,5 +1,69 @@
 # UNDERGROWTH roadmap
 
+## Accepted direction — grain sampling and distinct atmospheres (2026-11-02)
+
+Keep ROOT ENV as the independent drone/grain layer already implemented on main.
+Other organisms should have simpler, distinct atmosphere algorithms rather than
+copies of the sampler: a sustained morphable formant; coloured noise with
+modulation options; and a harmonic drone with crunch and texture. These are
+accepted sound directions, not implemented features. Exact organism assignments,
+knob mappings and modulation destinations remain to be chosen through playing.
+Retain explicit enable, silent startup, independent synth/atmosphere sends,
+Stop fades and Panic. Atmospheres must not rewrite authored notes or locks.
+
+Start by improving ROOT's existing original-texture grain sampler: smooth grain
+boundaries, control the gain as density increases, and keep work bounded to eight
+grains. Preserve Position/Size/Density/Pitch/Level/Scan and current ownership.
+This is draft development until browser and matching experimental firmware pass
+the milestone gate and the sound is auditioned.
+
+Next, investigate a short session-only mono capture from phone microphone audio
+routed over USB. The phone supplies audio; playback runs on the FM1 after capture.
+Explicit arm/record/stop freezes a bounded RAM sample. No flash saving, automatic
+mic routing, phone DSP dependency or new sequencer events are implied. The current
+platform needs an incoming-audio capture hook before its playback mixer; browser
+input must feed the same C sampler through its own IO adapter.
+
+Mutable Instruments Clouds' MIT-licensed time-domain grain playback, windows,
+interpolation and density handling are references for selective adaptation.
+Do not port its entire processor, spectral mode or extra effects. Retain notices
+for any adapted code and measure dense-pattern CPU/P/X on real FM1 hardware.
+No Mutable grain code is incorporated by the first original-engine refinement.
+
+Pre-refinement budget (superseded by the compact hardware allocation below): 0.4.3-hw1's
+Clouds-derived reverb leaves only 31,156 bytes of the pool free. A one-second
+32 kHz mono int16 recording needs 64,000 bytes and DOES NOT fit that spare pool.
+Evaluate reclaiming/reusing the generated texture, reducing or compacting the
+reverb arena, or a shorter/lower-rate capture; include USB buffers and state.
+Do not reduce the supported sample-rate range or enable CPU2/radios implicitly.
+A 360 MHz clock is not proof of spare render time. Capture length and grain count
+remain contingent on the linker and physical CPU budget.
+
+## Ambient reference — Microcosm, and compact shared reverb
+
+Stephen approved including reverb memory reduction in the grain improvement
+milestone. The current Clouds adaptation did not sound sufficiently different
+from basic reverb to justify its memory cost. Preserve useful ambience and long
+dark tails; compare a compact alternative at matched loudness rather than
+preserving topology for its name. First evaluate sizing FM1 buffers for its actual
+44.1 kHz rate while retaining browser/native sample-rate support. Keep the public
+build unchanged until review and the complete browser/firmware gate pass.
+
+Stephen's sonic reference is Hologram Electronics Microcosm:
+https://www.hologramelectronics.com/pages/microcosm
+He values grains, surprises, sparkle, swirl and their interaction with reverb.
+These are listening preferences, not a verified description of proprietary DSP;
+the product page could not be retrieved in this workspace (network policy 403).
+Borrow the musical direction, not a promise of Microcosm emulation or its full
+algorithm collection. Make interesting fragments before relying on a large tank:
+bounded position scatter, occasional controlled octave/reverse fragments, slow
+stereo movement and short-to-sustained grain articulation into compact reverb.
+Expose surprise as a deliberate amount with deterministic seeded variation;
+zero retains a stable texture. Changes happen inside the enabled atmosphere,
+never as new score events. ROOT ENV remains its owner. Default startup stays
+silent; Stop fades and Panic clears grains and effect tails. New controls and
+pitch/reverse choices are proposals until implemented and auditioned.
+
 ## Decision: strong controls, subtle organism DNA
 
 Accepted with Stephen, 2026-11-01. ENV means **Environment**, not a conventional ADSR editor. Each organism has an opinionated identity that remains recognisable. The player makes the large musical decisions; the organism adds character in its response.
@@ -125,3 +189,17 @@ Ordinary ROOT note snapshots exclude Synth send as well as ENV; deliberate
 send locks/motion remain. FX shows actual sends during playback. This addresses
 the handover's routing and wash objectives; listening acceptance and physical
 CPU headroom remain open. See REVERB_EVALUATION.md for comparisons and limits.
+
+### Grain improvement implementation — 0.5.0-hw1 (unpublished)
+
+First slice: smooth grain windows, overlap gain compensation and seeded Surprise
+(position scatter plus occasional octave-up/reverse reads), with a zero setting
+for stable texture. ROOT ENV owns it; existing locks/motion/Undo remain available.
+The FM1 reverb arena now reserves only the space needed at its fixed 44.1 kHz
+rate: 90,600 rather than 196,800 bytes. A bit-identical impulse comparison proves
+this allocation change preserves the current 44.1 kHz tank sound. It recovers
+106,200 bytes without another topology replacement; a cheaper-sounding alternative
+is not required merely to make capture fit. Firmware pool use is 206,708/344,064
+bytes, leaving 137,356 bytes before capture/USB additions. A 64,000-byte sample
+is now plausible, but incoming audio capture is still unimplemented. Formant,
+noise, harmonic atmospheres and stereo grain swirl remain future slices.

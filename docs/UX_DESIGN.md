@@ -191,3 +191,12 @@ tank, with four input diffusers and cross-coupled branches. Full send/Reverb
 removes direct audio; Decay reaches ambience at mid travel and a longer wash at
 maximum. Global ownership, Undo/REC guard, parallel delay, mute/Stop tails and
 Panic remain. See REVERB_EVALUATION.md; human listening remains outstanding.
+
+## ROOT grain refinement — 0.5.0-hw1 (unpublished)
+
+ROOT ENV retains Atmosphere and ATM MIX; SELECT/repeated ENV now reaches a third
+page, GRAIN VARIATION. KNOB1 is Surprise. Zero gives stable reads; raising it adds
+seeded position scatter and occasional octave-up/reverse fragments. Expanded
+view exposes Grain surprise. In an open ROOT trig menu, ATM MIX knob 3 edits its
+explicit lock. Ordinary note entry does not capture atmosphere settings.
+The parameter follows existing motion/Undo semantics and does not generate notes.

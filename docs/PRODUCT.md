@@ -95,3 +95,19 @@ motion are retained; Rejoin restores those locks. FX shows the effective send
 while playing and the draft while stopped. Sound/Character locks remain per trig.
 ENV continues independently with Enabled ON, nonzero Level and PLAY, including
 on an empty sequence. Stop fades ENV and lets the shared tank decay.
+
+### ROOT grain improvement — 0.5.0-hw1 (unpublished)
+
+ROOT keeps its independent ENV drone. Grain windows now fade smoothly at both
+ends, and overlap gain compensation reduces density-related level buildup.
+ENV page 3 exposes Surprise: zero keeps stable sampling; raising it scatters
+positions and occasionally adds octave-up sparkle or reversed fragments. It is
+seeded/repeatable after init, never changes the score, and supports explicit
+locks/motion/Undo. Expanded view exposes the same control. Eight grains remain
+the hard limit; the source remains an original generated texture.
+
+The FM1's reverb memory allocation is sized for its fixed 44.1 kHz rate, saving
+106,200 bytes while preserving its sound. Browser/native rates remain 8–96 kHz.
+Phone/USB capture, stereo grain movement and the other organisms' formant/noise/
+harmonic atmospheres remain roadmap work. Listening and physical CPU acceptance
+remain open; no device access or flashing is part of this work.

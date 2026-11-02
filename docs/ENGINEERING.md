@@ -58,7 +58,7 @@ Linux x86-64 is the initial cross-build host. Follow [HARDWARE.md](HARDWARE.md) 
 python3 tools/prepare_firmware.py
 # Export FM1_BASE, AC79_SDK and JIELI_TOOLCHAIN using setup's printed paths.
 python3 tools/firmware_build.py --host
-python3 tools/firmware_build.py --release 0.4.3-hw1
+python3 tools/firmware_build.py --release 0.5.0-hw1
 ```
 
 Do not update pinned revisions or bypass hash, TLS, package identity, CRC, loader, instruction or memory checks merely to make a build succeed. The compiler download hosts are `pkgman.jieliapp.com` and `jl-update.oss-cn-shenzhen.aliyuncs.com`; environment network policy may need to allow required destinations.
@@ -69,7 +69,7 @@ With toolchains, browser dependencies and the local server ready, run:
 sh tools/check_milestone.sh
 ```
 
-This builds native/WASM, runs core/controller tests, parity/worklet and browser/updater checks, builds the platform host and real FM1 package, and compares firmware/vocabulary with published artifacts. `UG_RELEASE` selects the package version for the gate; the default is currently `0.4.3-hw1`. A new release needs matching checked-in artifacts, manifest, notices and installer references. Inspect the scripts before changing release versions rather than treating the environment variable as a complete release procedure.
+This builds native/WASM, runs core/controller tests, parity/worklet and browser/updater checks, builds the platform host and real FM1 package, and compares firmware/vocabulary with published artifacts. `UG_RELEASE` selects the package version for the gate; the default is currently `0.5.0-hw1`. A new release needs matching checked-in artifacts, manifest, notices and installer references. Inspect the scripts before changing release versions rather than treating the environment variable as a complete release procedure.
 
 Build outputs include `firmware/build/` and `build/releases/<version>/`. The package manifest records source/dependency identities and experimental/hardware-validation status. Missing compiler/dependencies or a failed package gate leaves a functional milestone incomplete. Never substitute a host binary or WASM for firmware.
 
@@ -153,3 +153,28 @@ starts from that sounding value. Stopped controls edit the draft. Expanded
 Synth/ENV send sliders also show effective values in playback; other accepted
 Expanded feedback debt remains. `tools/reverb_audition.py` renders unnormalised
 ROOT/empty-sequence ENV WAVs and metrics for human audition.
+
+### Grain refinement — 0.5.0-hw1 (unpublished)
+
+ROOT's slot 19 is Surprise (seeded scatter, occasional octave/reverse grains),
+accessible on ENV page 3 and lock-menu ATM MIX knob 3. It supports existing
+explicit locks, motion and Undo; ordinary ROOT stamping still excludes ENV.
+The hash never consumes percussion RNG. Squared-parabolic grain windows have
+flat endpoints and smoothed overlap gain compensation limits density buildup.
+Native/WASM parity exercises nonzero Surprise. `grain_test` checks bounds at
+five rates, correlated reads, repeatability, controller access and Undo.
+
+Hardware fixes its core rate to the adapter's 44.1 kHz and reserves 22,650 float
+reverb samples instead of 49,200. Native/WASM keep 8–96 kHz. A two-profile impulse
+test proves identical 44.1 kHz output and checks arena bounds; the compact arena
+needs 22,587 samples. This changes allocation, not reverb topology or sound.
+Physical CPU/P/X and listening acceptance remain outstanding.
+
+Validation recorded for this draft on 2026-11-02: the complete milestone gate
+passed, including twelve native suites, compact/native reverb impulse identity,
+native/WASM bit parity with Surprise, worklet, mouse/touch workflows, simulated
+installer cancellation/identity/corruption/re-enumeration checks, platform-host
+traces, real .fwsc CRC/identity/loader/instruction/memory checks, and package and
+vocabulary comparisons. Focused grain ASan/UBSan checks also passed (leak checks
+off). No subjective listening approval, physical FM1 CPU measurement, publication
+or flashing is claimed. USB sample capture remains future work.
