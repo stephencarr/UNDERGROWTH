@@ -111,3 +111,27 @@ The FM1's reverb memory allocation is sized for its fixed 44.1 kHz rate, saving
 Phone/USB capture, stereo grain movement and the other organisms' formant/noise/
 harmonic atmospheres remain roadmap work. Listening and physical CPU acceptance
 remain open; no device access or flashing is part of this work.
+
+### Independent ENV palette — 0.6.0-hw1 (unpublished)
+
+Every organism now has an independently enabled continuous atmosphere that runs
+with PLAY, including over an empty score. Kick adds a harmonic drone with
+Harmonics/Texture/Movement/Pitch, Rate and Crunch. Chatter adds coloured noise
+with Colour/Pulse/Movement/Range, Rate and Roughness. Backbeat adds a morphable
+vowel voice with Vowel/Resonance/Movement/Pitch, Rate and Breath. ROOT keeps its
+grain drone. These are original fixed-state synth engines, without samples or
+additional modulation/arp features on the reserved buttons.
+
+For the three percussion tracks, ENV pages 1/2 retain the existing percussion
+controls and velocity. Pages 3/4/5 expose atmosphere shape, level/rate/enable/send,
+and character respectively. FX's track page offers percussion Send on KNOB1
+and ENV send on KNOB2. Expanded view shows the selected track's matching controls.
+An ordinary percussion trig still captures only its original seven sound slots;
+it cannot reset the atmosphere. Deliberate atmosphere locks and motion work on
+existing hits; Enable is a track switch excluded from locks/motion, with take
+Undo support. Mute/level affect both layers. Stop fades atmospheres and lets
+shared effect tails decay; Panic clears all state. Sessions remain temporary.
+
+This slice also fixes a reviewed reverse-grain boundary rounding case from PR
+#15. Listening acceptance for the new three atmospheres and physical FM1 CPU
+headroom remain open. No flashing or public GitHub Pages change is implied.

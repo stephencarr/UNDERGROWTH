@@ -187,3 +187,22 @@ traces, real .fwsc CRC/identity/loader/instruction/memory checks, and package an
 vocabulary comparisons. Focused grain ASan/UBSan checks also passed (leak checks
 off). No subjective listening approval, physical FM1 CPU measurement, publication
 or flashing is claimed. USB sample capture remains future work.
+
+## Independent atmosphere palette — 0.6.0-hw1 (unpublished)
+
+Original harmonic/crunch, modulated-noise and morphing-formant atmospheres add
+fixed scalar state, with no sample buffers or runtime allocation. Cross-build:
+image 125868 bytes; data+bss 40940/98304; pool unchanged at 206708/344064.
+Identity FM-1_731000600. Package CRC/loader/instruction/memory checks passed.
+The smaller 44.1 kHz reverb allocation is retained. Four concurrent atmospheres
+plus dense percussion and reverb still require physical CPU/P/X and listening
+acceptance. Host timings and cross-build fit do not establish device headroom.
+No device access, flashing, CPU2 or radio activation is performed.
+
+Validation for unpublished 0.6.0-hw1: the complete milestone gate passed on
+2026-11-02, including thirteen native suites, all-atmosphere native/WASM bit
+parity, worklet, mouse/touch browser workflows, new atmosphere platform-host
+traces, simulated updater safety, package identity/CRC/loader/instruction/memory
+checks and exact rebuilt package/vocabulary comparisons. Focused atmosphere and
+reverse-grain reproducer ASan/UBSan checks passed (leak detection off). Listening
+and physical FM1 CPU acceptance remain open; no flashing was performed.

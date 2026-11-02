@@ -200,3 +200,26 @@ seeded position scatter and occasional octave-up/reverse fragments. Expanded
 view exposes Grain surprise. In an open ROOT trig menu, ATM MIX knob 3 edits its
 explicit lock. Ordinary note entry does not capture atmosphere settings.
 The parameter follows existing motion/Undo semantics and does not generate notes.
+
+## Percussion atmosphere layers — 0.6.0-hw1 (unpublished)
+
+Kick ENV owns a harmonic/crunch drone; Chatter ENV owns modulated coloured noise;
+Backbeat ENV owns a morphable formant. ROOT ENV remains grains. Keep existing
+percussion edit gestures: ENV page 1 is the original percussion envelope, page 2
+is velocity. SELECT or repeated ENV reaches page 3 (shape), page 4 (Level, Rate,
+Enabled, ENV send), and page 5 (Crunch / Roughness / Breath on KNOB1).
+
+Shape page: Kick Harmonics/Texture/Movement/Pitch; Chatter Colour/Pulse/Movement/
+Range; Backbeat Vowel/Resonance/Movement/Pitch. The shaped noise's Range uses the
+same C1–C4 register mapping as pitched atmospheres, without implying a tuned
+noise fundamental. Movement controls timbral motion, and Pulse adds noise amplitude
+modulation. Rate covers slow movement through a faster pulse. Enable and PLAY
+are required; keys continue to play the percussion, without generating drone
+notes. FX KNOB1 sends percussion, KNOB2 sends its atmosphere. Shared reverb/delay
+settings retain global ownership.
+
+Held-trig menus retain Sound, percussion ENV and Notes/velocity in their earlier
+order; appended Atmosphere and ATM MIX pages offer deliberate locks. ATM MIX is
+Level/Rate/Character/ENV send; Enabled is never a lock. Normal note stamping does
+not capture atmosphere settings. Expanded view edits the same parameters and
+shows effective values during playback. View changes never alter the armed track.

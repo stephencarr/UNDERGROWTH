@@ -58,7 +58,7 @@ Linux x86-64 is the initial cross-build host. Follow [HARDWARE.md](HARDWARE.md) 
 python3 tools/prepare_firmware.py
 # Export FM1_BASE, AC79_SDK and JIELI_TOOLCHAIN using setup's printed paths.
 python3 tools/firmware_build.py --host
-python3 tools/firmware_build.py --release 0.5.0-hw1
+python3 tools/firmware_build.py --release 0.6.0-hw1
 ```
 
 Do not update pinned revisions or bypass hash, TLS, package identity, CRC, loader, instruction or memory checks merely to make a build succeed. The compiler download hosts are `pkgman.jieliapp.com` and `jl-update.oss-cn-shenzhen.aliyuncs.com`; environment network policy may need to allow required destinations.
@@ -69,7 +69,7 @@ With toolchains, browser dependencies and the local server ready, run:
 sh tools/check_milestone.sh
 ```
 
-This builds native/WASM, runs core/controller tests, parity/worklet and browser/updater checks, builds the platform host and real FM1 package, and compares firmware/vocabulary with published artifacts. `UG_RELEASE` selects the package version for the gate; the default is currently `0.5.0-hw1`. A new release needs matching checked-in artifacts, manifest, notices and installer references. Inspect the scripts before changing release versions rather than treating the environment variable as a complete release procedure.
+This builds native/WASM, runs core/controller tests, parity/worklet and browser/updater checks, builds the platform host and real FM1 package, and compares firmware/vocabulary with published artifacts. `UG_RELEASE` selects the package version for the gate; the default is currently `0.6.0-hw1`. A new release needs matching checked-in artifacts, manifest, notices and installer references. Inspect the scripts before changing release versions rather than treating the environment variable as a complete release procedure.
 
 Build outputs include `firmware/build/` and `build/releases/<version>/`. The package manifest records source/dependency identities and experimental/hardware-validation status. Missing compiler/dependencies or a failed package gate leaves a functional milestone incomplete. Never substitute a host binary or WASM for firmware.
 
@@ -229,3 +229,35 @@ traces, real .fwsc CRC/identity/loader/instruction/memory checks, and package an
 vocabulary comparisons. Focused grain ASan/UBSan checks also passed (leak checks
 off). No subjective listening approval, physical FM1 CPU measurement, publication
 or flashing is claimed. USB sample capture remains future work.
+
+### Independent atmosphere engines — 0.6.0-hw1 (unpublished)
+
+`core/atmospheres.h` holds original fixed-state harmonic, noise and formant DSP;
+`undergrowth.c` owns initialization, score ownership, routing, fade and Panic.
+Slots 11–19 mirror ROOT's atmosphere ownership on other tracks. Original
+percussion snapshots remain seven slots. Each atmosphere has its own RNG and
+smoothing/filter state, separate from percussion randomness and the grain hash.
+No runtime allocation, extra sample buffers, radio or CPU2 use is added.
+
+The new enable switches participate in take Undo but cannot be captured as
+motion/trig locks. Atmosphere Level/Send remain independent of synth Send.
+The reverse-grain wrap fix normalizes negative positions before the upper-bound
+check, including float rounding to exactly TEXTURE. The reported Position
+0.1513530016 / Scan zero / Surprise one case is now a bounds regression test.
+
+`atmosphere_test` covers five engine concerns: silent startup and empty-score
+sound, sample-rate extremes, control ranges, independent stamp/motion/Undo
+ownership, and Stop/mute/Panic. Native/WASM parity renders all four atmospheres
+with shared effects. `atmosphere_browser.cjs` checks mouse/touch sound, controls,
+Expanded edits and routing. `tests/hardware/atmospheres.txt` exercises the three
+new continuous voices and zero storage writes through the physical adapter's host.
+Inherited PR #15 checksum debt is corrected by hashing files actually present in
+the checked-in release directory, separately from the full downloadable bundle.
+
+Validation for unpublished 0.6.0-hw1: the complete milestone gate passed on
+2026-11-02, including thirteen native suites, all-atmosphere native/WASM bit
+parity, worklet, mouse/touch browser workflows, new atmosphere platform-host
+traces, simulated updater safety, package identity/CRC/loader/instruction/memory
+checks and exact rebuilt package/vocabulary comparisons. Focused atmosphere and
+reverse-grain reproducer ASan/UBSan checks passed (leak detection off). Listening
+and physical FM1 CPU acceptance remain open; no flashing was performed.

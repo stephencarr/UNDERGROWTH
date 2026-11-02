@@ -6,8 +6,9 @@ Keep ROOT ENV as the independent drone/grain layer already implemented on main.
 Other organisms should have simpler, distinct atmosphere algorithms rather than
 copies of the sampler: a sustained morphable formant; coloured noise with
 modulation options; and a harmonic drone with crunch and texture. These are
-accepted sound directions, not implemented features. Exact organism assignments,
-knob mappings and modulation destinations remain to be chosen through playing.
+accepted sound directions. The first draft assignment is Kick harmonic/crunch,
+Chatter modulated noise, Backbeat morphing formant, with ROOT retaining grains.
+The draft controls and synthesis still need Stephen’s audition.
 Retain explicit enable, silent startup, independent synth/atmosphere sends,
 Stop fades and Panic. Atmospheres must not rewrite authored notes or locks.
 
@@ -203,3 +204,15 @@ is not required merely to make capture fit. Firmware pool use is 206,708/344,064
 bytes, leaving 137,356 bytes before capture/USB additions. A 64,000-byte sample
 is now plausible, but incoming audio capture is still unimplemented. Formant,
 noise, harmonic atmospheres and stereo grain swirl remain future slices.
+
+### Independent atmospheres — 0.6.0-hw1 (unpublished)
+
+Stephen confirmed the assignment: Kick harmonic drone with crunch/texture;
+Chatter coloured noise with pulse and timbral modulation; Backbeat sustained
+morphable formant; ROOT keeps grain sampling. Implemented in original shared C,
+with per-track enable/level/send/rate and the existing lock/motion/Undo workflow.
+Original percussion envelopes remain on their existing ENV pages; additional
+pages expose atmospheres. All start off and need PLAY; they do not create notes.
+This draft fixes the inherited reverse-grain endpoint read and checked-in release
+checksum list. USB capture, stereo grain swirl, additional organisms and broad UI
+redesign remain later work. New atmosphere listening and physical CPU remain open.

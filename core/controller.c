@@ -21,7 +21,7 @@ static const char *voices[4]={"KICK","CHATTER","ROOT","BACKBEAT"};
 static const char *pages[15]={"FX","SEL","ENV","LFO","EDIT","GLO","HOME","SAVE","ARP","SEQUENCE","PLAY","REC","OCT-","OCT+","PRESETS"};
 static const char *modes[4]={"","Hits","Motion","Both"};
 static float bound(float x,float a,float b){return x<a?a:x>b?b:x;}
-static int count(void){if(page==0&&!lock_menu)return 3;if(voice==2){if(lock_menu)return 6;if(page==4)return 3;if(page==2)return 3;}return lock_menu?3:page==9?1:page==6?3:page==0||page==2||page==4?2:1;}
+static int count(void){if(page==0&&!lock_menu)return 3;if(voice!=2&&page==2&&!lock_menu)return 5;if(voice==2){if(lock_menu)return 6;if(page==4)return 3;if(page==2)return 3;}return lock_menu?5:page==9?1:page==6?3:page==0||page==2||page==4?2:1;}
 static int busy(void){return ug_state(18)||ug_state(10)||ug_state(2);}
 static int note_page(void){if(voice==2&&page==9&&!lock_menu&&!busy())return 1;return (((page==2&&voice!=2)||page==4)&&sub==1)||(lock_menu&&sub==2);}
 static int key_mode(void){return page==6?2:page==9&&!(voice==2&&keyboard)&&!(ug_state(18)&&ug_state(2))?1:0;}
@@ -63,6 +63,18 @@ void ug_ui_edit(int p,float x){
  else {int n=(int)ug_notevalue(selected,0),s=(int)ug_notevalue(selected,2);float g=ug_notevalue(selected,1);if(p==8)n=(int)x;else if(p==9)g=x;else s=x!=0;ug_note(selected,n,g,s);}
 }
 static const char *root_names[20]={"Tone","Colour","Decay","Synth send","Glide","Weight","Attack","Structure","Intensity","Feedback","Motion","Position","Grain size","Density","Pitch","Level","ENV send","Enabled","Scan","Surprise"};
+static const char *ambient_names[4][9]={
+ {"Harmonics","Texture","Movement","Pitch","Level","ENV send","Enabled","Rate","Crunch"},
+ {"Colour","Pulse","Movement","Range","Level","ENV send","Enabled","Rate","Roughness"},
+ {"Position","Grain size","Density","Pitch","Level","ENV send","Enabled","Scan","Surprise"},
+ {"Vowel","Resonance","Movement","Pitch","Level","ENV send","Enabled","Rate","Breath"}};
+static int ambient_page(void){return voice!=2&&((page==2&&sub>=2&&!lock_menu)||(lock_menu&&(sub==7||sub==5)));}
+static int ambient_param(int knob){
+ if((lock_menu&&sub==7)||(!lock_menu&&sub==2))return 11+knob;
+ if(lock_menu&&sub==5)return (int[4]){15,18,19,16}[knob];
+ if(!lock_menu&&sub==3)return (int[4]){15,18,17,16}[knob];
+ return knob==0?19:-1;
+}
 static int root_param(int knob){
  if(lock_menu){if(sub==4)return 7+knob;if(sub==3)return 11+knob;if(sub==5)return (int[4]){15,18,19,16}[knob];if(sub==6)return knob==0?3:knob==1?16:-1;}
  if(page==2&&sub==2)return knob==0?19:-1;
@@ -75,15 +87,15 @@ static void macro(int p,int d){
  if(ug_state(18)&&ug_state(19)!=voice)return;
  int target=lock_menu?selected:held>=0?held:page==9&&sub==3?selected:-1,lock=target>=0&&!busy(),key=100+(lock?target+1:0)*32+p;
  int first=gesture!=key;
- if(first){gesture=key;value=lock&&(ug_lockmask(voice,target)&(1<<p))?ug_lockvalue(voice,target,p):(ug_state(10)||(!lock&&voice==2&&(p==3||p==16)&&ug_state(0)))?ug_effective(voice,p):ug_getparam(voice,p);
+ if(first){gesture=key;value=lock&&(ug_lockmask(voice,target)&(1<<p))?ug_lockvalue(voice,target,p):(ug_state(10)||(!lock&&(p==16||(voice==2&&p==3))&&ug_state(0)))?ug_effective(voice,p):ug_getparam(voice,p);
   if(lock){if(lock_menu)snapshot();else if(held<0||!edited){ug_begin_edit();if(held>=0)edited=1;}}else if(!ug_state(18)&&!ug_state(10))ug_begin_edit();}
- value=voice==2&&p==17?(d>0?1:0):voice==2&&p==14?bound(((int)(value*36+.5f)+d)/36.0f,0,1):bound(value+d*.01f,0,1);
+ value=p==17?(d>0?1:0):p==14?bound(((int)(value*36+.5f)+d)/36.0f,0,1):bound(value+d*.01f,0,1);
  if(lock)ug_setlock(voice,target,p,value);else ug_setparam(voice,p,value);
 }
 void ug_ui_turn(int e,int d){
  if(e<0||e>6||!d)return;ug_ui_gesture(0);
  if(held>=0&&presses[held]==1&&!busy()){for(int i=0;i<16;i++)if(i!=held&&presses[i]==1)return;open_locks();}
- if(e==0){if(lock_menu){const int order[6]={0,4,3,5,6,2};int n=voice==2?6:3,i=0;const int old[3]={0,3,2};while(i<n&&(voice==2?order[i]:old[i])!=sub)i++;sub=voice==2?order[(i+d%n+n)%n]:old[(i+d%n+n)%n];gesture=-1;return;}int n=count();sub=(sub+d%n+n)%n;remembered[voice][page]=sub;gesture=-1;return;}
+ if(e==0){if(lock_menu){const int order[6]={0,4,3,5,6,2};int n=voice==2?6:5,i=0;const int old[5]={0,3,2,7,5};while(i<n&&(voice==2?order[i]:old[i])!=sub)i++;sub=voice==2?order[(i+d%n+n)%n]:old[(i+d%n+n)%n];gesture=-1;return;}int n=count();sub=(sub+d%n+n)%n;remembered[voice][page]=sub;gesture=-1;return;}
  if(e==1){ug_ui_select(0,(voice+d%4+4)%4);return;}
  if(e==2){lock_menu=0;cancel_presses();page=14;sub=0;gesture=-1;return;}
  int p=e-3;
@@ -93,6 +105,8 @@ void ug_ui_turn(int e,int d){
  if(page==6&&sub==2)return;
  if(page==6){ug_level(p,bound(ug_getlevel(p)+d*.01f,0,1));return;}
  if(page==0&&sub&&!lock_menu){if(busy())return;int rp=sub==1?p:4;if(sub==2&&p)return;int key=900+rp;if(gesture!=key){gesture=key;value=ug_getfx(rp);ug_begin_edit();}value=bound(value+d*.01f,0,1);ug_setfx(rp,value);return;}
+ if(ambient_page()){int ap=ambient_param(p);if(ap>=0)macro(ap,d);return;}
+ if(voice!=2&&page==0&&!sub&&!lock_menu){if(p<2)macro(p?16:3,d);return;}
  if(voice==2&&!note_page()&&(page==2||page==4||(page==0&&!sub)||lock_menu)){int rp=root_param(p);if(rp>=0)macro(rp,d);return;}
  if((page==2&&!sub)||(lock_menu&&sub==3)){macro(env[voice][p],d);return;}
  if(note_page()){
@@ -177,12 +191,12 @@ static void named(char *s,int row,const char *name,int n,const char *unit){numbe
 const char *ug_ui_knoblabel(int e){
  static const char *normal[4]={"Body","Edge","Length","Send"};
  if(e==0)return "SELECT: page";if(e==1)return "ALGORITHM: track";if(e==2)return "PRESETS: unavailable";if(e<3||e>6)return "";
- int p=e-3;if(page==6)return sub==0?voices[p]:sub==1&&p==0?"Choose recovery":"Unused";
+ int p=e-3;if(ambient_page()){int ap=ambient_param(p);return ap<0?"Unused":ambient_names[voice][ap-11];}if(page==6)return sub==0?voices[p]:sub==1&&p==0?"Choose recovery":"Unused";
  if(page==11)return p==0?"Record mode":"Unused";
  if(note_page())return voice==2?(const char *[4]){"Pitch","Gate","Slide","Velocity"}[p]:p==0?"Velocity":"Unused";
  if(voice==2&&(page==2||page==4||(page==0&&!sub)||lock_menu)){int rp=root_param(p);return rp>=0?root_names[rp]:"Unused";}
  if((page==2&&!sub)||(lock_menu&&sub==3))return labels[voice][p];
- if(page==0)return sub==1?(const char *[4]){"Reverb","Decay","Damping","Width"}[p]:sub==2?(p==0?"Delay return":"Unused"):p==0?"Send":"Unused";
+ if(page==0)return sub==1?(const char *[4]){"Reverb","Decay","Damping","Width"}[p]:sub==2?(p==0?"Delay return":"Unused"):p==0?"Send":p==1?"ENV send":"Unused";
  if(page==5)return (const char *[4]){"Tempo","Swing","Human","Unused"}[p];
  return page==4||page==9?normal[p]:"Unused";
 }
@@ -211,6 +225,15 @@ void ug_ui_refresh(void){
  else if(page==6&&sub==2){add(lines[1],"UPPER KEYS in HOME / SEQ");add(lines[2],"1-4 tracks 5copy 6paste");add(lines[3],"7undo 8rejoin 9hear");add(lines[4],"10/11 lock page -/+");add(lines[5],"Copy/paste in SEQ only");}
  else if(page==6){add(lines[1],"MIX / knobs: track levels");for(int v=0;v<4;v++){named(lines[v+2],v+1,voices[v],(int)(ug_getlevel(v)*100+.5f),"%");if(ug_getmute(v))add(lines[v+2]," MUTE");}}
  else if(page==5){named(lines[1],1,"Tempo",ug_state(4),"");named(lines[2],2,"Swing",50+(int)(ug_getgroove(0)*100/6+.5f),"%");named(lines[3],3,"Human",(int)(ug_getgroove(1)*100+.5f),"%");}
+ else if(ambient_page()){
+  static const char *kind[4]={"HARMONIC DRONE","MODULATED NOISE","GRAINS","MORPHING FORMANT"};
+  add(lines[1],lock_menu?"STEP / ":"DRAFT / ");add(lines[1],kind[voice]);
+  for(int i=0;i<4;i++){int p=ambient_param(i);if(p<0)continue;
+   float x=lock_menu&&(ug_lockmask(voice,selected)&(1<<p))?ug_lockvalue(voice,selected,p):ug_state(10)?ug_effective(voice,p):ug_getparam(voice,p);
+   if(p==17){number(lines[i+2],i+1);add(lines[i+2]," Enabled: ");add(lines[i+2],x>.5f?"ON":"OFF");}
+   else named(lines[i+2],i+1,ambient_names[voice][p-11],(int)(x*100+.5f),"%");
+  }
+ }
  else if(voice==2&&(page==2||page==4||(page==0&&!sub)||lock_menu)){
   int target=lock_menu?selected:-1;add(lines[1],target>=0?"STEP ":ug_state(10)?"MOTION / ":page==0&&ug_state(0)?"LIVE / ":"DRAFT / ");if(target>=0){number(lines[1],target+1);add(lines[1]," / ");}
   add(lines[1],page==2&&sub==2?"GRAIN VARIATION":((lock_menu&&sub==4)||(page==4&&sub==2))?"CHARACTER":((lock_menu&&sub==3)||(page==2&&sub==0))?"ATMOSPHERE":((lock_menu&&sub==5)||(page==2&&sub==1))?"ATM MIX":(page==0||(lock_menu&&sub==6))?"FX SENDS":"SOUND");
@@ -221,7 +244,7 @@ void ug_ui_refresh(void){
    if(target>=0&&(ug_lockmask(voice,target)&(1<<p)))add(lines[i+2]," *");
   }
  }
- else if(page==0){if(sub==1){add(lines[1],"GLOBAL REVERB");const char *names[4]={"Reverb","Decay","Damping","Width"};for(int i=0;i<4;i++)named(lines[i+2],i+1,names[i],(int)(ug_getfx(i)*100+.5f),"%");}else if(sub==2){add(lines[1],"GLOBAL DELAY");named(lines[2],1,"Delay return",(int)(ug_getfx(4)*100+.5f),"%");add(lines[3],"Dark 1/8-note delay");add(lines[4],"Feedback fixed at 52%");}else{add(lines[1],"TRACK FX SEND");named(lines[2],1,"Send",(int)((ug_state(10)?ug_effective(voice,3):ug_getparam(voice,3))*100+.5f),"%");add(lines[3],"Motion / step locks apply");}}
+ else if(page==0){if(sub==1){add(lines[1],"GLOBAL REVERB");const char *names[4]={"Reverb","Decay","Damping","Width"};for(int i=0;i<4;i++)named(lines[i+2],i+1,names[i],(int)(ug_getfx(i)*100+.5f),"%");}else if(sub==2){add(lines[1],"GLOBAL DELAY");named(lines[2],1,"Delay return",(int)(ug_getfx(4)*100+.5f),"%");add(lines[3],"Dark 1/8-note delay");add(lines[4],"Feedback fixed at 52%");}else{add(lines[1],"TRACK FX SEND");named(lines[2],1,"Send",(int)((ug_state(10)?ug_effective(voice,3):ug_getparam(voice,3))*100+.5f),"%");named(lines[3],2,"ENV send",(int)((ug_state(0)?ug_effective(voice,16):ug_getparam(voice,16))*100+.5f),"%");add(lines[4],"Motion / step locks apply");}}
 
  else if(page==2||page==4||page==9){int isenv=page==2||(lock_menu&&sub==3),target=lock_menu?selected:held>=0?held:-1;add(lines[1],target>=0?"STEP ":ug_state(10)?"MOTION VALUES":"TRACK DRAFT");if(target>=0){number(lines[1],target+1);add(lines[1],ug_step(voice,target)?" ON":" REST");}else if(page==9){add(lines[1]," / step ");number(lines[1],selected+1);}const char *normal[4]={"Body","Edge","Length","Send"};for(int i=0;i<4;i++){int p=isenv?env[voice][i]:i;float x=target>=0&&(ug_lockmask(voice,target)&(1<<p))?ug_lockvalue(voice,target,p):ug_state(10)?ug_effective(voice,p):ug_getparam(voice,p);named(lines[i+2],i+1,isenv?labels[voice][i]:normal[i],(int)(x*100+.5f),"%");if(target>=0&&(ug_lockmask(voice,target)&(1<<p)))add(lines[i+2]," *");}}
  else{add(lines[1],pages[page]);add(lines[2],"Not implemented");add(lines[3],page==7?"Session only":"Reserved hardware page");}
