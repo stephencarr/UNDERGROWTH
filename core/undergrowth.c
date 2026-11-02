@@ -30,7 +30,12 @@ static Voice voices[NVOICE];
 static float delaybuf[DELAY] UG_POOL;
 static float delay_lp, output[MAX_BLOCK*2];
 /* Rate-scaled Clouds tank. Float storage avoids quantized-tail limit cycles. */
+#if defined(UG_FM1) && !defined(PLAT_HOST)
+/* Physical audio is fixed at 44.1 kHz; do not reserve a 96 kHz arena. */
+#define ROOM_SAMPLES 22650
+#else
 #define ROOM_SAMPLES 49200
+#endif
 static float room_buffer[ROOM_SAMPLES] UG_POOL;
 static struct { int offset[10], length[10], position[10]; float low[2], phase[2], now[5], smoothing; int active; } room;
 static void room_clear(void);
@@ -57,8 +62,8 @@ static struct { float mod_phase, feedback, sub_phase; } root_fm;
 #define TEXTURE 4096
 /* Original, deterministic synthetic sample; generated once, never in the render path. */
 static float texture[TEXTURE] UG_POOL;
-static struct { float pos, age, duration, speed; int active; } grains[GRAINS];
-static float grain_cursor, grain_level;
+static struct { float pos, age, duration, speed, inv_duration; int active; } grains[GRAINS];
+static float grain_cursor, grain_level, grain_gain;
 static int grain_wait;
 static unsigned grain_serial;
 
@@ -93,7 +98,7 @@ void ug_init(int sample_rate) {
  zero(muted,sizeof muted);clipboard_voice=-1;zero(&clipboard,sizeof clipboard);
  cloud_dry=1;for(int v=0;v<NVOICE;v++){dry_now[v]=1;levels[v]=level_now[v]=1;audition_step[v]=-1;}
  sample_clock=0;zero(last_trigger,sizeof last_trigger);
- zero(&backbeat,sizeof backbeat);zero(&root_fm,sizeof root_fm);zero(grains,sizeof grains);grain_cursor=grain_level=0;grain_wait=0;grain_serial=0;root_freq=root_target=65.406392f;root_gate=0;root_live=-1;
+ zero(&backbeat,sizeof backbeat);zero(&root_fm,sizeof root_fm);zero(grains,sizeof grains);grain_cursor=grain_level=0;grain_gain=1;grain_wait=0;grain_serial=0;root_freq=root_target=65.406392f;root_gate=0;root_live=-1;
  for(int s=0;s<NSTEPS;s++){score.steps[2][s].note=36;score.steps[2][s].gate=.75f;}
  for(int v=0;v<NVOICE;v++){score.velocity[v]=1;for(int st=0;st<NSTEPS;st++)score.steps[v][st].velocity=1;score.base[v][4]=.5f;score.base[v][5]=.5f;score.base[v][6]=.5f;}
  score.base[2][7]=.25f;score.base[2][8]=.25f;score.base[2][9]=.1f;score.base[2][10]=.25f;
@@ -102,6 +107,9 @@ void ug_init(int sample_rate) {
  rec_mode=1;take_active=0;rec_track=-1;
  motion=motion_saved=0;zero(motion_mask,sizeof motion_mask);
  rate=sample_rate>=8000&&sample_rate<=96000?sample_rate:44100;
+#if defined(UG_FM1) && !defined(PLAT_HOST)
+ rate=44100; /* Matches the FM1 adapter/codec; bounds the hardware arena. */
+#endif
  const int times[10]={113,162,241,399,1653,2038,3411,1913,1663,4782};
  room.smoothing=1.0f/(rate*.005f);
  int room_offset=0;for(int i=0;i<10;i++){room.offset[i]=room_offset;room.length[i]=((times[i]*rate+16000)/32000)+2;room_offset+=room.length[i];}
@@ -299,7 +307,7 @@ void ug_clear(void){
  int changed=0;for(int v=0;v<NVOICE;v++)for(int s=0;s<NSTEPS;s++)if(score.steps[v][s].authored||score.steps[v][s].on||score.steps[v][s].mask)changed=1;
  if(changed){ug_begin_edit();zero(score.steps,sizeof score.steps);for(int v=0;v<NVOICE;v++)for(int st=0;st<NSTEPS;st++)score.steps[v][st].velocity=1;for(int s=0;s<NSTEPS;s++){score.steps[2][s].note=36;score.steps[2][s].gate=.75f;}}ug_panic();
 }
-void ug_panic(void){ug_play(0);room_clear();zero(&backbeat,sizeof backbeat);zero(&root_fm,sizeof root_fm);zero(grains,sizeof grains);grain_level=0;grain_wait=0;zero(voices,sizeof voices);zero(delaybuf,sizeof delaybuf);delay_lp=0;zero(output,sizeof output);}
+void ug_panic(void){ug_play(0);room_clear();zero(&backbeat,sizeof backbeat);zero(&root_fm,sizeof root_fm);zero(grains,sizeof grains);grain_level=0;grain_gain=1;grain_wait=0;zero(voices,sizeof voices);zero(delaybuf,sizeof delaybuf);delay_lp=0;zero(output,sizeof output);}
 static void advance(void){
  step_index=(step_index+1)%NSTEPS;
  for(int v=0;v<NVOICE;v++)audition_step[v]=-1;
@@ -321,25 +329,44 @@ static void advance(void){
 static float atmosphere(void){
  float target=playing&&score.base[2][17]>.5f?ug_effective(2,15):0;
  grain_level+=(target-grain_level)/(rate*.01f);
- if(target==0&&grain_level<.00001f){zero(grains,sizeof grains);grain_level=0;return 0;}
+ if(target==0&&grain_level<.00001f){zero(grains,sizeof grains);grain_level=0;grain_gain=1;return 0;}
  float size=ug_effective(2,12),density=ug_effective(2,13);
  if(target>0&&--grain_wait<=0){
   for(int j=0;j<GRAINS;j++)if(!grains[j].active){
    int note=24+(int)(ug_effective(2,14)*36+.5f);
-   grains[j].active=1;grains[j].age=0;grains[j].duration=rate*(.015f+size*size*.22f);
+   grains[j].active=1;grains[j].age=0;grains[j].duration=(float)(int)(rate*(.015f+size*size*.22f));
+   grains[j].inv_duration=1.0f/(grains[j].duration-1.0f);
    grains[j].pos=ug_effective(2,11)*(TEXTURE-1)+grain_cursor;while(grains[j].pos>=TEXTURE)grains[j].pos-=TEXTURE;
-   grains[j].speed=(22050.0f/rate)*(note_frequency(note)/65.406392f);grain_serial++;break;
+   grains[j].speed=(22050.0f/rate)*(note_frequency(note)/65.406392f);
+   /* Local hash: variation never consumes percussion's RNG or changes notes. */
+   uint32_t seed=++grain_serial*747796405u+2891336453u;
+   seed=(seed^(seed>>16))*2246822519u;seed^=seed>>13;
+   float surprise=ug_effective(2,19),chance=(seed&65535u)/65536.0f;
+   grains[j].pos+=((seed>>16)/65535.0f-.5f)*surprise*TEXTURE;
+   if(grains[j].pos<0)grains[j].pos+=TEXTURE;
+   if(grains[j].pos>=TEXTURE)grains[j].pos-=TEXTURE;
+   if(chance<surprise*.25f)grains[j].speed*=2;
+   else if(chance<surprise*.45f)grains[j].speed=-grains[j].speed;
+   break;
   }
   grain_wait=(int)(rate*(.015f+size*size*.22f)/(1+density*7));if(grain_wait<1)grain_wait=1;
  }
  grain_cursor+=ug_effective(2,18)*22050.0f/rate*.1f;if(grain_cursor>=TEXTURE)grain_cursor-=TEXTURE;
- float sum=0;for(int j=0;j<GRAINS;j++)if(grains[j].active){
-  int a=(int)grains[j].pos,b=(a+1)%TEXTURE;float f=grains[j].pos-a,t=grains[j].age/grains[j].duration;
-  sum+=(texture[a]+(texture[b]-texture[a])*f)*4*t*(1-t);
-  grains[j].pos+=grains[j].speed;while(grains[j].pos>=TEXTURE)grains[j].pos-=TEXTURE;
+ float sum=0,weight=0;for(int j=0;j<GRAINS;j++)if(grains[j].active){
+  int a=(int)grains[j].pos,b=(a+1)%TEXTURE;float f=grains[j].pos-a,t=grains[j].age*grains[j].inv_duration;
+  /* Squared parabola: zero value and slope at both ends, without trig.
+   * Cache the reciprocal at spawn instead of dividing per grain/sample. */
+  float window=4*t*(1-t);window*=window;
+  sum+=(texture[a]+(texture[b]-texture[a])*f)*window;weight+=window;
+  grains[j].pos+=grains[j].speed;while(grains[j].pos<0)grains[j].pos+=TEXTURE;
+  while(grains[j].pos>=TEXTURE)grains[j].pos-=TEXTURE;
   if(++grains[j].age>=grains[j].duration)grains[j].active=0;
  }
- return sum*grain_level*.18f;
+ /* Overlapping reads can be strongly correlated (especially with Scan zero).
+  * Smooth unity-sum compensation so Density controls texture, not an 8x gain. */
+ float gain=weight>1?1.0f/weight:1;
+ grain_gain+=(gain-grain_gain)/(rate*.005f);
+ return sum*grain_gain*grain_level*.18f;
 }
 float ug_grain(int field){
  if(field==0){float p=grain_cursor+ug_effective(2,11)*(TEXTURE-1);if(p>=TEXTURE)p-=TEXTURE;return p/TEXTURE;}

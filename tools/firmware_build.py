@@ -2,7 +2,7 @@
 """Build and check the pinned host or hardware app. No device access, no flashing."""
 import argparse,hashlib,json,os,pathlib,re,shutil,subprocess,sys
 ROOT=pathlib.Path(__file__).resolve().parents[1]
-p=argparse.ArgumentParser();p.add_argument('--host',action='store_true');p.add_argument('--base',type=pathlib.Path,default=pathlib.Path(os.environ.get('FM1_BASE',ROOT/'.tools/hardware/fm1-base')));p.add_argument('--release',default='0.4.3-hw1');a=p.parse_args()
+p=argparse.ArgumentParser();p.add_argument('--host',action='store_true');p.add_argument('--base',type=pathlib.Path,default=pathlib.Path(os.environ.get('FM1_BASE',ROOT/'.tools/hardware/fm1-base')));p.add_argument('--release',default='0.5.1-hw1');a=p.parse_args()
 base=a.base.resolve();lock=json.loads((ROOT/'firmware/dependencies.json').read_text())
 def capture(*cmd):return subprocess.check_output(cmd,text=True).strip()
 for path,expected in [(base,lock['fm1_base']['commit']),(base/'bsp',lock['bsp_commit'])]:
@@ -14,7 +14,7 @@ if a.host:
     subprocess.run(cmd+['--host'],check=True)
     for script in sorted((ROOT/'tests/hardware').glob('*.txt')):subprocess.run([str(ROOT/'firmware/build/host/undergrowth_host'),str(script),str(ROOT/'build'/script.stem)],check=True)
     raise SystemExit(0)
-if not re.fullmatch(r'\d{1,2}\.\d{1,2}\.\d{1,2}-[A-Za-z0-9]+',a.release):raise SystemExit('Use an explicitly experimental version, e.g. 0.4.3-hw1.')
+if not re.fullmatch(r'\d{1,2}\.\d{1,2}\.\d{1,2}-[A-Za-z0-9]+',a.release):raise SystemExit('Use an explicitly experimental version, e.g. 0.5.1-hw1.')
 sdk=pathlib.Path(os.environ.get('AC79_SDK',ROOT/'.tools/hardware/sdk'))
 for rel,digest in lock['sdk']['files'].items():
     path=sdk/'cpu/wl82/tools'/rel
