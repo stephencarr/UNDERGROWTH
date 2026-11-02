@@ -8,7 +8,7 @@ A browser-first rhythm study: three original synthesized percussion voices—Kic
 
 Every milestone must now produce a validated FM1 firmware package as well as this browser prototype. The panel controller and screen text have moved into shared C, and `firmware/` provides the physical-panel/audio adapter. Bluetooth and Wi-Fi are disabled. See [hardware build, Caravel 0.6.0 migration and recovery](docs/HARDWARE.md).
 
-The full 0.4.3-hw1 milestone gate passed with the pinned Jieli compiler on Linux x86-64. It produced an **experimental** `undergrowth-0.4.3-hw1.fwsc` in `build/releases/0.4.3-hw1/`, with a build report, manifest, checksums, installer and licence notices. The package has not been flashed or tested on an FM1. Publication of this candidate awaits merge and deployment verification; the accepted instrument remains on GitHub Pages.
+The full 0.4.3-hw1 milestone gate passed with the pinned Jieli compiler on Linux x86-64. It produced an **experimental** `undergrowth-0.4.3-hw1.fwsc` in `build/releases/0.4.3-hw1/`, with a build report, manifest, checksums, installer and licence notices. The package has not been flashed or tested on an FM1. PR #11 is merged and this build is published on GitHub Pages; deployed browser, installer and firmware bytes were verified on 2 November 2026.
 
 The browser links to `flash.html`, a Chrome/Edge desktop installer view. It verifies the included `.fwsc` against its fixed SHA-256 and package CRCs before enabling device identification. USB MIDI SysEx permission, FM1 identity and an explicit backup acknowledgement are required before installation. The pinned fm1-base Web MIDI updater handles the transfer and interrupted-update resume, with each changed MIDI pair explicitly re-identified and confirmed by the owner; the view does not offer a bootloader replacement. The browser flow has simulated-port tests, but direct Caravel 0.6.0 installation and recovery have not been tested on hardware. Open https://stephencarr.github.io/UNDERGROWTH/flash.html in desktop Chrome or Edge; no local server is needed.
 
@@ -150,7 +150,7 @@ Starting points, with Send at zero and Response high: shaker Body 0 / Edge 45 / 
 
 This is original synthesis, with no samples. Velocity controls strength and adds small bounded colour; tempo adds the same subtle bounded decay response. Human continues to affect only Chatter. Chord stabs and a flexible melodic/atonal/drone/grainy FM organism are planned after Backbeat; see the roadmap.
 
-## Clouds-derived reverb trial — 0.4.3-hw1 (draft)
+## Clouds-derived reverb trial — 0.4.3-hw1 (published experimental)
 
 The shared C room now adapts Mutable Instruments Clouds' diffused, modulated
 tank. ROOT Synth send no longer enters ordinary note snapshots; explicit

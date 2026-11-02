@@ -81,7 +81,7 @@ capture the atmosphere's pitch, grain controls, level or send. ENV needs Enabled
 ON, a nonzero Level and PLAY; an empty sequence works. Changing ENV while stopped
 then playing a bass sequence preserves the chosen drone settings and FX send.
 
-### Clouds-derived wash and send ownership (0.4.3-hw1, draft)
+### Clouds-derived wash and send ownership (0.4.3-hw1, published experimental)
 
 The room now uses a Clouds-derived modulated diffuse tank. Decay has useful
 ambience below maximum and a long wash at the top. Full send plus full Reverb

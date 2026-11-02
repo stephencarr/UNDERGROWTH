@@ -118,7 +118,7 @@ settings have Undo and refuse changes during recording. Global FX automation
 remains reserved for the planned silent lane; per-track filters and crush are
 not part of this release.
 
-### Clouds-derived reverb and explicit ROOT sends — 0.4.3-hw1 (draft)
+### Clouds-derived reverb and explicit ROOT sends — 0.4.3-hw1 (published experimental)
 
 Replace the sparse room with a MIT-licensed Clouds topology adaptation in C.
 Ordinary ROOT note snapshots exclude Synth send as well as ENV; deliberate
