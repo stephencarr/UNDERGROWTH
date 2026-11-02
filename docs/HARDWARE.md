@@ -187,3 +187,20 @@ traces, real .fwsc CRC/identity/loader/instruction/memory checks, and package an
 vocabulary comparisons. Focused grain ASan/UBSan checks also passed (leak checks
 off). No subjective listening approval, physical FM1 CPU measurement, publication
 or flashing is claimed. USB sample capture remains future work.
+
+## Reverse-grain boundary correction — 0.5.1-hw1 (unpublished)
+
+PR #15 review identified float rounding during negative position wrapping:
+a tiny negative value plus TEXTURE can become exactly TEXTURE. The negative
+wrap now runs before the upper-bound wrap so every active read position is
+normalized into [0, TEXTURE). The reported Position 0.1513530016 / Scan zero /
+Surprise one / C2 reproducer is a permanent bounds regression. Focused grain
+ASan/UBSan passes with this case. This release changes no grain controls.
+The checked-in SHA256SUMS also describes only files actually shipped beside it.
+No physical FM1 access or flashing was performed.
+
+The complete 0.5.1-hw1 milestone gate passed on 2026-11-02: native invariants,
+reproducer bounds, native/WASM parity, worklet, real mouse/touch workflows,
+simulated updater safety, platform host, firmware identity/CRCs/loader and
+instruction/memory checks, plus rebuilt package/vocabulary identity. No physical
+CPU, listening or recovery claim follows from these software checks.

@@ -32,6 +32,9 @@ int main(void){
    for(int g=0;g<GRAINS;g++)if(grains[g].active)assert(grains[g].pos>=0&&grains[g].pos<TEXTURE);
   }
  }
+ /* Review reproducer: negative wrapping may round to exactly TEXTURE. */
+ start(44100,1);ug_setparam(2,11,.1513530016f);ug_setparam(2,18,0);ug_setparam(2,19,1);
+ for(int i=0;i<44100*3;i++){atmosphere();for(int g=0;g<GRAINS;g++)if(grains[g].active)assert(grains[g].pos>=0&&grains[g].pos<TEXTURE);}
  /* Variation repeats after init and never consumes the shared percussion RNG. */
  float sequence[2048];uint32_t before;
  start(44100,1);ug_setparam(2,19,1);before=noise_state;

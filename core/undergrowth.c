@@ -358,8 +358,8 @@ static float atmosphere(void){
    * Cache the reciprocal at spawn instead of dividing per grain/sample. */
   float window=4*t*(1-t);window*=window;
   sum+=(texture[a]+(texture[b]-texture[a])*f)*window;weight+=window;
-  grains[j].pos+=grains[j].speed;while(grains[j].pos>=TEXTURE)grains[j].pos-=TEXTURE;
-  while(grains[j].pos<0)grains[j].pos+=TEXTURE;
+  grains[j].pos+=grains[j].speed;while(grains[j].pos<0)grains[j].pos+=TEXTURE;
+  while(grains[j].pos>=TEXTURE)grains[j].pos-=TEXTURE;
   if(++grains[j].age>=grains[j].duration)grains[j].active=0;
  }
  /* Overlapping reads can be strongly correlated (especially with Scan zero).
