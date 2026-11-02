@@ -1,7 +1,7 @@
 const $=id=>document.getElementById(id);
-const names=['Kick','Chatter','ROOT','Backbeat'];
+const names=['Kick','Chatter','ROOT','Backbeat','CHORD'];
 const params=['body','edge','length','send','env-4','env-5','env-6'];
-const environmentLabels=[['Damping','Drop','Response'],['Stretch','Fracture','Grain'],['Glide','Weight','Attack'],['Damping','Spread','Response']];
+const environmentLabels=[['Damping','Drop','Response'],['Stretch','Fracture','Grain'],['Glide','Weight','Attack'],['Damping','Spread','Response'],['Attack','Release','Sweep']];
 const noteName=n=>['C','C♯','D','D♯','E','F','F♯','G','G♯','A','A♯','B'][n%12]+(Math.floor(n/12)-1);
 for(const b of document.querySelectorAll('[data-step]')){const label=document.createElement('span');label.className='note-label';b.append(label);}
 let context,node,state,voice=0,selected=0,starting=null,dragging=null;
@@ -12,7 +12,12 @@ for(const [p,label] of rootTrialParams){const field=document.createElement('labe
 const fxSection=document.createElement('section');fxSection.className='sound-section';fxSection.innerHTML='<h2>FX · Shared space</h2><p>Raise a track Send or ROOT’s ENV send to feed the effects. At full Reverb, sent layers become a diffuse wash and the direct sound and clear delay recede.</p><div class="root-trial-grid"></div>';
 document.querySelector('main.instrument footer').before(fxSection);
 for(const [p,name] of ['Reverb','Decay','Damping','Width','Delay return'].entries()){const label=document.createElement('label');label.textContent=name;const input=document.createElement('input');input.type='range';input.min=0;input.max=1;input.step=.01;input.id='fx-'+p;input.setAttribute('aria-label',name);label.append(input);const output=document.createElement('output');output.id='fx-value-'+p;label.append(output);fxSection.querySelector('div').append(label);}
-const musical=[...document.querySelector('main.instrument').querySelectorAll('button,input,select')].filter(el=>!['enable-audio','voice-kick','voice-chatter','voice-root','voice-backbeat'].includes(el.id));
+const chordSection=document.createElement('section');chordSection.className='sound-section';chordSection.hidden=true;
+chordSection.innerHTML='<h2>CHORD · Harmony palette</h2><p>Eight editable slots. Each trig captures its actual tones, inversion and spread. Palette edits leave existing trigs intact. Root range C2–C5. Use the panel keyboard or Q–I for chords.</p><div class="root-trial-grid"></div>';
+document.querySelector('main.instrument footer').before(chordSection);
+const chordParams=[[7,'Chord root',36],[8,'Chord slot',7],[9,'Chord inversion',3],[10,'Chord spread',100],[11,'Chord gate',100],[13,'Chord tone 2',23],[14,'Chord tone 3',23],[15,'Chord tone 4',23]];
+for(const [p,label,max] of chordParams){const field=document.createElement('label');field.textContent=label;const input=document.createElement('input');input.id='chord-param-'+p;input.type='range';input.min=0;input.max=max;input.step=1;input.setAttribute('aria-label',label);field.append(input);const output=document.createElement('output');output.id='chord-value-'+p;field.append(output);chordSection.querySelector('div').append(field);}
+const musical=[...document.querySelector('main.instrument').querySelectorAll('button,input,select')].filter(el=>!['enable-audio','voice-kick','voice-chatter','voice-root','voice-backbeat','voice-chord'].includes(el.id));
 for(const el of musical)el.disabled=true;
 function command(type,...args){if(node)node.port.postMessage({type,args});}
 function status(text){$('audio-status').textContent=text;}
@@ -61,7 +66,7 @@ $('record-mode').onchange=()=>command('uiRecordMode',Number($('record-mode').val
 $('motion').onclick=()=>{dragging=null;if(state?.armed&&state.recordMode===2)command('uiButton',11);else{command('uiRecordMode',2);if(!state?.armed)command('uiButton',11);}};
 $('rejoin').onclick=()=>command('uiAction',1);
 $('undo').onclick=()=>command('uiAction',0);
-for(let v=0;v<4;v++){$('level-'+v).oninput=()=>command('level',v,Number($('level-'+v).value));$('mute-'+v).onclick=()=>command('mute',v,-1);}
+for(let v=0;v<5;v++){$('level-'+v).oninput=()=>command('level',v,Number($('level-'+v).value));$('mute-'+v).onclick=()=>command('mute',v,-1);}
 for(const [id,action] of [['copy-step',3],['paste-step',4],['hear-step',5]])$(id).onclick=()=>{if(state?.panel.page!==9)command('uiButton',9);command('uiAction',action);};
 $('clear-pattern').onclick=()=>command('clear');
 $('clear-lock').onclick=()=>command('uiEdit',11,0);
@@ -70,7 +75,7 @@ $('lock-play').onclick=()=>command('play',1);
 const stepKeys=[0,2,4,6,7,9,11,12,14,16,18,19,21,23,24,26];
 for(const b of document.querySelectorAll('[data-step]')){
  let active=false,directAt=-Infinity;
- const down=()=>{if(active||!state)return;active=true;directAt=performance.now();if(state.panel.page!==9)command('uiButton',9);command('uiKey',stepKeys[Number(b.dataset.step)],1,-1);};
+ const down=()=>{if(active||!state)return;active=true;directAt=performance.now();if(state.panel.page!==9||(voice===4&&!state.armed&&!state.panel.locks&&state.panel.keyMode===0))command('uiButton',9);command('uiKey',stepKeys[Number(b.dataset.step)],1,-1);};
  const up=(cancel=false)=>{if(!active)return;active=false;command('uiKey',stepKeys[Number(b.dataset.step)],cancel?-1:0,-1);};
  b.onpointerdown=e=>{e.preventDefault();b.setPointerCapture(e.pointerId);down();};
  b.onpointerup=()=>up();b.onpointercancel=b.onlostpointercapture=()=>up(true);b.onblur=()=>up(true);
@@ -87,6 +92,7 @@ for(const [p,id] of params.entries()){
  };
  el.onchange=()=>{dragging=null;};el.addEventListener('blur',()=>dragging=null);
 }
+for(const [p,,max] of chordParams){const el=$('chord-param-'+p);el.oninput=()=>{const first=dragging!==el.id;dragging=el.id;const x=Number(el.value)/max;if(lockEditing())command('uiEdit',20+p,x);else command(first?'editparam':'param',4,p,x);};el.onchange=el.onblur=()=>dragging=null;}
 for(const [p] of rootTrialParams){const el=$('root-param-'+p);el.oninput=()=>{const first=dragging!==el.id;dragging=el.id;const value=Number(el.value);if(lockEditing())command('uiEdit',20+p,value);else command(first?'editparam':'param',2,p,value);};el.onchange=()=>dragging=null;el.onblur=()=>dragging=null;}
 for(let p=0;p<5;p++){const el=$('fx-'+p);el.oninput=()=>{const first=dragging!==el.id;dragging=el.id;command(first?'editfx':'fx',p,Number(el.value));};el.onchange=()=>dragging=null;el.onblur=()=>dragging=null;}
 $('velocity').oninput=()=>{if(!state||state.armed||state.motion||state.recording)return;const first=dragging!=='velocity';dragging='velocity';if(lockEditing())command('uiEdit',7,Number($('velocity').value));else command(first?'editvelocity':'velocity',voice,-1,Number($('velocity').value));};
@@ -136,13 +142,16 @@ function paint(){
  $('motion').classList.toggle('active',state.motion);$('motion').setAttribute('aria-pressed',String(state.motion));
  $('motion').textContent=state.motion?'Finish motion':'Record motion';
  for(let p=0;p<5;p++){const el=$('fx-'+p);el.disabled=!!(state.armed||state.motion||state.recording);if(dragging!==el.id)el.value=state.fx[p];$('fx-value-'+p).textContent=Math.round(state.fx[p]*100)+'%';}
+ chordSection.hidden=voice!==4;
+ if(voice===4)for(const [p,,max] of chordParams){const el=$('chord-param-'+p),x=lock&&(st.mask&(1<<p))?st.lock[p]:lock?v.base[p]:state.playing?v.effective[p]:v.base[p];if(dragging!==el.id)el.value=Math.round(x*max);$('chord-value-'+p).textContent=p===7?noteName(36+Math.round(x*36)):p===8?String(1+Math.round(x*7))+'/8':p===9?Math.round(x*3):p>=13?'+'+(1+Math.round(x*23))+' st':p===11?Math.round(10+x*140)+'%':Math.round(x*100)+'%';}
  rootTrial.hidden=voice!==2;
- if(voice===2)for(const [p] of rootTrialParams){const el=$('root-param-'+p),x=lock&&(st.mask&(1<<p))?st.lock[p]:!lock&&p===16&&state.playing?v.effective[p]:v.base[p];el.disabled=p===17&&lock;if(dragging!==el.id)el.value=x;$('root-value-'+p).textContent=p===14?noteName(24+Math.round(x*36)):p===17?(x>.5?'On':'Off'):Math.round(x*100)+'%';}
- for(const [id,label] of [['body',voice===2?'Tone':'Body'],['edge',voice===2?'Colour':'Edge'],['length',voice===2?'Decay':'Length']])$(id).closest('label').querySelector('.macro-top > span').textContent=label;
+ if(voice===2)for(const [p,,max] of chordParams){const el=$('chord-param-'+p);el.oninput=()=>{const first=dragging!==el.id;dragging=el.id;const x=Number(el.value)/max;if(lockEditing())command('uiEdit',20+p,x);else command(first?'editparam':'param',4,p,x);};el.onchange=el.onblur=()=>dragging=null;}
+for(const [p] of rootTrialParams){const el=$('root-param-'+p),x=lock&&(st.mask&(1<<p))?st.lock[p]:!lock&&p===16&&state.playing?v.effective[p]:v.base[p];el.disabled=p===17&&lock;if(dragging!==el.id)el.value=x;$('root-value-'+p).textContent=p===14?noteName(24+Math.round(x*36)):p===17?(x>.5?'On':'Off'):Math.round(x*100)+'%';}
+ for(const [id,label] of [['body',voice===2||voice===4?'Tone':'Body'],['edge',voice===2||voice===4?'Colour':'Edge'],['length',voice===2||voice===4?'Decay':'Length']])$(id).closest('label').querySelector('.macro-top > span').textContent=label;
  const touched=params.filter((_,p)=>state.motionMask[voice]&(1<<p)).map(id=>id.startsWith('env-')?environmentLabels[voice][Number(id.slice(-1))-4]:id);
  $('motion-help').textContent=state.motion?`${state.playing?'RECORDING':'ARMED'} · ${names[voice]} · ${!v.steps.some(s=>s.on)?'No hits in this voice yet. Finish motion and plant some steps first.':touched.length?'Capturing '+touched.join(', ')+' on existing hits.':'Move a sound slider to begin capturing.'} Finish motion or Stop to hear the recorded locks. Undo restores the whole take.`:
  'Motion overdub: arm Record motion, play your rhythm, then move a sound slider. Each existing hit captures that value as a step lock.';
- for(let v=0;v<4;v++){if(document.activeElement!==$('level-'+v))$('level-'+v).value=state.voices[v].level;$('mute-'+v).setAttribute('aria-pressed',String(state.voices[v].muted));$('mute-'+v).textContent=(state.voices[v].muted?'Unmute ':'Mute ')+names[v];}
+ for(let v=0;v<5;v++){if(document.activeElement!==$('level-'+v))$('level-'+v).value=state.voices[v].level;$('mute-'+v).setAttribute('aria-pressed',String(state.voices[v].muted));$('mute-'+v).textContent=(state.voices[v].muted?'Unmute ':'Mute ')+names[v];}
  $('copy-step').disabled=state.armed;$('paste-step').disabled=state.armed||state.panel.clipboard!==voice;$('hear-step').disabled=state.armed;
  $('copy-step').textContent='Copy step '+(selected+1);$('paste-step').textContent='Paste at '+(selected+1);
  $('clear-pattern').disabled=state.armed||state.motion;
@@ -152,7 +161,7 @@ function paint(){
  $('rejoin').disabled=state.motion||!state.voices.some(v=>v.takeover);
  for(const b of document.querySelectorAll('[data-step]')){
   const s=Number(b.dataset.step),item=v.steps[s];b.disabled=state.motion;
-  b.querySelector('.note-label').textContent=voice===2&&item.on?noteName(item.note):'';
+  b.querySelector('.note-label').textContent=item.on&&(voice===2||voice===4)?noteName(voice===4?36+Math.round(((item.mask&(1<<7))?item.lock[7]:v.base[7])*36):item.note):'';
   b.classList.toggle('active',item.on);b.classList.toggle('playing',state.playing&&state.step===s);
   b.classList.toggle('selected',(lock||voice===2)&&selected===s);b.classList.toggle('locked',!!item.mask);
   b.setAttribute('aria-pressed',String(item.on));
@@ -166,7 +175,7 @@ function paint(){
  state.playing&&v.steps[state.step]?.mask?'LOCK · stored step values are sounding.':'BASE · knobs shape this voice. Hold a step to shape its trig locks.';
 }
 const rootKeys={KeyQ:36,KeyW:38,KeyE:40,KeyR:41,KeyT:43,KeyY:45,KeyU:47,KeyI:48};
-const heldKeys=new Set();
+const heldKeys=new Map();
 for(const b of document.querySelectorAll('[data-note]')){
  b.onpointerdown=e=>{if(b.disabled)return;e.preventDefault();b.setPointerCapture(e.pointerId);setVoice(2);command('key',Number(b.dataset.note),1);};
  const release=()=>command('key',Number(b.dataset.note),0);
@@ -177,17 +186,17 @@ $('root-note').onchange=()=>command('uiEdit',8,Number($('root-note').value));
 $('root-slide').onchange=()=>command('uiEdit',10,$('root-slide').checked?1:0);
 $('root-gate').oninput=()=>{dragging='root-gate';command('uiEdit',9,Number($('root-gate').value));};
 $('root-gate').onchange=()=>dragging=null;
-document.addEventListener('keyup',e=>{if(heldKeys.has(e.code)){command('key',rootKeys[e.code],0);heldKeys.delete(e.code);}});
-window.addEventListener('blur',()=>{for(const key of heldKeys)command('key',rootKeys[key],0);heldKeys.clear();});
+document.addEventListener('keyup',e=>{if(heldKeys.has(e.code)){if(heldKeys.get(e.code))command('chordkey',rootKeys[e.code]+12,0,0);else command('key',rootKeys[e.code],0);heldKeys.delete(e.code);}});
+window.addEventListener('blur',()=>{for(const [key,chord] of heldKeys)if(chord)command('chordkey',rootKeys[key]+12,0,0);else command('key',rootKeys[key],0);heldKeys.clear();});
 document.addEventListener('keydown',e=>{
  if(e.code==='Escape'&&node){e.preventDefault();command('panic');return;}
  if(e.repeat||e.ctrlKey||e.metaKey||e.altKey||['INPUT','TEXTAREA','SELECT'].includes(e.target.tagName))return;
- if(e.code==='Digit4'){setVoice(3);return;}if(e.code==='Digit3'){setVoice(2);return;}if(e.code==='Digit1'){setVoice(0);return;}if(e.code==='Digit2'){setVoice(1);return;}
+ if(e.code==='Digit5'){setVoice(4);return;}if(e.code==='Digit4'){setVoice(3);return;}if(e.code==='Digit3'){setVoice(2);return;}if(e.code==='Digit1'){setVoice(0);return;}if(e.code==='Digit2'){setVoice(1);return;}
  if(!node)return;
- if(rootKeys[e.code]){e.preventDefault();heldKeys.add(e.code);setVoice(2);command('key',rootKeys[e.code],1);return;}
+ if(rootKeys[e.code]){e.preventDefault();heldKeys.set(e.code,voice===4);if(voice===4)command('chordkey',rootKeys[e.code]+12,1,-1);else{setVoice(2);command('key',rootKeys[e.code],1);}return;}
  if(e.code==='Space'&&e.target.tagName!=='BUTTON'){e.preventDefault();command('play',-1);}
  if(e.code==='KeyA'||e.code==='KeyZ')hit(0);
- if(e.code==='KeyS'||e.code==='KeyX')hit(1);if(e.code==='KeyD')hit(3);
+ if(e.code==='KeyS'||e.code==='KeyX')hit(1);if(e.code==='KeyD')hit(3);if(e.code==='KeyF')hit(4);
 
 });
 document.addEventListener('visibilitychange',()=>{if(document.hidden)command('panic');});

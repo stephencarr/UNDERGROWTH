@@ -158,3 +158,25 @@ send locks/motion remain. FX shows actual sends during playback. Reverb at
 maximum makes fully sent layers wet, with useful Decay below maximum. See
 [the comparison and audition procedure](docs/REVERB_EVALUATION.md). User listening
 acceptance and physical FM1 CPU measurements remain outstanding.
+
+## CHORD organism — 0.5.0-hw1 candidate
+
+A fifth independent track with four tones per chord and two overlapping tails.
+Tone and Colour move from rounded, filtered dub stabs toward bright hollow
+house/rave chords. ENV Attack/Release/Sweep/Decay reaches short stabs and held
+ambient swells. EDIT offers Sound, Notes/velocity, Harmony and Palette tones;
+SEQ has direct root/gate/velocity/slot controls and an explicit keyboard mode.
+Each trig captures the actual four-tone definition, inversion and spread, so
+later palette edits do not rewrite existing phrases. Eight session-only slots
+start with major, minor, dominant/major/minor sevenths, sus4, power and diminished
+voicings. Each slot's three intervals can be edited from +1 to +24 semitones.
+
+Select CHORD with ALGORITHM (or 5 / its Expanded card). HOME lower key 5 mutes
+it; HOME SELECT page 4 mixes its level. MIDI channel 5 plays C2–C5 chord roots.
+The existing browser, shared-C recording/locks/Undo and experimental firmware
+contract apply. See [the chord guide](docs/CHORD.md) for exact controls, budget
+and acceptance. This candidate is not yet published or listening-approved.
+
+The full 0.5.0-hw1 software milestone gate and CHORD sanitizer checks passed.
+Publication awaits completed PR review; listening and physical FM1 validation
+remain outstanding.

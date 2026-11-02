@@ -191,3 +191,42 @@ tank, with four input diffusers and cross-coupled branches. Full send/Reverb
 removes direct audio; Decay reaches ambience at mid travel and a longer wash at
 maximum. Global ownership, Undo/REC guard, parallel delay, mute/Stop tails and
 Panic remain. See REVERB_EVALUATION.md; human listening remains outstanding.
+
+## CHORD candidate — fifth-track controls
+
+ALGORITHM now selects five tracks. Existing upper-key track/copy/paste shortcuts
+are retained; select CHORD with ALGORITHM. HOME's lower key 5 mutes CHORD; SELECT
+page 4 exposes its level on KNOB1. The first four levels remain on HOME page 1.
+CHORD EDIT cycles Sound, Notes/velocity, Harmony, Palette tones. ENV offers Attack,
+Release, Sweep, Decay. SEQ knobs directly edit selected Root/Gate/Velocity/Slot;
+repeated SEQ switches Steps/Keyboard. Palette edits preserve existing trigs.
+
+Held CHORD trig menus cycle Sound, Envelope, Harmony, Trig tones, Notes/velocity.
+They can edit a rest without enabling it; SEL auditions it. Explicit harmony
+locks expand the actual palette definition rather than retaining a live reference.
+Copy/paste is same-track, with Undo. The Expanded CHORD grid returns to Steps
+before editing so it does not inherit the panel keyboard role. Expanded has a
+fifth card/mixer and harmony sliders; Q–I plays chords while CHORD is selected.
+This adds the organism to the current UI; the planned full UI overhaul remains
+separate. See CHORD.md for controls and acceptance.
+
+PR #14 accepts/defers noncritical CHORD review debt: held-key/Hear overlap can
+latch at maximum Decay (Stop/Panic clears it); closed-menu step edits Undo per
+detent; gates use straight duration under Swing; HOME's fifth level row crowds
+the footer; F/Hear recording omits harmony snapshots. Use chord keys/MIDI or SEQ
+stamping for captured harmony. See CHORD.md for details and workarounds.
+
+## Same-track live takeover fix — 0.5.1-hw1 candidate
+
+Adding a previously untouched step used to clear the sounding track's manual
+takeover. Older trigs then resumed their captured values, making the sound revert
+while the draft controls still showed the edits. Stamping now captures the draft
+without releasing takeover. Existing trig locks remain intact. Rejoin, finishing
+a take and Stop still deliberately release overrides. This applies to all five
+tracks; the native regression checks 44.1/48 kHz and browser coverage repeats the
+Chatter EDIT → SEQ → new-hit path using actual mouse and touch input.
+
+The reproduction failed before the fix; five-track native regression and
+native/WASM parity pass after it. The full 0.5.1-hw1 gate/review and preview update
+are pending. Previously recorded 0.5.0 validation and accepted CHORD debt remain
+separate; this fix does not claim the other review findings are resolved.

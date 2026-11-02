@@ -6,29 +6,29 @@ static float value,gesture_age,audition_ms;
 static float press_ms[16];
 static unsigned char presses[16];
 static int lock_menu,keyboard;
-static int remembered[4][15],step_memory[4],record_return;
+static int remembered[5][15],step_memory[5],record_return;
 static char message[64];static float message_ms;
 static unsigned char key_down[27];
 static void tell(const char *text){int n=0;while(text[n]&&n<63){message[n]=text[n];n++;}message[n]=0;message_ms=1600;}
 static void cancel_presses(void){for(int i=0;i<16;i++){presses[i]=0;press_ms[i]=0;}held=-1;}
 static void select_step(int n){if(selected!=n)edited=0;selected=n;}
-static int audition_note,notes[27];
+static int audition_note,notes[27],note_voice[27],audition_voice;
 static char lines[9][64];
 static const int whites[16]={0,2,4,6,7,9,11,12,14,16,18,19,21,23,24,26};
-static const int env[4][4]={{2,4,5,6},{4,5,6,2},{2,4,5,6},{2,4,5,6}};
-static const char *labels[4][4]={{"Length","Damping","Drop","Response"},{"Stretch","Fracture","Grain","Length"},{"Release","Glide","Weight","Response"},{"Length","Damping","Spread","Response"}};
-static const char *voices[4]={"KICK","CHATTER","ROOT","BACKBEAT"};
+static const int env[5][4]={{2,4,5,6},{4,5,6,2},{2,4,5,6},{2,4,5,6},{4,5,6,2}};
+static const char *labels[5][4]={{"Length","Damping","Drop","Response"},{"Stretch","Fracture","Grain","Length"},{"Release","Glide","Weight","Response"},{"Length","Damping","Spread","Response"},{"Attack","Release","Sweep","Decay"}};
+static const char *voices[5]={"KICK","CHATTER","ROOT","BACKBEAT","CHORD"};
 static const char *pages[15]={"FX","SEL","ENV","LFO","EDIT","GLO","HOME","SAVE","ARP","SEQUENCE","PLAY","REC","OCT-","OCT+","PRESETS"};
 static const char *modes[4]={"","Hits","Motion","Both"};
 static float bound(float x,float a,float b){return x<a?a:x>b?b:x;}
-static int count(void){if(page==0&&!lock_menu)return 3;if(voice==2){if(lock_menu)return 6;if(page==4)return 3;if(page==2)return 2;}return lock_menu?3:page==9?1:page==6?3:page==0||page==2||page==4?2:1;}
+static int count(void){if(page==0&&!lock_menu)return 3;if(voice==4){if(lock_menu)return 5;if(page==4)return 4;if(page==2)return 1;}if(voice==2){if(lock_menu)return 6;if(page==4)return 3;if(page==2)return 2;}return lock_menu?3:page==9?1:page==6?4:page==0||page==2||page==4?2:1;}
 static int busy(void){return ug_state(18)||ug_state(10)||ug_state(2);}
-static int note_page(void){if(voice==2&&page==9&&!lock_menu&&!busy())return 1;return (((page==2&&voice!=2)||page==4)&&sub==1)||(lock_menu&&sub==2);}
-static int key_mode(void){return page==6?2:page==9&&!(voice==2&&keyboard)&&!(ug_state(18)&&ug_state(2))?1:0;}
+static int note_page(void){if(voice==4)return (page==9&&!lock_menu&&!busy())||(page==4&&sub==1)||(lock_menu&&sub==2);if(voice==2&&page==9&&!lock_menu&&!busy())return 1;return (((page==2&&voice!=2)||page==4)&&sub==1)||(lock_menu&&sub==2);}
+static int key_mode(void){return page==6?2:page==9&&!((voice==2||voice==4)&&keyboard)&&!(ug_state(18)&&ug_state(2))?1:0;}
 static const int blacks[11]={1,3,5,8,10,13,15,17,20,22,25};
-void ug_ui_init(void){page=6;sub=voice=selected=octave=action=edited=0;held=gesture=audition_note=-1;lock_menu=keyboard=0;record_return=4;message_ms=0;message[0]=0;cancel_presses();value=gesture_age=audition_ms=0;for(int i=0;i<27;i++){notes[i]=-1;key_down[i]=0;}for(int v=0;v<4;v++){step_memory[v]=0;for(int p=0;p<15;p++)remembered[v][p]=0;}}
+void ug_ui_init(void){page=6;sub=voice=selected=octave=action=edited=0;held=gesture=audition_note=-1;lock_menu=keyboard=0;record_return=4;message_ms=0;message[0]=0;cancel_presses();value=gesture_age=audition_ms=0;for(int i=0;i<27;i++){notes[i]=-1;key_down[i]=0;}for(int v=0;v<5;v++){step_memory[v]=0;for(int p=0;p<15;p++)remembered[v][p]=0;}}
 void ug_ui_gesture(int reset){if(reset||gesture_age>300)gesture=-1;gesture_age=0;}
-void ug_ui_select(int field,int n){if(field==0&&n>=0&&n<4&&n!=voice){if(!lock_menu)remembered[voice][page]=sub;step_memory[voice]=selected;voice=n;selected=step_memory[n];cancel_presses();edited=lock_menu=0;sub=remembered[voice][page];}if(field==1&&n>=0&&n<16){select_step(n);}gesture=-1;}
+void ug_ui_select(int field,int n){if(field==0&&n>=0&&n<5&&n!=voice){if(!lock_menu)remembered[voice][page]=sub;step_memory[voice]=selected;voice=n;selected=step_memory[n];cancel_presses();edited=lock_menu=0;sub=remembered[voice][page];}if(field==1&&n>=0&&n<16){select_step(n);}gesture=-1;}
 static int pending_other(int key){for(int i=0;i<16;i++)if(i!=key&&presses[i]==1&&press_ms[i]<350)return 1;return 0;}
 static void open_locks(void){ug_rejoin();lock_menu=1;if(held>=0)presses[held]=2;sub=0;gesture=-1;edited=0;}
 static void snapshot(void){if(!lock_menu||!edited){ug_begin_edit();if(lock_menu)edited=1;}}
@@ -48,7 +48,8 @@ void ug_ui_action(int a){
  }
  int target=page==9?selected:-1;float vel=ug_getvelocity(voice,target);
  if(target>=0){audition_note=-1;ug_audition(voice,target);}
- else if(voice==2){audition_note=(int)ug_draftvalue(0);ug_keyvelocity(audition_note,1,vel);audition_ms=180;}
+ else if(voice==4){audition_note=36+(int)(ug_getparam(4,7)*36+.5f);audition_voice=4;ug_chordkey(audition_note,1,vel);audition_ms=180;}
+ else if(voice==2){audition_voice=2;audition_note=(int)ug_draftvalue(0);ug_keyvelocity(audition_note,1,vel);audition_ms=180;}
  else ug_hit(voice,vel);
  tell(ug_getmute(voice)?"Track muted; HOME to unmute":"Audition only / no recording");
 }
@@ -62,6 +63,15 @@ void ug_ui_edit(int p,float x){
  else if(p==11)ug_clearlock(voice,selected);
  else {int n=(int)ug_notevalue(selected,0),s=(int)ug_notevalue(selected,2);float g=ug_notevalue(selected,1);if(p==8)n=(int)x;else if(p==9)g=x;else s=x!=0;ug_note(selected,n,g,s);}
 }
+static int chord_param(int knob){
+ if((lock_menu&&sub==2)||(!lock_menu&&((page==4&&sub==1)||page==9)))return (int[4]){7,11,-1,8}[knob];
+ if((lock_menu&&sub==3)||page==2)return env[4][knob];
+ if((lock_menu&&sub==4)||(page==4&&sub==2))return (int[4]){8,9,10,11}[knob];
+ if((lock_menu&&sub==5)||(page==4&&sub==3))return (int[4]){8,13,14,15}[knob];
+ if(page==0)return knob==0?3:-2;
+ return knob;
+}
+static const char *chord_names[16]={"Tone","Colour","Decay","Send","Attack","Release","Sweep","Root","Slot","Inversion","Spread","Gate","Unused","Tone 2","Tone 3","Tone 4"};
 static const char *root_names[20]={"Tone","Colour","Decay","Synth send","Glide","Weight","Attack","Structure","Intensity","Feedback","Motion","Position","Grain size","Density","Pitch","Level","ENV send","Enabled","Scan","Unused"};
 static int root_param(int knob){
  if(lock_menu){if(sub==4)return 7+knob;if(sub==3)return 11+knob;if(sub==5)return (int[4]){15,18,-1,16}[knob];if(sub==6)return knob==0?3:knob==1?16:-1;}
@@ -82,16 +92,27 @@ static void macro(int p,int d){
 void ug_ui_turn(int e,int d){
  if(e<0||e>6||!d)return;ug_ui_gesture(0);
  if(held>=0&&presses[held]==1&&!busy()){for(int i=0;i<16;i++)if(i!=held&&presses[i]==1)return;open_locks();}
- if(e==0){if(lock_menu){const int order[6]={0,4,3,5,6,2};int n=voice==2?6:3,i=0;const int old[3]={0,3,2};while(i<n&&(voice==2?order[i]:old[i])!=sub)i++;sub=voice==2?order[(i+d%n+n)%n]:old[(i+d%n+n)%n];gesture=-1;return;}int n=count();sub=(sub+d%n+n)%n;remembered[voice][page]=sub;gesture=-1;return;}
- if(e==1){ug_ui_select(0,(voice+d%4+4)%4);return;}
+ if(e==0){if(lock_menu&&voice==4){const int order[5]={0,3,4,5,2};int i=0;while(i<5&&order[i]!=sub)i++;sub=order[(i+d%5+5)%5];gesture=-1;return;}if(lock_menu){const int order[6]={0,4,3,5,6,2};int n=voice==2?6:3,i=0;const int old[3]={0,3,2};while(i<n&&(voice==2?order[i]:old[i])!=sub)i++;sub=voice==2?order[(i+d%n+n)%n]:old[(i+d%n+n)%n];gesture=-1;return;}int n=count();sub=(sub+d%n+n)%n;remembered[voice][page]=sub;gesture=-1;return;}
+ if(e==1){ug_ui_select(0,(voice+d%5+5)%5);return;}
  if(e==2){lock_menu=0;cancel_presses();page=14;sub=0;gesture=-1;return;}
  int p=e-3;
  if(lock_menu&&busy())return;
  if(page==11){if(!p)ug_ui_record_mode((int)bound(ug_state(17)+d,1,3));return;}
  if(page==6&&sub==1){action=(action+(d>0?1:-1)+3)%3;return;}
  if(page==6&&sub==2)return;
+ if(page==6&&sub==3){if(p==0)ug_level(4,bound(ug_getlevel(4)+d*.01f,0,1));return;}
  if(page==6){ug_level(p,bound(ug_getlevel(p)+d*.01f,0,1));return;}
  if(page==0&&sub&&!lock_menu){if(busy())return;int rp=sub==1?p:4;if(sub==2&&p)return;int key=900+rp;if(gesture!=key){gesture=key;value=ug_getfx(rp);ug_begin_edit();}value=bound(value+d*.01f,0,1);ug_setfx(rp,value);return;}
+ if(voice==4&&(page==2||page==4||page==9||(page==0&&!sub))){
+  int cp=chord_param(p),target=lock_menu||page==9?selected:-1;
+  if(cp==-2)return;
+  if(cp==-1){if(busy())return;snapshot();ug_velocity(4,target,bound(ug_getvelocity(4,target)+d*.01f,0,1));return;}
+  if(page==9&&!lock_menu){if(busy())return;snapshot();float x=ug_lockmask(4,target)&(1<<cp)?ug_lockvalue(4,target,cp):ug_getparam(4,cp);float step=cp==7?1.0f/36:cp==8?1.0f/7:cp==11?.035f:.01f;ug_setlock(4,target,cp,bound(x+d*step,0,1));return;}
+  int target_lock=lock_menu&&!busy();float step=cp==7?1.0f/36:cp==8?1.0f/7:cp==9?1.0f/3:cp>=13?1.0f/23:.01f;
+  int ck=1400+(target_lock?selected+1:0)*32+cp;
+  if(gesture!=ck){gesture=ck;value=target_lock&&(ug_lockmask(4,selected)&(1<<cp))?ug_lockvalue(4,selected,cp):ug_state(10)?ug_effective(4,cp):ug_getparam(4,cp);if(target_lock)snapshot();else if(!busy())ug_begin_edit();}
+  value=bound(value+d*step,0,1);if(target_lock)ug_setlock(4,selected,cp,value);else ug_setparam(4,cp,value);return;
+ }
  if(voice==2&&!note_page()&&(page==2||page==4||(page==0&&!sub)||lock_menu)){int rp=root_param(p);if(rp>=0)macro(rp,d);return;}
  if((page==2&&!sub)||(lock_menu&&sub==3)){macro(env[voice][p],d);return;}
  if(note_page()){
@@ -121,7 +142,7 @@ void ug_ui_button(int b){
   ug_ui_action(5);return;
  }
  if(!lock_menu)remembered[voice][page]=sub;
- int again=page==b&&!lock_menu;if(b==9&&voice==2&&!lock_menu){keyboard=again?!keyboard:0;}else if(b!=9)keyboard=0;lock_menu=edited=0;page=b;sub=b==6?0:remembered[voice][b];
+ int again=page==b&&!lock_menu;if(b==9&&(voice==2||voice==4)&&!lock_menu){keyboard=again?!keyboard:0;}else if(b!=9)keyboard=0;lock_menu=edited=0;page=b;sub=b==6?0:remembered[voice][b];
  if(again&&b!=6&&count()>1)sub=(sub+1)%count();remembered[voice][b]=sub;action=0;
 }
 void ug_ui_key(int offset,int down,float velocity){
@@ -133,7 +154,7 @@ void ug_ui_key(int offset,int down,float velocity){
    presses[index]=0;press_ms[index]=0;
    if(index==held)held=-1;
   }
-  if(notes[offset]>=0){ug_key(notes[offset],0);notes[offset]=-1;}gesture=-1;return;
+  if(notes[offset]>=0){if(note_voice[offset]==4)ug_chordkey(notes[offset],0,0);else ug_key(notes[offset],0);notes[offset]=-1;}gesture=-1;return;
  }
  if(key_down[offset])return;key_down[offset]=1;
  int mode=key_mode();
@@ -145,16 +166,20 @@ void ug_ui_key(int offset,int down,float velocity){
    if(black>=6&&black<=8){ug_ui_action(black==6?0:black==7?1:5);return;}
    if(lock_menu)ug_ui_turn(0,black==9?-1:1);else tell("Hold step for lock pages");return;
   }
-  if(mode==2){if(index>=0&&index<4){ug_mute(index,-1);tell(ug_getmute(index)?"Track muted / score kept":"Track unmuted");}return;}
+  if(mode==2){if(index>=0&&index<5){ug_mute(index,-1);tell(ug_getmute(index)?"Track muted / score kept":"Track unmuted");}return;}
  }
- if(page==9&&index>=0&&!(voice==2&&keyboard)&&!(ug_state(18)&&ug_state(2))){
+ if(page==9&&index>=0&&!((voice==2||voice==4)&&keyboard)&&!(ug_state(18)&&ug_state(2))){
   if(presses[index])return;
   select_step(index);held=index;press_ms[index]=0;presses[index]=!lock_menu&&!busy()?1:2;return;
  }
  if(ug_state(18)&&ug_state(19)!=voice)return;
+ if(voice==4){int note=41+offset+octave*12;if(note<36||note>72)return;
+  if(note_page()&&!busy()){if(page==9||lock_menu){snapshot();ug_setlock(4,selected,7,(note-36)/36.0f);}else{ug_begin_edit();ug_setparam(4,7,(note-36)/36.0f);}}
+  notes[offset]=note;note_voice[offset]=4;audition_note=-1;ug_chordkey(note,1,velocity);return;
+ }
  if(voice==2){int note=29+offset+octave*12;if(note<24||note>60)return;
   if(note_page()&&!busy()){if(page==9){snapshot();ug_note(selected,note,ug_notevalue(selected,1),(int)ug_notevalue(selected,2));}else{ug_begin_edit();ug_draftnote(note,ug_draftvalue(1),(int)ug_draftvalue(2));}}
-  notes[offset]=note;audition_note=-1;ug_keyvelocity(note,1,velocity);
+  notes[offset]=note;note_voice[offset]=2;audition_note=-1;ug_keyvelocity(note,1,velocity);
  }else ug_hit(voice,velocity);
 }
 void ug_ui_tick(float ms){
@@ -167,17 +192,18 @@ void ug_ui_tick(float ms){
   for(int i=0;i<16;i++)if(presses[i]==1&&press_ms[i]>=350)presses[i]=2;
   if(!lock_menu){select_step(due);held=due;open_locks();}
  }
- if(audition_note>=0){audition_ms-=ms;if(audition_ms<=0){ug_key(audition_note,0);audition_note=-1;}}
+ if(audition_note>=0){audition_ms-=ms;if(audition_ms<=0){if(audition_voice==4)ug_chordkey(audition_note,0,0);else ug_key(audition_note,0);audition_note=-1;}}
 }
-int ug_ui_state(int f){switch(f){case 0:return page;case 1:return sub;case 2:return voice;case 3:return selected;case 4:return octave;case 5:return count();case 7:return lock_menu;case 10:return key_mode();case 11:return ug_clipboard_voice();case 8:{unsigned bits=0;int mode=key_mode();if(mode){bits|=1u<<blacks[voice];for(int i=0;i<16;i++)if(mode==1?ug_step(voice,i):i<4&&!ug_getmute(i))bits|=1u<<whites[i];}else for(int i=0;i<27;i++)if(key_down[i])bits|=1u<<i;return (int)bits;}case 9:return key_mode()==1&&ug_state(0)&&ug_state(1)>=0?1u<<whites[ug_state(1)]:0;case 6:{int b=page<14&&page!=11?1<<page:0;if(ug_state(0))b|=1<<10;if(ug_state(18)||page==11)b|=1<<11;return b;}default:return 0;}}
+int ug_ui_state(int f){switch(f){case 0:return page;case 1:return sub;case 2:return voice;case 3:return selected;case 4:return octave;case 5:return count();case 7:return lock_menu;case 10:return key_mode();case 11:return ug_clipboard_voice();case 8:{unsigned bits=0;int mode=key_mode();if(mode){if(voice<4)bits|=1u<<blacks[voice];for(int i=0;i<16;i++)if(mode==1?ug_step(voice,i):i<5&&!ug_getmute(i))bits|=1u<<whites[i];}else for(int i=0;i<27;i++)if(key_down[i])bits|=1u<<i;return (int)bits;}case 9:return key_mode()==1&&ug_state(0)&&ug_state(1)>=0?1u<<whites[ug_state(1)]:0;case 6:{int b=page<14&&page!=11?1<<page:0;if(ug_state(0))b|=1<<10;if(ug_state(18)||page==11)b|=1<<11;return b;}default:return 0;}}
 static void add(char *s,const char *t){int n=0;while(s[n]&&n<63)n++;while(*t&&n<63)s[n++]=*t++;s[n]=0;}
 static void number(char *s,int n){char t[16];int i=0;if(n<0){add(s,"-");n=-n;}do{t[i++]='0'+n%10;n/=10;}while(n&&i<15);while(i){char c[2]={t[--i],0};add(s,c);}}
 static void named(char *s,int row,const char *name,int n,const char *unit){number(s,row);add(s," ");add(s,name);add(s,": ");number(s,n);add(s,unit);}
 const char *ug_ui_knoblabel(int e){
  static const char *normal[4]={"Body","Edge","Length","Send"};
  if(e==0)return "SELECT: page";if(e==1)return "ALGORITHM: track";if(e==2)return "PRESETS: unavailable";if(e<3||e>6)return "";
- int p=e-3;if(page==6)return sub==0?voices[p]:sub==1&&p==0?"Choose recovery":"Unused";
+ int p=e-3;if(page==6)return sub==3?(p==0?"CHORD":"Unused"):sub==0?voices[p]:sub==1&&p==0?"Choose recovery":"Unused";
  if(page==11)return p==0?"Record mode":"Unused";
+ if(voice==4&&(page==2||page==4||page==9||(page==0&&!sub))){int cp=chord_param(p);return cp==-1?"Velocity":cp<0?"Unused":chord_names[cp];}
  if(note_page())return voice==2?(const char *[4]){"Pitch","Gate","Slide","Velocity"}[p]:p==0?"Velocity":"Unused";
  if(voice==2&&(page==2||page==4||(page==0&&!sub)||lock_menu)){int rp=root_param(p);return rp>=0?root_names[rp]:"Unused";}
  if((page==2&&!sub)||(lock_menu&&sub==3))return labels[voice][p];
@@ -190,10 +216,10 @@ const char *ug_ui_keylabel(int offset){
  int white=-1,black=-1;for(int i=0;i<16;i++)if(whites[i]==offset)white=i;for(int i=0;i<11;i++)if(blacks[i]==offset)black=i;
  int mode=key_mode();
  if(mode&&black>=0){const char *names[11]={"KICK","CHAT","ROOT","BACK","COPY","PASTE","UNDO","REJOIN","HEAR","PAGE-","PAGE+"};return names[black];}
- if(mode==2){if(white>=0&&white<4){add(text,ug_getmute(white)?"MUTED":"ON");}else add(text,"--");return text;}
+ if(mode==2){if(white>=0&&white<5){add(text,ug_getmute(white)?"MUTED":"ON");}else add(text,"--");return text;}
  if(mode==1){if(white<9)add(text,"0");number(text,white+1);return text;}
- if(voice!=2)return voices[voice];
- int note=29+offset+octave*12;if(note<24||note>60)return "OUT";
+ if(voice!=2&&voice!=4)return voices[voice];
+ int note=(voice==4?41:29)+offset+octave*12;if(note<(voice==4?36:24)||note>(voice==4?72:60))return "OUT";
  const char *names[12]={"C","C#","D","D#","E","F","F#","G","G#","A","A#","B"};add(text,names[note%12]);number(text,note/12-1);return text;
 }
 void ug_ui_refresh(void){
@@ -201,6 +227,16 @@ void ug_ui_refresh(void){
  add(lines[0],voices[voice]);add(lines[0]," / ");add(lines[0],lock_menu?"TRIG LOCK":pages[page]);
  if(ug_getmute(voice))add(lines[0]," [M]");
  if(page==11){add(lines[1],"1 Mode: ");add(lines[1],modes[ug_state(17)]);add(lines[2],ug_state(18)?"Armed: ":"Disarmed");if(ug_state(18))add(lines[2],voices[ug_state(19)]);add(lines[3],ug_state(0)?"Recording / keys play live":"PLAY to start recording");add(lines[4],"EDIT / ENV / FX: perform");add(lines[5],"Mode change = next take");}
+ else if(voice==4&&(page==2||page==4||page==9||(page==0&&!sub))){
+  int target=lock_menu||page==9?selected:-1;add(lines[1],target>=0?"STEP ":"DRAFT / ");if(target>=0)number(lines[1],target+1);
+  add(lines[1],(lock_menu&&sub==5)||(page==4&&sub==3)?" PALETTE TONES":(lock_menu&&sub==4)||(page==4&&sub==2)?" HARMONY":page==2||(lock_menu&&sub==3)?" ENVELOPE":" CHORD");
+  for(int i=0;i<4;i++){int cp=chord_param(i);if(cp==-2)continue;if(cp==-1){named(lines[i+2],i+1,"Velocity",(int)(ug_getvelocity(4,target)*100+.5f),"%");continue;}
+   float x=target>=0&&(ug_lockmask(4,target)&(1<<cp))?ug_lockvalue(4,target,cp):ug_state(10)?ug_effective(4,cp):ug_getparam(4,cp);
+   int n=(int)(x*100+.5f);const char *unit="%";
+   if(cp==7){int note=36+(int)(x*36+.5f);const char *nn[12]={"C","C#","D","D#","E","F","F#","G","G#","A","A#","B"};number(lines[i+2],i+1);add(lines[i+2]," Root: ");add(lines[i+2],nn[note%12]);number(lines[i+2],note/12-1);continue;}else if(cp==8){n=1+(int)(x*7+.5f);unit=" / 8";}else if(cp==9){n=(int)(x*3+.5f);unit="";}else if(cp>=13){n=1+(int)(x*23+.5f);unit=" st";}else if(cp==11){n=10+(int)(x*140+.5f);}
+   named(lines[i+2],i+1,chord_names[cp],n,unit);if(target>=0&&(ug_lockmask(4,target)&(1<<cp)))add(lines[i+2]," *");
+  }
+ }
  else if(note_page()){
   int target=page==9?selected:-1;add(lines[1],target>=0?"STEP ":"DRAFT");if(target>=0){number(lines[1],target+1);add(lines[1],ug_step(voice,target)?" ON":" REST");}
   if(voice==2){const char *nn[12]={"C","C#","D","D#","E","F","F#","G","G#","A","A#","B"};int n=(int)(target>=0?ug_notevalue(target,0):ug_draftvalue(0));add(lines[2],"1 Pitch: ");add(lines[2],nn[n%12]);number(lines[2],n/12-1);named(lines[3],2,"Gate",(int)((target>=0?ug_notevalue(target,1):ug_draftvalue(1))*100+.5f),"%");add(lines[4],"3 Slide: ");add(lines[4],(target>=0?ug_notevalue(target,2):ug_draftvalue(2))?"ON":"OFF");named(lines[5],4,"Velocity",(int)(ug_getvelocity(voice,target)*100+.5f),"%");}
@@ -208,7 +244,8 @@ void ug_ui_refresh(void){
  }
  else if(page==6&&sub==1){const char *a[3]={"Undo / redo","Rejoin locks","Panic"};add(lines[1],"Recovery");for(int i=0;i<3;i++){add(lines[i+2],i==action?"> ":"  ");add(lines[i+2],a[i]);}add(lines[5],"KNOB1 choose; SEL apply");}
  else if(page==6&&sub==2){add(lines[1],"UPPER KEYS in HOME / SEQ");add(lines[2],"1-4 tracks 5copy 6paste");add(lines[3],"7undo 8rejoin 9hear");add(lines[4],"10/11 lock page -/+");add(lines[5],"Copy/paste in SEQ only");}
- else if(page==6){add(lines[1],"MIX / knobs: track levels");for(int v=0;v<4;v++){named(lines[v+2],v+1,voices[v],(int)(ug_getlevel(v)*100+.5f),"%");if(ug_getmute(v))add(lines[v+2]," MUTE");}}
+ else if(page==6&&sub==3){add(lines[1],"MIX / CHORD");named(lines[2],1,"CHORD",(int)(ug_getlevel(4)*100+.5f),"%");add(lines[3],"Lower key 5: mute CHORD");add(lines[4],"ALGORITHM selects CHORD");}
+ else if(page==6){add(lines[1],"MIX / knobs: track levels");for(int v=0;v<5;v++){named(lines[v+2],v+1,voices[v],(int)(ug_getlevel(v)*100+.5f),"%");if(ug_getmute(v))add(lines[v+2]," MUTE");}}
  else if(page==5){named(lines[1],1,"Tempo",ug_state(4),"");named(lines[2],2,"Swing",50+(int)(ug_getgroove(0)*100/6+.5f),"%");named(lines[3],3,"Human",(int)(ug_getgroove(1)*100+.5f),"%");}
  else if(voice==2&&(page==2||page==4||(page==0&&!sub)||lock_menu)){
   int target=lock_menu?selected:-1;add(lines[1],target>=0?"STEP ":ug_state(10)?"MOTION / ":page==0&&ug_state(0)?"LIVE / ":"DRAFT / ");if(target>=0){number(lines[1],target+1);add(lines[1]," / ");}
@@ -226,9 +263,10 @@ void ug_ui_refresh(void){
  else{add(lines[1],pages[page]);add(lines[2],"Not implemented");add(lines[3],page==7?"Session only":"Reserved hardware page");}
  add(lines[6],message[0]?message:lock_menu?"Keys select / SEQ closes":page==6?"Lower 1-4: mute / unmute":page==11?"REC / SEL: finish + return":note_page()?(busy()?"Finish REC to edit notes":"Keys: pitch / SEL: hear"):key_mode()==1?busy()?"Keys select / no new hits":"Tap: on/off; hold: locks":"Keys: live / SEL: audition");
  if(page==0&&sub==1&&!message[0]){lines[6][0]=0;add(lines[6],busy()?"Finish REC for global FX":"Raise track / ENV send to hear");}
- if(voice==2&&page==9&&!lock_menu&&!message[0]){lines[6][0]=0;add(lines[6],keyboard?"KEYBOARD: assign / REC: play":"STEPS / SEQ: keyboard");}
+ if((voice==2||voice==4)&&page==9&&!lock_menu&&!message[0]){lines[6][0]=0;add(lines[6],keyboard?"KEYBOARD: assign / REC: play":"STEPS / SEQ: keyboard");}
  if(voice==2&&page==2&&!message[0]){char strip[28];for(int i=0;i<26;i++)strip[i]='-';strip[26]=0;for(int i=2;i<10;i++){float x=ug_grain(i);if(x>=0)strip[(int)(x*25)]='o';}strip[(int)(ug_grain(0)*25)]='|';lines[6][0]=0;add(lines[6],strip);}
- if(count()>1){add(lines[7],"SELECT ");number(lines[7],lock_menu?(voice==2?(sub==0?1:sub==4?2:sub==3?3:sub==5?4:sub==6?5:6):(sub==0?1:sub==3?2:3)):sub+1);add(lines[7],"/");number(lines[7],count());const char *seq[7]={" Sound",""," Notes / vel"," Atmosphere"," Character"," Atmos mix"," Sends"};add(lines[7],page==9?seq[sub]:page==2||page==4?voice==2?(page==4?(sub==2?" Character":sub?" Notes / vel":" Sound"):(sub?" Atmos mix":" Atmosphere")):sub?" Draft notes / vel":page==2?" Environment":" Sound":page==6?sub==2?" Key guide":sub?" Recovery":" Mix":page==0?(sub==1?" Reverb":sub==2?" Delay":" Sends"):sub?" Global":" Track");}else add(lines[7],key_mode()==1?"Upper: tracks + tools":"ALGORITHM: track");
+ if(count()>1){add(lines[7],"SELECT ");number(lines[7],lock_menu?(voice==2?(sub==0?1:sub==4?2:sub==3?3:sub==5?4:sub==6?5:6):(sub==0?1:sub==3?2:3)):sub+1);add(lines[7],"/");number(lines[7],count());const char *seq[7]={" Sound",""," Notes / vel"," Atmosphere"," Character"," Atmos mix"," Sends"};add(lines[7],page==9?seq[sub]:page==2||page==4?voice==2?(page==4?(sub==2?" Character":sub?" Notes / vel":" Sound"):(sub?" Atmos mix":" Atmosphere")):sub?" Draft notes / vel":page==2?" Environment":" Sound":page==6?sub==3?" Chord mix":sub==2?" Key guide":sub?" Recovery":" Mix":page==0?(sub==1?" Reverb":sub==2?" Delay":" Sends"):sub?" Global":" Track");}else add(lines[7],key_mode()==1?"Upper: tracks + tools":"ALGORITHM: track");
+ if(voice==4&&(page==4||page==2||page==9)){lines[7][0]=0;add(lines[7],"SELECT ");int ix=sub;if(lock_menu){const int order[5]={0,3,4,5,2};ix=0;while(ix<5&&order[ix]!=sub)ix++;}number(lines[7],ix+1);add(lines[7],"/");number(lines[7],count());add(lines[7],lock_menu?(sub==0?" Sound":sub==3?" Envelope":sub==4?" Harmony":sub==5?" Trig tones":" Notes / vel"):page==4?(sub==0?" Sound":sub==1?" Notes / vel":sub==2?" Harmony":" Palette tones"):page==2?" Envelope":" Steps / keyboard");}
  add(lines[8],ug_state(0)?"PLAY ":"STOP ");number(lines[8],ug_state(4));add(lines[8]," BPM");if(ug_state(18)){add(lines[8]," REC ");add(lines[8],modes[ug_state(17)]);add(lines[8]," ");add(lines[8],voices[ug_state(19)]);}
 }
 const char *ug_ui_line(int n){return n>=0&&n<9?lines[n]:"";}

@@ -54,8 +54,9 @@ void app_render(int32_t *lr,uint32_t n,uint32_t master_q12){
   if(!plat_midi_in(&packet,&port)){drained=1;break;}
   if(ug_usb_quarantine&&port==PORT_USB)continue;
   int status=(packet>>8)&255,note=(packet>>16)&127,vel=(packet>>24)&127,ch=status&15;
-  if((status&240)==144&&vel){if(ch<2)ug_hit(ch,vel/127.0f);else if(ch==2)ug_keyvelocity(note,1,vel/127.0f);else if(ch==3)ug_hit(3,vel/127.0f);}
+  if((status&240)==144&&vel){if(ch<2)ug_hit(ch,vel/127.0f);else if(ch==2)ug_keyvelocity(note,1,vel/127.0f);else if(ch==3)ug_hit(3,vel/127.0f);else if(ch==4)ug_chordkey(note,1,vel/127.0f);}
   else if(((status&240)==128||((status&240)==144&&!vel))&&ch==2)ug_key(note,0);
+  else if(((status&240)==128||((status&240)==144&&!vel))&&ch==4)ug_chordkey(note,0,0);
   else if((status&240)==176&&(note==120||note==123))ug_panic();
  }
  if(ug_usb_quarantine&&drained&&ug_usb_seen)ug_usb_quarantine=0;

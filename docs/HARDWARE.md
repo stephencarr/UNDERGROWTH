@@ -167,3 +167,40 @@ safety, platform-host traces, firmware CRC/identity/loader/instruction/memory
 checks and rebuilt-vs-checked-in package/vocabulary comparisons. Reverb tests
 also passed address/undefined-behaviour sanitizers (leak detection off).
 No physical device was accessed. Listening and FM1 CPU acceptance remain open.
+
+## CHORD candidate — 0.5.0-hw1
+
+Adds a fifth track, four tones per chord and two overlapping banks, with eight
+editable session palette slots and actual harmony captured in each trig. All
+DSP/controller semantics remain shared C. USB MIDI channel 5 triggers chord roots.
+No additional pool arena: image 130448 bytes; data+bss 45044/98304; pool
+312908/344064. Identity FM-1_731000500. Initial package/CRC/loader/instruction/
+memory checks passed. Full milestone evidence follows after the gate. Compare
+physical CPU/P/X on a dense five-track phrase with grains/reverb engaged before
+accepting headroom. No physical device was accessed or flashed.
+
+## Completed software validation — 2 November 2026
+
+The complete `tools/check_milestone.sh` passed for 0.5.0-hw1: twelve native suites,
+including CHORD spectrum/articulation/snapshot tests; active five-track native/WASM
+bit parity; worklet; real mouse/touch browser workflows; simulated updater safety;
+platform-host traces including channel-5 MIDI and fifth-track mixing; package
+CRC/identity/loader/instruction/memory checks; and exact rebuilt firmware/vocabulary
+comparison. CHORD also passed address/undefined-behaviour sanitizer checks with
+leak detection disabled. Image 130448 bytes; data+bss 45044/98304; pool 312908/344064.
+Firmware identity FM-1_731000500. No physical FM1 access or flashing occurred.
+PR review and publication remain pending; listening and device CPU acceptance
+remain open even after software validation.
+
+## 0.5.1-hw1 candidate — preserve live sound when adding steps
+
+Shared-core takeover correction; no adapter/USB/storage change. Matching package
+FM-1_731000501 passed initial CRC/loader/instruction/memory checks. Full gate
+and review remain pending. No physical FM1 access or flashing was performed.
+
+0.5.1 software validation completed: full `tools/check_milestone.sh` passed,
+including twelve native suites, native/WASM parity with same-track stamping,
+real mouse/touch reproduction across a full loop, existing browser/worklet and
+updater checks, platform-host traces and exact rebuilt package/vocabulary checks.
+Identity FM-1_731000501; image 130448 bytes; data+bss 45044/98304; pool 312908/344064.
+Review and preview rollout are still pending. No physical device was accessed.

@@ -6,7 +6,7 @@ Read this first for intent, then [engineering orientation](ENGINEERING.md) for i
 
 ## Musical identity
 
-The four current organisms are Kick, Chatter, ROOT and Backbeat. Kick is synthesized percussion; Chatter is synthetic, grain-like noise/resonant fragmentation; ROOT is monophonic harmonic bass. Backbeat continuously blends shaker collision grains, resonant skin/wire snares and clustered handclaps. Edge reaches crushed crackle and metallic fragments; Spread stretches the internal grains and flams. Intermediate settings mix these textures rather than selecting isolated presets. The percussion is synthesised, without samples. Each has a recognisable identity rather than a generic synthesizer editor.
+The five current organisms are Kick, Chatter, ROOT, Backbeat and CHORD. Kick is synthesized percussion; Chatter is synthetic, grain-like noise/resonant fragmentation; ROOT is monophonic harmonic bass. Backbeat continuously blends shaker collision grains, resonant skin/wire snares and clustered handclaps. Edge reaches crushed crackle and metallic fragments; Spread stretches the internal grains and flams. Intermediate settings mix these textures rather than selecting isolated presets. The percussion is synthesised, without samples. Each has a recognisable identity rather than a generic synthesizer editor.
 
 The accepted direction is **strong intentional controls, subtle hard-wired DNA**. ENV means **Environment**, not a conventional ADSR editor. Its controls must produce useful, pronounced changes. Smaller, bounded and deterministic responses to velocity, tempo or musical context add character without rewriting the musician's score or generating notes. See the organism/control table in [ROADMAP.md](ROADMAP.md).
 
@@ -14,7 +14,7 @@ Startup and empty Play are silent. Enabling audio prepares the instrument withou
 
 ## The player's workflow
 
-1. Choose Kick, Chatter, ROOT or Backbeat with ALGORITHM and shape the track's draft sound on EDIT/ENV.
+1. Choose Kick, Chatter, ROOT, Backbeat or CHORD with ALGORITHM and shape the track's draft sound on EDIT/ENV.
 2. Open SEQ. Its sixteen lower keys address sixteen steps for every organism. First activation of an untouched step captures draft sound and velocity (and ENV on percussion tracks); ROOT also captures pitch, gate and slide.
 3. Tap to toggle a step. Turning it off preserves authored data for reactivation. Hold for 350 ms to open the persistent trig-lock menu without toggling. SELECT changes its Sound, ENV and Notes / velocity pages; SEQ closes it. Editing a rest keeps it silent.
 4. Play and perform. Stored locks determine a step's sound; manual takeover temporarily overrides them. Rejoin or finishing the take releases takeover. Adding steps on another track preserves the current track’s manual takeover. The draft must never be contaminated by a passing playhead's lock.
@@ -30,7 +30,7 @@ The default browser view follows the FM1 panel; Expanded view shares the same ru
 
 | Area | Current state |
 | --- | --- |
-| Musical engine | Four 16-step lanes, sound/ENV locks, velocity, ROOT articulation, groove, recording, takeover/Rejoin and Undo. |
+| Musical engine | Five 16-step lanes, sound/ENV locks, velocity, ROOT articulation, groove, recording, takeover/Rejoin and Undo. |
 | Browser | Shared C/WASM engine and panel controller, JavaScript IO/drawing, FM1 and Expanded views. |
 | Firmware | Shared C plus FM1 adapter; experimental `0.4.3-hw1` package and validation record are checked in. |
 | Device evidence | Cross-build/package and host checks are recorded as passed. No physical flash, playing, CPU-headroom or recovery validation is established. |
@@ -95,3 +95,27 @@ motion are retained; Rejoin restores those locks. FX shows the effective send
 while playing and the draft while stopped. Sound/Character locks remain per trig.
 ENV continues independently with Enabled ON, nonzero Level and PLAY, including
 on an empty sequence. Stop fades ENV and lets the shared tank decay.
+
+### CHORD — 0.5.0-hw1 candidate
+
+CHORD adds an independent four-tone harmonic track, from short filtered dub
+stabs through bright hollow chords to slow/sustained articulations. Eight editable
+palette slots hold intervals, inversion and spread; each trig captures its actual
+harmony. Root/gate/velocity stay separate from timbre. Two bounded tail banks
+allow eight simultaneous tones. This is a draft implementation pending the full
+milestone gate and listening acceptance. See [CHORD.md](CHORD.md).
+
+## Same-track live takeover fix — 0.5.1-hw1 candidate
+
+Adding a previously untouched step used to clear the sounding track's manual
+takeover. Older trigs then resumed their captured values, making the sound revert
+while the draft controls still showed the edits. Stamping now captures the draft
+without releasing takeover. Existing trig locks remain intact. Rejoin, finishing
+a take and Stop still deliberately release overrides. This applies to all five
+tracks; the native regression checks 44.1/48 kHz and browser coverage repeats the
+Chatter EDIT → SEQ → new-hit path using actual mouse and touch input.
+
+The reproduction failed before the fix; five-track native regression and
+native/WASM parity pass after it. The full 0.5.1-hw1 gate/review and preview update
+are pending. Previously recorded 0.5.0 validation and accepted CHORD debt remain
+separate; this fix does not claim the other review findings are resolved.

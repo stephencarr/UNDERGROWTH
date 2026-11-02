@@ -15,7 +15,7 @@ static double brightness(int sr,float body,float edge){
  assert(power>1);return high/power;
 }
 int main(void){for(int sr=44100;sr<=48000;sr+=3900){
- ug_init(sr);assert(ug_state(23)==4);render(sr);assert(ug_buffer()[0]==0);ug_play(1);render(sr);assert(!ug_state(21));ug_panic();
+ ug_init(sr);assert(ug_state(23)==5);render(sr);assert(ug_buffer()[0]==0);ug_play(1);render(sr);assert(!ug_state(21));ug_panic();
  double loud=energy(sr,1,.8f,1,0),soft=energy(sr,1,.8f,.2f,0);assert(loud>1&&loud>soft*10);
  double short_tail=energy(sr,2,0,1,sr/10),long_tail=energy(sr,2,1,1,sr/10);assert(long_tail>short_tail*10);
  double damp=energy(sr,4,1,1,0),ring=energy(sr,4,0,1,0);assert(ring>damp*2);
