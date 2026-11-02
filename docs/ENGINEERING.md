@@ -93,3 +93,24 @@ Normal use is session-only with no project saving. Preserve the zero-storage-wri
 Update [PRODUCT.md](PRODUCT.md) for user-visible behavior and [ROADMAP.md](ROADMAP.md) for accepted decisions or changed priorities. Update this guide for architecture/tooling changes and [HARDWARE.md](HARDWARE.md) for build or physical acceptance evidence. Keep historical research explicitly historical. Older README sections contain superseded two-lane and recording descriptions; current source/tests and the later FM1 control section are the starting point when investigating a mismatch.
 
 The published product URL is https://stephencarr.github.io/UNDERGROWTH/. A commit, draft PR or successful local build does not by itself verify the deployed site.
+
+## Railway browser previews
+
+Railway's UNDERGROWTH project uses `preview-base` as the base environment,
+tracking `main`, with automatic PR environments enabled. GitHub Pages remains
+the accepted instrument. Railway only packages the checked-in browser bundle;
+the normal milestone gate must build matching WASM/firmware before a functional
+change is accepted. Hosting configuration does not replace musical validation.
+
+`railway.json` builds with `tools/prepare_preview.py` and runs the standard-library
+Python server in `tools/serve_preview.py` on `$PORT`. Only `/`, `/index.html` and
+`/version.json` are public routes; the root bundle embeds its scripts and WASM.
+The version badge identifies branch, commit and PR when Railway supplies them.
+There is no repository directory serving, directory listing or preview flasher.
+Unknown paths, including source, credentials and firmware paths, return 404.
+
+Run `python3 tests/preview_server_test.py` to verify the access boundary. PR
+previews update on branch pushes and Railway removes their environments when
+PRs close or merge. A Railway-provided domain on the base service enables
+automatic domains for PR environments. Verify deployment SUCCESS, version.json
+and a real browser audio/ROOT workflow before handing someone a preview URL.
