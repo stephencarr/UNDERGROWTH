@@ -30,13 +30,18 @@ static Voice voices[NVOICE];
 static float delaybuf[DELAY] UG_POOL;
 static float delay_lp, output[MAX_BLOCK*2];
 /* Rate-scaled Clouds tank. Float storage avoids quantized-tail limit cycles. */
+#if defined(UG_FM1) && !defined(PLAT_HOST)
+/* Physical audio is fixed at 44.1 kHz; do not reserve a 96 kHz arena. */
+#define ROOM_SAMPLES 22650
+#else
 #define ROOM_SAMPLES 49200
+#endif
 static float room_buffer[ROOM_SAMPLES] UG_POOL;
 static struct { int offset[10], length[10], position[10]; float low[2], phase[2], now[5], smoothing; int active; } room;
 static void room_clear(void);
 
 static float master_target, master_now;
-static float levels[NVOICE],level_now[NVOICE],dry_now[NVOICE],cloud_dry;
+static float levels[NVOICE],level_now[NVOICE],dry_now[NVOICE],atmosphere_dry[NVOICE];
 static unsigned char muted[NVOICE];
 static Step clipboard;
 static int clipboard_voice;
@@ -57,10 +62,14 @@ static struct { float mod_phase, feedback, sub_phase; } root_fm;
 #define TEXTURE 4096
 /* Original, deterministic synthetic sample; generated once, never in the render path. */
 static float texture[TEXTURE] UG_POOL;
-static struct { float pos, age, duration, speed; int active; } grains[GRAINS];
-static float grain_cursor, grain_level;
+static struct { float pos, age, duration, speed, inv_duration; int active; } grains[GRAINS];
+static float grain_cursor, grain_level, grain_gain;
 static int grain_wait;
 static unsigned grain_serial;
+typedef struct {float phase[3],low[2],band[2],held,clock,level,now[9];uint32_t rng;} Ambient;
+static Ambient ambient[NVOICE];
+static void atmosphere_reset(void);
+
 
 static float note_frequency(int note){
  static const float hz[12]={32.703196f,34.647829f,36.708096f,38.890873f,41.203445f,43.653529f,46.249303f,48.999429f,51.913087f,55.0f,58.270470f,61.735413f};
@@ -91,17 +100,21 @@ void ug_init(int sample_rate) {
  zero(delaybuf,sizeof delaybuf);zero(&room,sizeof room);room_clear();zero(output,sizeof output);zero(takeover,sizeof takeover);
  zero(manual,sizeof manual);zero(trigger_count,sizeof trigger_count);zero(record_skip,sizeof record_skip);
  zero(muted,sizeof muted);clipboard_voice=-1;zero(&clipboard,sizeof clipboard);
- cloud_dry=1;for(int v=0;v<NVOICE;v++){dry_now[v]=1;levels[v]=level_now[v]=1;audition_step[v]=-1;}
+ for(int v=0;v<NVOICE;v++){dry_now[v]=atmosphere_dry[v]=1;levels[v]=level_now[v]=1;audition_step[v]=-1;}
  sample_clock=0;zero(last_trigger,sizeof last_trigger);
- zero(&backbeat,sizeof backbeat);zero(&root_fm,sizeof root_fm);zero(grains,sizeof grains);grain_cursor=grain_level=0;grain_wait=0;grain_serial=0;root_freq=root_target=65.406392f;root_gate=0;root_live=-1;
+ zero(&backbeat,sizeof backbeat);zero(&root_fm,sizeof root_fm);zero(grains,sizeof grains);grain_cursor=grain_level=0;grain_gain=1;grain_wait=0;grain_serial=0;root_freq=root_target=65.406392f;root_gate=0;root_live=-1;
  for(int s=0;s<NSTEPS;s++){score.steps[2][s].note=36;score.steps[2][s].gate=.75f;}
  for(int v=0;v<NVOICE;v++){score.velocity[v]=1;for(int st=0;st<NSTEPS;st++)score.steps[v][st].velocity=1;score.base[v][4]=.5f;score.base[v][5]=.5f;score.base[v][6]=.5f;}
  score.base[2][7]=.25f;score.base[2][8]=.25f;score.base[2][9]=.1f;score.base[2][10]=.25f;
+ for(int v=0;v<NVOICE;v++){score.base[v][11]=.4f;score.base[v][12]=.35f;score.base[v][13]=.25f;score.base[v][14]=1.0f/3;score.base[v][15]=.3f;score.base[v][18]=.15f;}
  score.base[2][11]=.3f;score.base[2][12]=.4f;score.base[2][13]=.4f;score.base[2][14]=1.0f/3;score.base[2][15]=.3f;score.base[2][18]=.15f;
  score.draft_note.note=36;score.draft_note.gate=.75f;
  rec_mode=1;take_active=0;rec_track=-1;
  motion=motion_saved=0;zero(motion_mask,sizeof motion_mask);
  rate=sample_rate>=8000&&sample_rate<=96000?sample_rate:44100;
+#if defined(UG_FM1) && !defined(PLAT_HOST)
+ rate=44100; /* Matches the FM1 adapter/codec; bounds the hardware arena. */
+#endif
  const int times[10]={113,162,241,399,1653,2038,3411,1913,1663,4782};
  room.smoothing=1.0f/(rate*.005f);
  int room_offset=0;for(int i=0;i<10;i++){room.offset[i]=room_offset;room.length[i]=((times[i]*rate+16000)/32000)+2;room_offset+=room.length[i];}
@@ -116,6 +129,7 @@ void ug_init(int sample_rate) {
  float low=0;for(int i=0;i<TEXTURE;i++){low+=(noise()-low)*.08f;float t=(float)i/TEXTURE,phase=i*(65.406392f/22050.0f);
   texture[i]=(sine(phase-(int)phase)*.45f+sine(phase*3-(int)(phase*3))*.18f+low*.4f)*4*t*(1-t);}
  score.base[1][0]=0.45f;score.base[1][1]=0.50f;score.base[1][2]=0.24f;score.base[1][3]=0.16f;
+ atmosphere_reset();
 }
 void ug_begin_edit(void) {ug_arm(0,0);ug_motion(0);saved=score;saved_valid=1;}
 int ug_undo(void) {ug_arm(0,0);ug_motion(0);if(!saved_valid)return 0;Score swap=score;score=saved;saved=swap;ug_rejoin();zero(record_skip,sizeof record_skip);pending_chatter=-1;return 1;}
@@ -206,7 +220,7 @@ void ug_setparam(int v,int p,float value) {
  if(take_active&&!motion)take_snapshot();
  value=clamp(value,0,1);
  /* Drone enable is a track switch, never a passing trig or motion lock. */
- if(v==2&&p==17){score.base[v][p]=value;return;}
+ if(p==17){if(take_active)take_snapshot();score.base[v][p]=value;return;}
  if(motion&&recording_voice(v)){motion_mask[v]|=(1u<<p);manual[v][p]=value;takeover[v]|=(1u<<p);return;}
  score.base[v][p]=value;
  if(playing){takeover[v]|=(1u<<p);manual[v][p]=value;}
@@ -299,7 +313,7 @@ void ug_clear(void){
  int changed=0;for(int v=0;v<NVOICE;v++)for(int s=0;s<NSTEPS;s++)if(score.steps[v][s].authored||score.steps[v][s].on||score.steps[v][s].mask)changed=1;
  if(changed){ug_begin_edit();zero(score.steps,sizeof score.steps);for(int v=0;v<NVOICE;v++)for(int st=0;st<NSTEPS;st++)score.steps[v][st].velocity=1;for(int s=0;s<NSTEPS;s++){score.steps[2][s].note=36;score.steps[2][s].gate=.75f;}}ug_panic();
 }
-void ug_panic(void){ug_play(0);room_clear();zero(&backbeat,sizeof backbeat);zero(&root_fm,sizeof root_fm);zero(grains,sizeof grains);grain_level=0;grain_wait=0;zero(voices,sizeof voices);zero(delaybuf,sizeof delaybuf);delay_lp=0;zero(output,sizeof output);}
+void ug_panic(void){ug_play(0);room_clear();atmosphere_reset();zero(&backbeat,sizeof backbeat);zero(&root_fm,sizeof root_fm);zero(grains,sizeof grains);grain_level=0;grain_gain=1;grain_wait=0;zero(voices,sizeof voices);zero(delaybuf,sizeof delaybuf);delay_lp=0;zero(output,sizeof output);}
 static void advance(void){
  step_index=(step_index+1)%NSTEPS;
  for(int v=0;v<NVOICE;v++)audition_step[v]=-1;
@@ -321,25 +335,44 @@ static void advance(void){
 static float atmosphere(void){
  float target=playing&&score.base[2][17]>.5f?ug_effective(2,15):0;
  grain_level+=(target-grain_level)/(rate*.01f);
- if(target==0&&grain_level<.00001f){zero(grains,sizeof grains);grain_level=0;return 0;}
+ if(target==0&&grain_level<.00001f){zero(grains,sizeof grains);grain_level=0;grain_gain=1;return 0;}
  float size=ug_effective(2,12),density=ug_effective(2,13);
  if(target>0&&--grain_wait<=0){
   for(int j=0;j<GRAINS;j++)if(!grains[j].active){
    int note=24+(int)(ug_effective(2,14)*36+.5f);
-   grains[j].active=1;grains[j].age=0;grains[j].duration=rate*(.015f+size*size*.22f);
+   grains[j].active=1;grains[j].age=0;grains[j].duration=(float)(int)(rate*(.015f+size*size*.22f));
+   grains[j].inv_duration=1.0f/(grains[j].duration-1.0f);
    grains[j].pos=ug_effective(2,11)*(TEXTURE-1)+grain_cursor;while(grains[j].pos>=TEXTURE)grains[j].pos-=TEXTURE;
-   grains[j].speed=(22050.0f/rate)*(note_frequency(note)/65.406392f);grain_serial++;break;
+   grains[j].speed=(22050.0f/rate)*(note_frequency(note)/65.406392f);
+   /* Local hash: variation never consumes percussion's RNG or changes notes. */
+   uint32_t seed=++grain_serial*747796405u+2891336453u;
+   seed=(seed^(seed>>16))*2246822519u;seed^=seed>>13;
+   float surprise=ug_effective(2,19),chance=(seed&65535u)/65536.0f;
+   grains[j].pos+=((seed>>16)/65535.0f-.5f)*surprise*TEXTURE;
+   if(grains[j].pos<0)grains[j].pos+=TEXTURE;
+   if(grains[j].pos>=TEXTURE)grains[j].pos-=TEXTURE;
+   if(chance<surprise*.25f)grains[j].speed*=2;
+   else if(chance<surprise*.45f)grains[j].speed=-grains[j].speed;
+   break;
   }
   grain_wait=(int)(rate*(.015f+size*size*.22f)/(1+density*7));if(grain_wait<1)grain_wait=1;
  }
  grain_cursor+=ug_effective(2,18)*22050.0f/rate*.1f;if(grain_cursor>=TEXTURE)grain_cursor-=TEXTURE;
- float sum=0;for(int j=0;j<GRAINS;j++)if(grains[j].active){
-  int a=(int)grains[j].pos,b=(a+1)%TEXTURE;float f=grains[j].pos-a,t=grains[j].age/grains[j].duration;
-  sum+=(texture[a]+(texture[b]-texture[a])*f)*4*t*(1-t);
-  grains[j].pos+=grains[j].speed;while(grains[j].pos>=TEXTURE)grains[j].pos-=TEXTURE;
+ float sum=0,weight=0;for(int j=0;j<GRAINS;j++)if(grains[j].active){
+  int a=(int)grains[j].pos,b=(a+1)%TEXTURE;float f=grains[j].pos-a,t=grains[j].age*grains[j].inv_duration;
+  /* Squared parabola: zero value and slope at both ends, without trig.
+   * Cache the reciprocal at spawn instead of dividing per grain/sample. */
+  float window=4*t*(1-t);window*=window;
+  sum+=(texture[a]+(texture[b]-texture[a])*f)*window;weight+=window;
+  grains[j].pos+=grains[j].speed;while(grains[j].pos<0)grains[j].pos+=TEXTURE;
+  while(grains[j].pos>=TEXTURE)grains[j].pos-=TEXTURE;
   if(++grains[j].age>=grains[j].duration)grains[j].active=0;
  }
- return sum*grain_level*.18f;
+ /* Overlapping reads can be strongly correlated (especially with Scan zero).
+  * Smooth unity-sum compensation so Density controls texture, not an 8x gain. */
+ float gain=weight>1?1.0f/weight:1;
+ grain_gain+=(gain-grain_gain)/(rate*.005f);
+ return sum*grain_gain*grain_level*.18f;
 }
 float ug_grain(int field){
  if(field==0){float p=grain_cursor+ug_effective(2,11)*(TEXTURE-1);if(p>=TEXTURE)p-=TEXTURE;return p/TEXTURE;}
@@ -348,6 +381,7 @@ float ug_grain(int field){
  if(field>=2&&field<2+GRAINS)return grains[field-2].active?grains[field-2].pos/TEXTURE:-1;
  return 0;
 }
+#include "atmospheres.h"
 #include "room.h"
 void ug_render(int frames){
  if(frames<0)frames=0;
@@ -442,8 +476,12 @@ void ug_render(int frames){
    float attack=clamp((float)q->age/(rate*attack_time),0,1);q->age++;sample*=q->vel*attack;
    sample*=level_now[v];dry+=sample*dry_now[v];send+=sample*layer_send;
   }
-  float cloud_send=ug_effective(2,16);cloud_dry+=(1-wash*cloud_send-cloud_dry)*room.smoothing;
-  float cloud=atmosphere()*level_now[2];dry+=cloud*cloud_dry;send+=cloud*cloud_send;
+  for(int v=0;v<NVOICE;v++){
+   float layer_send=ug_effective(v,16);
+   atmosphere_dry[v]+=(1-wash*layer_send-atmosphere_dry[v])*room.smoothing;
+   float cloud=(v==2?atmosphere():simple_atmosphere(v))*level_now[v];
+   dry+=cloud*atmosphere_dry[v];send+=cloud*layer_send;
+  }
   int read=delaypos-delaylen;if(read<0)read+=DELAY;
   delay_lp+=(delaybuf[read]-delay_lp)*0.13f;
   float write=send+delay_lp*0.52f;
@@ -458,4 +496,4 @@ void ug_render(int frames){
 }
 float *ug_buffer(void){return output;}
 int ug_state(int key){switch(key){case 0:return playing;case 1:return step_index;case 2:return recording;case 3:return rate;case 4:return tempo;case 5:return saved_valid;case 6:return takeover[0];case 7:return takeover[1];case 8:return trigger_count[0];case 9:return trigger_count[1];case 10:return motion;case 11:return motion_mask[0];case 12:return motion_mask[1];case 13:return takeover[2];case 14:return trigger_count[2];case 15:return motion_mask[2];case 16:return root_gate;case 17:return rec_mode;case 18:return take_active;case 19:return rec_track;case 20:return takeover[3];case 21:return trigger_count[3];case 22:return motion_mask[3];case 23:return NVOICE;default:return 0;}}
-int ug_state_bytes(void){return sizeof(score)+sizeof(saved)+sizeof(voices)+sizeof(delaybuf)+sizeof(output)+sizeof(manual)+sizeof(texture)+sizeof(grains)+sizeof(root_fm)+sizeof(room_buffer)+sizeof(room)+128;}
+int ug_state_bytes(void){return sizeof(score)+sizeof(saved)+sizeof(voices)+sizeof(delaybuf)+sizeof(output)+sizeof(manual)+sizeof(texture)+sizeof(grains)+sizeof(root_fm)+sizeof(ambient)+sizeof(room_buffer)+sizeof(room)+128;}

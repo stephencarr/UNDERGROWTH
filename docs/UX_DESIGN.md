@@ -191,3 +191,40 @@ tank, with four input diffusers and cross-coupled branches. Full send/Reverb
 removes direct audio; Decay reaches ambience at mid travel and a longer wash at
 maximum. Global ownership, Undo/REC guard, parallel delay, mute/Stop tails and
 Panic remain. See REVERB_EVALUATION.md; human listening remains outstanding.
+
+## ROOT grain refinement — 0.5.0-hw1 (unpublished)
+
+ROOT ENV retains Atmosphere and ATM MIX; SELECT/repeated ENV now reaches a third
+page, GRAIN VARIATION. KNOB1 is Surprise. Zero gives stable reads; raising it adds
+seeded position scatter and occasional octave-up/reverse fragments. Expanded
+view exposes Grain surprise. In an open ROOT trig menu, ATM MIX knob 3 edits its
+explicit lock. Ordinary note entry does not capture atmosphere settings.
+The parameter follows existing motion/Undo semantics and does not generate notes.
+
+## Percussion atmosphere layers — 0.6.0-hw1 (unpublished)
+
+Kick ENV owns a harmonic/crunch drone; Chatter ENV owns modulated coloured noise;
+Backbeat ENV owns a morphable formant. ROOT ENV remains grains. Keep existing
+percussion edit gestures: ENV page 1 is the original percussion envelope, page 2
+is velocity. SELECT or repeated ENV reaches page 3 (shape), page 4 (Level, Rate,
+Enabled, ENV send), and page 5 (Crunch / Roughness / Breath on KNOB1).
+
+Shape page: Kick Harmonics/Texture/Movement/Pitch; Chatter Colour/Pulse/Movement/
+Range; Backbeat Vowel/Resonance/Movement/Pitch. The shaped noise's Range uses the
+same C1–C4 register mapping as pitched atmospheres, without implying a tuned
+noise fundamental. Movement controls timbral motion, and Pulse adds noise amplitude
+modulation. Rate covers slow movement through a faster pulse. Enable and PLAY
+are required; keys continue to play the percussion, without generating drone
+notes. FX KNOB1 sends percussion, KNOB2 sends its atmosphere. Shared reverb/delay
+settings retain global ownership.
+
+Held-trig menus retain Sound, percussion ENV and Notes/velocity in their earlier
+order; appended Atmosphere and ATM MIX pages offer deliberate locks. ATM MIX is
+Level/Rate/Character/ENV send; Enabled is never a lock. Normal note stamping does
+not capture atmosphere settings. Expanded view edits the same parameters and
+shows effective values during playback. View changes never alter the armed track.
+
+Review correction in 0.6.1-hw1: all five percussion trig-menu pages now have
+correct footer labels/page numbers, including Atmosphere and ATM MIX. Expanded
+atmosphere sliders show the selected trig's lock or its draft fallback during
+playback; they never borrow another step's passing playhead value in lock edit.
