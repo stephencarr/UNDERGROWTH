@@ -3,7 +3,7 @@
  * No allocation, system calls, IO, wall-clock scheduling or random composition.
  */
 #include "undergrowth.h"
-#define NVOICE 3
+#define NVOICE 4
 #define NSTEPS 16
 #define NPARAM 7
 #define MAX_BLOCK 256
@@ -37,7 +37,7 @@ static int rate, tempo, playing, recording, step_index, delaypos, first;
 static uint32_t tickphase, noise_state, trigger_count[NVOICE], sample_clock, last_trigger[NVOICE];
 static int pending_chatter;
 static float pending_velocity;
-static float root_freq, root_target;
+static float root_freq, root_target,backbeat_mode,backbeat_noise;
 static int root_gate, root_live=-1;
 static float note_frequency(int note){
  static const float hz[12]={32.703196f,34.647829f,36.708096f,38.890873f,41.203445f,43.653529f,46.249303f,48.999429f,51.913087f,55.0f,58.270470f,61.735413f};
@@ -68,7 +68,7 @@ void ug_init(int sample_rate) {
  zero(delaybuf,sizeof delaybuf);zero(output,sizeof output);zero(takeover,sizeof takeover);
  zero(manual,sizeof manual);zero(trigger_count,sizeof trigger_count);zero(record_skip,sizeof record_skip);
  sample_clock=0;zero(last_trigger,sizeof last_trigger);
- root_freq=root_target=65.406392f;root_gate=0;root_live=-1;
+ backbeat_mode=backbeat_noise=0;root_freq=root_target=65.406392f;root_gate=0;root_live=-1;
  for(int s=0;s<NSTEPS;s++){score.steps[2][s].note=36;score.steps[2][s].gate=.75f;}
  for(int v=0;v<NVOICE;v++){score.velocity[v]=1;for(int st=0;st<NSTEPS;st++)score.steps[v][st].velocity=1;score.base[v][4]=.5f;score.base[v][5]=.5f;score.base[v][6]=.5f;}
  score.draft_note.note=36;score.draft_note.gate=.75f;
@@ -79,6 +79,7 @@ void ug_init(int sample_rate) {
  master_target=0.65f;master_now=0;noise_state=0x51d734a1; saved_valid=0;pending_chatter=-1;
  score.base[0][0]=0.35f;score.base[0][1]=0.28f;score.base[0][2]=0.40f;score.base[0][3]=0.0f;
  score.base[2][0]=.65f;score.base[2][1]=.25f;score.base[2][2]=.35f;score.base[2][3]=0;
+ score.base[3][0]=.55f;score.base[3][1]=.45f;score.base[3][2]=.35f;score.base[3][3]=.08f;score.base[3][5]=.15f;score.base[3][6]=.7f;
  score.base[1][0]=0.45f;score.base[1][1]=0.50f;score.base[1][2]=0.24f;score.base[1][3]=0.16f;
 }
 void ug_begin_edit(void) {ug_arm(0,0);ug_motion(0);saved=score;saved_valid=1;}
@@ -205,6 +206,11 @@ static void trigger(int v,float velocity,int sequenced){
  q->phase=0;q->env=1;q->sweep=1;q->vel=clamp(velocity,0,1);q->age=0;
  q->burst_left=v==1?(int)clamp(1+q->params[5]*11+pressure,1,13):0;
  q->burst_wait=(int)(rate*(.003f+q->params[4]*q->params[4]*.14f)*q->dna_decay);
+ if(v==3){
+  backbeat_mode=0;backbeat_noise=0;q->noise_lp=0;
+  q->burst_left=q->params[1]>.4f&&q->params[5]>.2f?1+(int)(q->params[5]*3):0;
+  q->burst_wait=(int)(rate*(.006f+q->params[5]*q->params[5]*.045f));
+ }
  trigger_count[v]++;
 }
 void ug_keyvelocity(int note,int down,float velocity){
@@ -241,7 +247,7 @@ void ug_clear(void){
  int changed=0;for(int v=0;v<NVOICE;v++)for(int s=0;s<NSTEPS;s++)if(score.steps[v][s].authored||score.steps[v][s].on||score.steps[v][s].mask)changed=1;
  if(changed){ug_begin_edit();zero(score.steps,sizeof score.steps);for(int v=0;v<NVOICE;v++)for(int st=0;st<NSTEPS;st++)score.steps[v][st].velocity=1;for(int s=0;s<NSTEPS;s++){score.steps[2][s].note=36;score.steps[2][s].gate=.75f;}}ug_panic();
 }
-void ug_panic(void){ug_play(0);zero(voices,sizeof voices);zero(delaybuf,sizeof delaybuf);delay_lp=0;zero(output,sizeof output);}
+void ug_panic(void){ug_play(0);backbeat_mode=backbeat_noise=0;zero(voices,sizeof voices);zero(delaybuf,sizeof delaybuf);delay_lp=0;zero(output,sizeof output);}
 static void advance(void){
  step_index=(step_index+1)%NSTEPS;
  for(int v=0;v<NVOICE;v++){
@@ -267,7 +273,7 @@ void ug_render(int frames){
   if(playing&&pending_chatter>0&&--pending_chatter==0){trigger(1,pending_velocity,1);pending_chatter=-1;}
   float dry=0,send=0;
   for(int v=0;v<NVOICE;v++){
-   Voice *q=&voices[v];if(q->env<0.000015f&&q->burst_left==0){q->env=0;continue;}
+   Voice *q=&voices[v];if(q->env<0.000015f&&q->burst_left==0&&(v!=3||q->sweep<0.000015f)){q->env=0;continue;}
    float body=ug_effective(v,0),edge=ug_effective(v,1),length=ug_effective(v,2);
    float e4=ug_effective(v,4),e5=ug_effective(v,5),e6=ug_effective(v,6);
    float pressure=(q->vel-.5f)*e6;
@@ -290,6 +296,18 @@ void ug_render(int frames){
     if(root_gate>0)root_gate--;
     if(root_gate==0)q->env*=1.0f-1.0f/(rate*(.008f+length*.30f));
     sample=tone*q->env*.42f*(.65f+e5*.45f);
+   }else if(v==3){
+    /* Two inharmonic skin modes and filtered wire noise; Spread opens a short clap cluster. */
+    if(q->burst_left>0&&--q->burst_wait<=0){q->sweep=.8f;q->burst_left--;q->burst_wait=(int)(rate*(.006f+e5*e5*.045f));}
+    float hz=340.0f-body*180.0f;
+    q->phase+=hz/rate;if(q->phase>=1)q->phase-=1;
+    backbeat_mode+=hz*2.47f/rate;if(backbeat_mode>=1)backbeat_mode-=1;
+    float n=noise();backbeat_noise+=(n-backbeat_noise)*(.03f+edge*.18f);
+    q->noise_lp+=((n-backbeat_noise)-q->noise_lp)*(.05f+(1-e4)*(.15f+edge*.45f));
+    float skin=sine(q->phase)*(.6f+body*.3f)+sine(backbeat_mode)*(.4f-body*.2f);
+    sample=(skin*q->env*(.9f-edge*.6f)+q->noise_lp*q->sweep*(.04f+edge*1.5f))*.48f;
+    q->env*=1.0f-1.0f/(rate*(.025f+length*.45f)*(1.5f-e4*1.25f)*q->dna_decay);
+    q->sweep*=1.0f-1.0f/(rate*(.008f+length*.22f)*(1.3f-e4*.9f)*q->dna_decay);
    }else{
     if(q->burst_left>0&&--q->burst_wait<=0){q->env=0.85f;q->age=0;q->burst_left--;q->burst_wait=(int)(rate*(.003f+e4*e4*.14f)*q->dna_decay*(.92f+(q->burst_left%3)*.08f));}
     float n=noise();q->noise_lp+=(n-q->noise_lp)*(.025f+e6*.70f);
@@ -314,5 +332,5 @@ void ug_render(int frames){
  }
 }
 float *ug_buffer(void){return output;}
-int ug_state(int key){switch(key){case 0:return playing;case 1:return step_index;case 2:return recording;case 3:return rate;case 4:return tempo;case 5:return saved_valid;case 6:return takeover[0];case 7:return takeover[1];case 8:return trigger_count[0];case 9:return trigger_count[1];case 10:return motion;case 11:return motion_mask[0];case 12:return motion_mask[1];case 13:return takeover[2];case 14:return trigger_count[2];case 15:return motion_mask[2];case 16:return root_gate;case 17:return rec_mode;case 18:return take_active;case 19:return rec_track;default:return 0;}}
+int ug_state(int key){switch(key){case 0:return playing;case 1:return step_index;case 2:return recording;case 3:return rate;case 4:return tempo;case 5:return saved_valid;case 6:return takeover[0];case 7:return takeover[1];case 8:return trigger_count[0];case 9:return trigger_count[1];case 10:return motion;case 11:return motion_mask[0];case 12:return motion_mask[1];case 13:return takeover[2];case 14:return trigger_count[2];case 15:return motion_mask[2];case 16:return root_gate;case 17:return rec_mode;case 18:return take_active;case 19:return rec_track;case 20:return takeover[3];case 21:return trigger_count[3];case 22:return motion_mask[3];case 23:return NVOICE;default:return 0;}}
 int ug_state_bytes(void){return sizeof(score)+sizeof(saved)+sizeof(voices)+sizeof(delaybuf)+sizeof(output)+sizeof(manual)+128;}

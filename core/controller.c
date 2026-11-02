@@ -11,9 +11,9 @@ static void select_step(int n){if(selected!=n)edited=0;selected=n;}
 static int audition_note,notes[27];
 static char lines[9][64];
 static const int whites[16]={0,2,4,6,7,9,11,12,14,16,18,19,21,23,24,26};
-static const int env[3][4]={{2,4,5,6},{4,5,6,2},{2,4,5,6}};
-static const char *labels[3][4]={{"Length","Damping","Drop","Response"},{"Stretch","Fracture","Grain","Length"},{"Release","Glide","Weight","Response"}};
-static const char *voices[3]={"KICK","CHATTER","ROOT"};
+static const int env[4][4]={{2,4,5,6},{4,5,6,2},{2,4,5,6},{2,4,5,6}};
+static const char *labels[4][4]={{"Length","Damping","Drop","Response"},{"Stretch","Fracture","Grain","Length"},{"Release","Glide","Weight","Response"},{"Length","Damping","Spread","Response"}};
+static const char *voices[4]={"KICK","CHATTER","ROOT","BACKBEAT"};
 static const char *pages[15]={"FX","SEL","ENV","LFO","EDIT","GLO","HOME","SAVE","ARP","SEQUENCE","PLAY","REC","OCT-","OCT+","PRESETS"};
 static const char *modes[4]={"","Hits","Motion","Both"};
 static float bound(float x,float a,float b){return x<a?a:x>b?b:x;}
@@ -22,7 +22,7 @@ static int busy(void){return ug_state(18)||ug_state(10)||ug_state(2);}
 static int note_page(void){return (page==2&&sub==1)||(lock_menu&&sub==2);}
 void ug_ui_init(void){page=6;sub=voice=selected=octave=action=edited=0;held=gesture=audition_note=-1;lock_menu=0;cancel_presses();value=gesture_age=audition_ms=0;for(int i=0;i<27;i++)notes[i]=-1;}
 void ug_ui_gesture(int reset){if(reset||gesture_age>300)gesture=-1;gesture_age=0;}
-void ug_ui_select(int field,int n){if(field==0&&n>=0&&n<3){voice=n;cancel_presses();edited=lock_menu=0;sub=0;}if(field==1&&n>=0&&n<16){select_step(n);}gesture=-1;}
+void ug_ui_select(int field,int n){if(field==0&&n>=0&&n<4){voice=n;cancel_presses();edited=lock_menu=0;sub=0;}if(field==1&&n>=0&&n<16){select_step(n);}gesture=-1;}
 static int pending_other(int key){for(int i=0;i<16;i++)if(i!=key&&presses[i]==1&&press_ms[i]<350)return 1;return 0;}
 static void open_locks(void){ug_rejoin();lock_menu=1;if(held>=0)presses[held]=2;sub=0;gesture=-1;edited=0;}
 static void snapshot(void){if(!lock_menu||!edited){ug_begin_edit();if(lock_menu)edited=1;}}
@@ -48,7 +48,7 @@ void ug_ui_turn(int e,int d){
  if(e<0||e>6||!d)return;ug_ui_gesture(0);
  if(held>=0&&presses[held]==1&&!busy()){for(int i=0;i<16;i++)if(i!=held&&presses[i]==1)return;open_locks();}
  if(e==0){if(lock_menu){sub=sub==0?(d>0?3:2):sub==3?(d>0?2:0):(d>0?0:3);gesture=-1;return;}int n=count();sub=(sub+(d>0?1:-1)+n)%n;gesture=-1;return;}
- if(e==1){ug_ui_select(0,(voice+(d>0?1:-1)+3)%3);return;}
+ if(e==1){ug_ui_select(0,(voice+(d>0?1:-1)+4)%4);return;}
  if(e==2){lock_menu=0;cancel_presses();page=14;sub=0;gesture=-1;return;}
  int p=e-3;
  if(lock_menu&&busy())return;
@@ -86,7 +86,7 @@ void ug_ui_button(int b){
   if(page==11){ug_arm(-1,voice);return;}
 
   if(page==6&&sub==1){if(!action)ug_undo();else if(action==1)ug_rejoin();else ug_panic();return;}
-  ug_ui_select(0,(voice+1)%3);return;
+  ug_ui_select(0,(voice+1)%4);return;
  }
  page=b;sub=action=0;
 }

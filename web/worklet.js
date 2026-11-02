@@ -37,9 +37,9 @@ class UndergrowthProcessor extends AudioWorkletProcessor {
     this.port.postMessage({type:'state', panel, playing:e.ug_state(0), step:e.ug_state(1), recording:e.ug_state(2),
       rate:e.ug_state(3), tempo:e.ug_state(4), undo:!!e.ug_state(5),
       recordMode:e.ug_state(17),armed:!!e.ug_state(18),recordTrack:e.ug_state(19),draftNote:[0,1,2].map(p=>e.ug_draftvalue(p)),
-      motion:!!e.ug_state(10), motionMask:[e.ug_state(11),e.ug_state(12),e.ug_state(15)],
+      motion:!!e.ug_state(10), motionMask:[e.ug_state(11),e.ug_state(12),e.ug_state(15),e.ug_state(22)],
       groove:[0,1].map(p=>e.ug_getgroove(p)),
-      voices:[0,1,2].map(v=>({takeover:e.ug_state(v===2?13:6+v), count:e.ug_state(v===2?14:8+v),
+      voices:Array.from({length:e.ug_state(23)},(_,v)=>({takeover:e.ug_state([6,7,13,20][v]), count:e.ug_state([8,9,14,21][v]),
         velocity:e.ug_getvelocity(v,-1), base:[0,1,2,3,4,5,6].map(p=>e.ug_getparam(v,p)), effective:[0,1,2,3,4,5,6].map(p=>e.ug_effective(v,p)),
         steps:Array.from({length:16},(_,s)=>({velocity:e.ug_getvelocity(v,s),note:e.ug_notevalue(s,0),gate:e.ug_notevalue(s,1),slide:!!e.ug_notevalue(s,2),on:!!e.ug_step(v,s),mask:e.ug_lockmask(v,s),lock:[0,1,2,3,4,5,6].map(p=>e.ug_lockvalue(v,s,p))}))}))});
   }

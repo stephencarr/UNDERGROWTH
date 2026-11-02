@@ -5,15 +5,15 @@ font B: BarlowSemiCondensed-Bold.ttf 15px h 16, digit adv 8, 8752 B
 font M: BarlowSemiCondensed-SemiBold.ttf 23px h 24, digit adv 12, 11832 B
 font L: BarlowSemiCondensed-Bold.ttf 31px h 32, digit adv 16, 19776 B
 font set barlow: 60782 B (approx)
-words: 3 own + 51 common -> /workspace/UNDERGROWTH/firmware/web/words/010e19d6e9.json (1045 B)
+words: 4 own + 51 common -> /workspace/UNDERGROWTH/firmware/web/words/1a16a581bf.json (1069 B)
 loader: image 9636 B at 0x1c0a800, bss end 0x1c12210
 loader: ota.bin 8340 B
   ok    .ram_text: 975 insns, no calls
   ok    no 64-bit multiply inlined beside a load
   ok    no soft-double routines (single-precision FPU only)
-  ok    image 101148 B; RAM .data+.bss 29664 B of 98304; pool 99724 B of 344064
+  ok    image 102436 B; RAM .data+.bss 31376 B of 98304; pool 99724 B of 344064
   ok    register access: felucca-bsp only (device/, include/ and the app clean)
 parts    USB audio in, velocity and pressure  (not built in: Bluetooth MIDI, Bluetooth MIDI devices, WiFi, USB audio out, screen mirroring, backup and restore, the second core, USB MIDI host)
-app      /workspace/UNDERGROWTH/firmware/build/undergrowth.bin  101148 B
+app      /workspace/UNDERGROWTH/firmware/build/undergrowth.bin  102436 B
 loader   /workspace/UNDERGROWTH/firmware/build/loader/ota.bin  8340 B
-package  /workspace/UNDERGROWTH/firmware/build/undergrowth-0.1.2-hw1.fwsc  611496 B, identity FM-1_731000102
+package  /workspace/UNDERGROWTH/firmware/build/undergrowth-0.2.0-hw1.fwsc  611496 B, identity FM-1_731000200

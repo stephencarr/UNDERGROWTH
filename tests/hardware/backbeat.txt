@@ -1,0 +1,33 @@
+wait 150
+turn ALGO 1
+wait 60
+turn ALGO 1
+wait 60
+turn ALGO 1
+wait 60
+expect voice 3
+tap ENV
+turn K2 -20
+turn K3 50
+tap SEQ
+tapkey 7
+expect hit 1
+tapkey 7
+expect hit 0
+tapkey 7
+expect hit 1
+tap PLAY
+wait 1500
+expect peak_db_min -40
+tap PLAY
+press HOME
+wait 750
+release HOME
+peakreset
+wait 250
+expect peak_db_max -100
+midi USB 93 24 64
+wait 250
+expect peak_db_min -40
+expect store_writes 0
+expect dropped 0
