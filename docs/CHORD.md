@@ -200,3 +200,16 @@ real mouse/touch reproduction across a full loop, existing browser/worklet and
 updater checks, platform-host traces and exact rebuilt package/vocabulary checks.
 Identity FM-1_731000501; image 130448 bytes; data+bss 45044/98304; pool 312908/344064.
 Review and preview rollout are still pending. No physical device was accessed.
+
+0.5.1 review workflow 41512336453 completed and its review/inline finding was
+read. No finding was raised against the same-track takeover correction.
+A separate CHORD harmony-recording mismatch was identified: a live key late in
+an existing minor-locked step can sound that effective minor harmony while the
+next quantized step stores the major draft. This is accepted/deferred prototype
+workflow debt under AGENTS.md: the take is reversible through whole-take Undo,
+and trigs remain editable. When recording keys/MIDI over existing chords, verify
+the resulting harmony and avoid conflicting pre-existing harmony locks; the
+keyboard/MIDI recommendation above is not a guarantee against this case. No
+new updater/storage or similarly critical risk was identified. The 0.5.1 fix
+passes the full gate and is ready for preview rollout; this separate debt is not
+claimed fixed.
