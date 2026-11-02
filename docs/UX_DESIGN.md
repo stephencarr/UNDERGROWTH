@@ -139,3 +139,21 @@ ROOT trial PR #8 review debt: when switching from Device Keyboard mode to Expand
 the step grid inherits Keyboard mode. Return to Steps with SEQ before using the
 Expanded step grid. This reversible note-editing issue is accepted/deferred
 noncritical debt; it is not represented as fixed by the hosting setup.
+
+## Shared reverb — 0.4.1-hw1
+
+FX has three pages: track Sends, global Reverb, global Delay. All tracks feed the
+same stereo room using their existing Send; ROOT's synth and atmosphere sends
+remain independent and can be locked or motion-recorded per step. Reverb and
+delay receive the send in parallel. Reverb level, Decay, Damping and Width are
+shared settings. Delay has an independent return, so either effect can be heard
+alone. The room starts at zero return; raise a send and the Reverb knob to hear
+it. Repeated FX or SELECT advances pages. Expanded exposes the same five global
+values (including Delay return).
+
+Global FX edits participate in score Undo, are independent of selected track,
+and are refused during a take so they cannot replace its Undo snapshot. Global
+FX trig/motion automation remains deferred to the planned silent FX lane. Stop
+and track mutes allow effect tails to decay; Panic clears the room immediately.
+The original fixed-size room uses four damped combs and two diffusers per stereo
+side, with bounded feedback and smoothed controls. It allocates no runtime memory.

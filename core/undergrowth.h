@@ -26,6 +26,10 @@ void ug_velocity(int voice,int step,float velocity);
 float ug_getvelocity(int voice,int step);
 void ug_tempo(int bpm);
 void ug_master(float gain);
+/* Shared FX returns/settings: reverb level/decay/damping/width, delay level.
+ * Global score values; not owned by any instrument trig/motion lane. */
+void ug_setfx(int parameter,float value);
+float ug_getfx(int parameter);
 /* Session performance mix: outside trig locks, motion and authored-score Undo. */
 void ug_level(int voice,float gain);
 float ug_getlevel(int voice);

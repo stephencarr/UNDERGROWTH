@@ -110,3 +110,21 @@ pool: 116108/344064 bytes. Identity: FM-1_731000400. In a final dense four-track
 host comparison, 10 seconds of audio took 0.1111 CPU seconds with grains off and
 0.1176 with grains on (about 5.9% relative added host cost). This is not an FM1
 CPU percentage. Physical grain-on/off CPU/P/X readings remain outstanding.
+
+## ROOT with shared reverb — 0.4.1-hw1
+
+Adds an original stereo room to the shared sends, controlled on FX's Reverb page
+with level, Decay, Damping and Width. The Delay page adds an independent return.
+The room owns a fixed 30,000-float pool buffer covering 8–96 kHz; no IO/allocation
+occurs in render. Default reverb return is zero. Panic clears the buffer. Existing
+CPU/P/X diagnostics remain the physical acceptance path: compare the same dense
+pattern with grains on and reverb off/on. Host measurements are comparative
+render cost only. No FM1 access, flashing, listening or device CPU claim is made.
+
+The full milestone gate passed for 0.4.1-hw1: ten native suites, active
+grains/reverb native-WASM bit parity, worklet, mouse/touch browser and simulated
+updater checks, platform-host traces and real package/CRC/identity, instruction
+and memory checks. Image: 118348 bytes; data+bss: 40588/98304 bytes; pool:
+236108/344064 bytes. Identity: FM-1_731000401. In the gate's dense four-track
+host comparison with grains engaged, 10 seconds rendered in 0.1238 CPU seconds
+with reverb off and 0.1574 with reverb on. These are host costs, not FM1 CPU.

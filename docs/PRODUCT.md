@@ -32,7 +32,7 @@ The default browser view follows the FM1 panel; Expanded view shares the same ru
 | --- | --- |
 | Musical engine | Four 16-step lanes, sound/ENV locks, velocity, ROOT articulation, groove, recording, takeover/Rejoin and Undo. |
 | Browser | Shared C/WASM engine and panel controller, JavaScript IO/drawing, FM1 and Expanded views. |
-| Firmware | Shared C plus FM1 adapter; experimental `0.3.0-hw1` package and validation record are checked in. |
+| Firmware | Shared C plus FM1 adapter; experimental `0.4.1-hw1` package and validation record are checked in. |
 | Device evidence | Cross-build/package and host checks are recorded as passed. No physical flash, playing, CPU-headroom or recovery validation is established. |
 | Persistence | Session-only. Reload/close loses the score. SAVE is unavailable. |
 | Effects | Fixed shared delay with track sends. Track filters, reverb, adjustable global effects and a silent FX automation lane are planned. |
@@ -58,3 +58,14 @@ at most eight grains; its pitch is independent of ROOT's sequence. Default ENV
 is off. Other organisms retain their earlier controls. See the ROOT trial in
 [UX_DESIGN.md](UX_DESIGN.md) for exact controls and remaining limits. This does
 not establish publication, listening approval or physical FM1 CPU validation.
+
+### Shared reverb (0.4.1-hw1)
+
+FX now offers track Sends, global Reverb and global Delay pages. Reverb has level,
+Decay, Damping and Width; delay has a separate return. The existing track sends
+and ROOT's separate synth/atmosphere sends feed both effects in parallel. Reverb
+starts off. Raise a layer's send and the global Reverb return to hear it. Sends
+support existing locks/motion; the shared effect settings have score Undo and
+are not edited during recording. Stop/mute preserve tails, while Panic clears
+them. A dedicated global FX automation lane, track filters, crush and sample
+import remain future work. Physical room/grain CPU headroom still needs FM1 use.

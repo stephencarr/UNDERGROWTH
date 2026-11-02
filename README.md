@@ -8,13 +8,13 @@ A browser-first rhythm study: three original synthesized percussion voices—Kic
 
 Every milestone must now produce a validated FM1 firmware package as well as this browser prototype. The panel controller and screen text have moved into shared C, and `firmware/` provides the physical-panel/audio adapter. Bluetooth and Wi-Fi are disabled. See [hardware build, Caravel 0.6.0 migration and recovery](docs/HARDWARE.md).
 
-The full milestone gate passed with the pinned Jieli compiler on Linux x86-64. It produced an **experimental** `undergrowth-0.3.0-hw1.fwsc` in `build/releases/0.3.0-hw1/`, with a build report, manifest, checksums, installer and licence notices. The package has not been flashed or tested on an FM1. The browser instrument and experimental flasher are published together on GitHub Pages.
+The full milestone gate passed with the pinned Jieli compiler on Linux x86-64. It produced an **experimental** `undergrowth-0.4.1-hw1.fwsc` in `build/releases/0.4.1-hw1/`, with a build report, manifest, checksums, installer and licence notices. The package has not been flashed or tested on an FM1. The browser instrument and experimental flasher are published together on GitHub Pages.
 
 The browser links to `flash.html`, a Chrome/Edge desktop installer view. It verifies the included `.fwsc` against its fixed SHA-256 and package CRCs before enabling device identification. USB MIDI SysEx permission, FM1 identity and an explicit backup acknowledgement are required before installation. The pinned fm1-base Web MIDI updater handles the transfer and interrupted-update resume, with each changed MIDI pair explicitly re-identified and confirmed by the owner; the view does not offer a bootloader replacement. The browser flow has simulated-port tests, but direct Caravel 0.6.0 installation and recovery have not been tested on hardware. Open https://stephencarr.github.io/UNDERGROWTH/flash.html in desktop Chrome or Edge; no local server is needed.
 
 ## Open it
 
-1. Download and extract the package. Open **index.html** in a recent Chrome or Edge desktop browser. It contains its C/WASM engine and all interface assets; it has no external assets, analytics or remote calls.
+1. Open https://stephencarr.github.io/UNDERGROWTH/ in Chrome or Edge. Prototype PRs have Railway preview URLs; no download or local server is needed. The browser runs the shared C/WASM engine.
 2. Press **Enable audio**, with your listening volume low initially. This prepares audio but does not play anything.
 3. Choose **Kick**, turn on steps 1, 5, 9 and 13, then press **Play**. Choose **Chatter** and plant a few contrasting steps. There is no built-in pattern.
 4. Set **Swing** for the global pocket and **Human** for a little chatter movement. Both start at zero; no hits are generated.

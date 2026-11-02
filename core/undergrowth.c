@@ -10,7 +10,7 @@
 #define DELAY 22050
 
 typedef struct { unsigned char on, authored; uint32_t mask; float lock[NPARAM]; int note; float velocity, gate; unsigned char slide; } Step;
-typedef struct { Step steps[NVOICE][NSTEPS]; float base[NVOICE][NPARAM]; float swing, human, velocity[NVOICE]; Step draft_note; } Score;
+typedef struct { Step steps[NVOICE][NSTEPS]; float base[NVOICE][NPARAM]; float swing, human, velocity[NVOICE], fx[5]; Step draft_note; } Score;
 typedef struct {
  float phase, env, sweep, noise_lp, vel, dna_decay;
  float params[NPARAM];
@@ -29,6 +29,13 @@ static Voice voices[NVOICE];
 #endif
 static float delaybuf[DELAY] UG_POOL;
 static float delay_lp, output[MAX_BLOCK*2];
+/* Original Schroeder-style stereo room: four damped combs and two diffusers
+ * per side. Fixed storage covers 8–96 kHz; no render-time allocation or IO. */
+#define ROOM_SAMPLES 30000
+static float room_buffer[ROOM_SAMPLES] UG_POOL;
+static struct { int offset[12], length[12], position[12]; float low[8], now[5], smoothing; int active; } room;
+static void room_clear(void);
+
 static float master_target, master_now;
 static float levels[NVOICE],level_now[NVOICE];
 static unsigned char muted[NVOICE];
@@ -82,7 +89,7 @@ static float noise(void) {
 }
 void ug_init(int sample_rate) {
  zero(&score,sizeof score); zero(&saved,sizeof saved); zero(voices,sizeof voices);
- zero(delaybuf,sizeof delaybuf);zero(output,sizeof output);zero(takeover,sizeof takeover);
+ zero(delaybuf,sizeof delaybuf);zero(&room,sizeof room);room_clear();zero(output,sizeof output);zero(takeover,sizeof takeover);
  zero(manual,sizeof manual);zero(trigger_count,sizeof trigger_count);zero(record_skip,sizeof record_skip);
  zero(muted,sizeof muted);clipboard_voice=-1;zero(&clipboard,sizeof clipboard);
  for(int v=0;v<NVOICE;v++){levels[v]=level_now[v]=1;audition_step[v]=-1;}
@@ -96,6 +103,11 @@ void ug_init(int sample_rate) {
  rec_mode=1;take_active=0;rec_track=-1;
  motion=motion_saved=0;zero(motion_mask,sizeof motion_mask);
  rate=sample_rate>=8000&&sample_rate<=96000?sample_rate:44100;
+ const int times[12]={1499,1601,1747,1867,1522,1624,1770,1890,149,421,166,438};
+ room.smoothing=1.0f/(rate*.005f);
+ int room_offset=0;for(int i=0;i<12;i++){room.offset[i]=room_offset;room.length[i]=((times[i]*rate+24000)/48000)|1;room_offset+=room.length[i];}
+ score.fx[0]=0;score.fx[1]=.55f;score.fx[2]=.45f;score.fx[3]=.8f;score.fx[4]=.75f;
+ for(int p=0;p<5;p++)room.now[p]=score.fx[p];
  tempo=110;playing=recording=first=0;step_index=-1;tickphase=0;delaypos=0;delay_lp=0;
  master_target=0.65f;master_now=0;noise_state=0x51d734a1; saved_valid=0;pending_chatter=-1;
  score.base[0][0]=0.35f;score.base[0][1]=0.28f;score.base[0][2]=0.40f;score.base[0][3]=0.0f;
@@ -186,6 +198,8 @@ void ug_groove(int parameter,float value) {
  if(parameter==1)score.human=clamp(value,0,1);
 }
 float ug_getgroove(int parameter) {return parameter==0?score.swing:parameter==1?score.human:0;}
+void ug_setfx(int p,float value){if(p>=0&&p<5&&!take_active&&!recording&&!motion)score.fx[p]=clamp(value,0,1);}
+float ug_getfx(int p){return p>=0&&p<5?score.fx[p]:0;}
 void ug_master(float gain) {master_target=clamp(gain,0,1);}
 void ug_setparam(int v,int p,float value) {
  if(!valid_voice(v)||!valid_param(p)|| (take_active&&rec_track!=v))return;
@@ -286,7 +300,7 @@ void ug_clear(void){
  int changed=0;for(int v=0;v<NVOICE;v++)for(int s=0;s<NSTEPS;s++)if(score.steps[v][s].authored||score.steps[v][s].on||score.steps[v][s].mask)changed=1;
  if(changed){ug_begin_edit();zero(score.steps,sizeof score.steps);for(int v=0;v<NVOICE;v++)for(int st=0;st<NSTEPS;st++)score.steps[v][st].velocity=1;for(int s=0;s<NSTEPS;s++){score.steps[2][s].note=36;score.steps[2][s].gate=.75f;}}ug_panic();
 }
-void ug_panic(void){ug_play(0);zero(&backbeat,sizeof backbeat);zero(&root_fm,sizeof root_fm);zero(grains,sizeof grains);grain_level=0;grain_wait=0;zero(voices,sizeof voices);zero(delaybuf,sizeof delaybuf);delay_lp=0;zero(output,sizeof output);}
+void ug_panic(void){ug_play(0);room_clear();zero(&backbeat,sizeof backbeat);zero(&root_fm,sizeof root_fm);zero(grains,sizeof grains);grain_level=0;grain_wait=0;zero(voices,sizeof voices);zero(delaybuf,sizeof delaybuf);delay_lp=0;zero(output,sizeof output);}
 static void advance(void){
  step_index=(step_index+1)%NSTEPS;
  for(int v=0;v<NVOICE;v++)audition_step[v]=-1;
@@ -334,6 +348,32 @@ float ug_grain(int field){
  if(field>=10&&field<74)return texture[(field-10)*(TEXTURE/64)];
  if(field>=2&&field<2+GRAINS)return grains[field-2].active?grains[field-2].pos/TEXTURE:-1;
  return 0;
+}
+static void room_clear(void){zero(room_buffer,sizeof room_buffer);zero(room.low,sizeof room.low);zero(room.position,sizeof room.position);room.active=0;}
+static void room_render(float input,float *left,float *right){
+ for(int p=0;p<5;p++)room.now[p]+=(score.fx[p]-room.now[p])*room.smoothing;
+ *left=*right=0;
+ if(score.fx[0]==0&&room.now[0]<.00001f){if(room.active)room_clear();room.now[0]=0;return;}
+ room.active=1;
+ float feedback=.35f+room.now[1]*.57f,damping=.8f-room.now[2]*.75f;
+ float side[2]={0,0};
+ for(int c=0;c<8;c++){
+  int at=room.offset[c]+room.position[c];float delayed=room_buffer[at];
+  room.low[c]+=(delayed-room.low[c])*damping;
+  if(room.low[c]<1e-9f&&room.low[c]>-1e-9f)room.low[c]=0;
+  float value=clamp(input,-2,2)*.16f+room.low[c]*feedback;
+  room_buffer[at]=clamp(value,-4,4);
+  if(++room.position[c]>=room.length[c])room.position[c]=0;
+  side[c/4]+=delayed*.25f;
+ }
+ for(int a=8;a<12;a++){
+  int c=(a-8)/2,at=room.offset[a]+room.position[a];float delayed=room_buffer[at];
+  float value=side[c]+delayed*.5f;side[c]=delayed-value*.5f;
+  room_buffer[at]=value;
+  if(++room.position[a]>=room.length[a])room.position[a]=0;
+ }
+ float middle=(side[0]+side[1])*.5f,spread=(side[0]-side[1])*.5f*room.now[3];
+ *left=(middle+spread)*room.now[0];*right=(middle-spread)*room.now[0];
 }
 void ug_render(int frames){
  if(frames<0)frames=0;
@@ -431,11 +471,12 @@ void ug_render(int frames){
   delaybuf[delaypos]=clamp(write,-1.0f,1.0f);delaypos=(delaypos+1)%DELAY;
   if(delay_lp<0.0000001f&&delay_lp>-0.0000001f)delay_lp=0;
   master_now+=(master_target-master_now)*0.002f;
-  float mixed=(dry+delay_lp*0.75f)*master_now;
-  mixed=clamp(mixed,-0.95f,0.95f);
-  output[2*i]=mixed;output[2*i+1]=mixed;sample_clock++;
+  float room_left,room_right;room_render(send,&room_left,&room_right);
+  float mixed=dry+delay_lp*room.now[4];
+  output[2*i]=clamp((mixed+room_left)*master_now,-.95f,.95f);
+  output[2*i+1]=clamp((mixed+room_right)*master_now,-.95f,.95f);sample_clock++;
  }
 }
 float *ug_buffer(void){return output;}
 int ug_state(int key){switch(key){case 0:return playing;case 1:return step_index;case 2:return recording;case 3:return rate;case 4:return tempo;case 5:return saved_valid;case 6:return takeover[0];case 7:return takeover[1];case 8:return trigger_count[0];case 9:return trigger_count[1];case 10:return motion;case 11:return motion_mask[0];case 12:return motion_mask[1];case 13:return takeover[2];case 14:return trigger_count[2];case 15:return motion_mask[2];case 16:return root_gate;case 17:return rec_mode;case 18:return take_active;case 19:return rec_track;case 20:return takeover[3];case 21:return trigger_count[3];case 22:return motion_mask[3];case 23:return NVOICE;default:return 0;}}
-int ug_state_bytes(void){return sizeof(score)+sizeof(saved)+sizeof(voices)+sizeof(delaybuf)+sizeof(output)+sizeof(manual)+sizeof(texture)+sizeof(grains)+sizeof(root_fm)+128;}
+int ug_state_bytes(void){return sizeof(score)+sizeof(saved)+sizeof(voices)+sizeof(delaybuf)+sizeof(output)+sizeof(manual)+sizeof(texture)+sizeof(grains)+sizeof(root_fm)+sizeof(room_buffer)+sizeof(room)+128;}

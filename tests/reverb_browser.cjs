@@ -1,0 +1,15 @@
+const {chromium}=require('playwright'),assert=require('node:assert/strict');
+(async()=>{const browser=await chromium.launch({executablePath:'/usr/bin/chromium',headless:true,args:['--no-sandbox']});try{for(const touch of [false,true]){
+ const page=await browser.newPage({hasTouch:touch,viewport:{width:1100,height:850}}),errors=[];page.on('pageerror',e=>errors.push(String(e)));
+ await page.addInitScript(()=>{const Base=AudioContext;window.AudioContext=class extends Base{constructor(opts){super(opts);const dest=this.destination,a=this.createAnalyser();a.fftSize=2048;a.connect(dest);window.rvAnalyser=a;Object.defineProperty(this,'destination',{get:()=>a});}};});
+ await page.goto(process.env.TEST_URL||'http://127.0.0.1:8000');const click=async el=>{await(touch?el.tap():el.click());await page.waitForTimeout(80);},btn=n=>page.locator('#fm1-controls').getByRole('button',{name:n,exact:true});
+ const press=n=>click(btn(n)),turn=async(n,d)=>{await btn(n).focus();for(let i=0;i<Math.abs(d);i++)await page.keyboard.press(d>0?'ArrowUp':'ArrowDown');await page.waitForTimeout(80);};
+ const peak=()=>page.evaluate(()=>{const a=new Float32Array(rvAnalyser.fftSize);rvAnalyser.getFloatTimeDomainData(a);return Math.max(...a.map(Math.abs));});
+ await click(page.locator('#device-audio'));await page.waitForFunction(()=>window.UG?.state);assert.equal(await peak(),0);
+ await press('FX');await turn('KNOB 1',100);await turn('SELECT',1);await page.waitForFunction(()=>UG.state.panel.lines[1]==='GLOBAL REVERB');await turn('KNOB 1',80);await turn('KNOB 2',30);await turn('SELECT',1);await turn('KNOB 1',-100);
+ await page.waitForFunction(()=>Math.abs(UG.state.fx[0]-.8)<.001&&UG.state.fx[4]===0);await press('EDIT');await press('White key 1');await page.waitForTimeout(1000);assert(await peak()>.00001,'Expected audible reverb tail');
+ await page.keyboard.press('Escape');await page.waitForTimeout(100);assert.equal(await peak(),0);
+ await turn('ALGORITHM',2);await press('ENV');await turn('SELECT',1);await turn('KNOB 3',1);await press('FX');await turn('KNOB 2',100);await press('PLAY');await page.waitForFunction(()=>UG.state.panel.grains[1]>0);await page.waitForTimeout(500);assert(await peak()>.00001);
+ await press('REC');await press('FX');await turn('SELECT',1);const old=await page.evaluate(()=>UG.state.fx[0]);await turn('KNOB 1',-10);assert.equal(await page.evaluate(()=>UG.state.fx[0]),old);assert(await page.evaluate(()=>UG.state.armed));await press('REC');
+ await page.keyboard.press('Escape');await page.waitForTimeout(100);assert.equal(await peak(),0);assert.deepEqual(errors,[]);await page.close();console.log('PASS '+(touch?'touch':'mouse')+' reverb: shared FX controls, delay bypass, audible room tail, ENV feed, REC guard and Panic');
+}}finally{await browser.close();}})().catch(e=>{console.error(e);process.exitCode=1;});

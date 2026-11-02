@@ -107,5 +107,13 @@ Hardware diagnostics added to this pending milestone: persistent audio-budget CP
 Trial EDIT Sound/Character with per-trig locks, direct step notes and explicit
 SEQ keyboard mode, ENV as an independent original-texture grain drone, and
 separate layer sends into shared delay. Measure physical FM1 CPU with grains
-off/on before expanding this sampler to four tracks. Reverb/crush, sample
+off/on before expanding this sampler to four tracks. Crush, sample
 selection/import and atmosphere following authored note pitches remain planned.
+
+### Shared reverb (0.4.1-hw1)
+
+Implemented an original stereo room with global level/decay/damping/width and
+independent delay return, fed by the existing per-layer sends. Shared effect
+settings have Undo and refuse changes during recording. Global FX automation
+remains reserved for the planned silent lane; per-track filters and crush are
+not part of this release.
