@@ -104,3 +104,18 @@ palette slots hold intervals, inversion and spread; each trig captures its actua
 harmony. Root/gate/velocity stay separate from timbre. Two bounded tail banks
 allow eight simultaneous tones. This is a draft implementation pending the full
 milestone gate and listening acceptance. See [CHORD.md](CHORD.md).
+
+## Same-track live takeover fix — 0.5.1-hw1 candidate
+
+Adding a previously untouched step used to clear the sounding track's manual
+takeover. Older trigs then resumed their captured values, making the sound revert
+while the draft controls still showed the edits. Stamping now captures the draft
+without releasing takeover. Existing trig locks remain intact. Rejoin, finishing
+a take and Stop still deliberately release overrides. This applies to all five
+tracks; the native regression checks 44.1/48 kHz and browser coverage repeats the
+Chatter EDIT → SEQ → new-hit path using actual mouse and touch input.
+
+The reproduction failed before the fix; five-track native regression and
+native/WASM parity pass after it. The full 0.5.1-hw1 gate/review and preview update
+are pending. Previously recorded 0.5.0 validation and accepted CHORD debt remain
+separate; this fix does not claim the other review findings are resolved.

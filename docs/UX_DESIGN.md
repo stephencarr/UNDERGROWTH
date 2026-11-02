@@ -215,3 +215,18 @@ latch at maximum Decay (Stop/Panic clears it); closed-menu step edits Undo per
 detent; gates use straight duration under Swing; HOME's fifth level row crowds
 the footer; F/Hear recording omits harmony snapshots. Use chord keys/MIDI or SEQ
 stamping for captured harmony. See CHORD.md for details and workarounds.
+
+## Same-track live takeover fix — 0.5.1-hw1 candidate
+
+Adding a previously untouched step used to clear the sounding track's manual
+takeover. Older trigs then resumed their captured values, making the sound revert
+while the draft controls still showed the edits. Stamping now captures the draft
+without releasing takeover. Existing trig locks remain intact. Rejoin, finishing
+a take and Stop still deliberately release overrides. This applies to all five
+tracks; the native regression checks 44.1/48 kHz and browser coverage repeats the
+Chatter EDIT → SEQ → new-hit path using actual mouse and touch input.
+
+The reproduction failed before the fix; five-track native regression and
+native/WASM parity pass after it. The full 0.5.1-hw1 gate/review and preview update
+are pending. Previously recorded 0.5.0 validation and accepted CHORD debt remain
+separate; this fix does not claim the other review findings are resolved.

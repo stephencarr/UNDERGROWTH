@@ -178,3 +178,18 @@ network policy and no connected browser capability; do not claim a live listenin
 audition. The same source's local browser/audio and firmware gate passed as above.
 To play: Enable audio, select CHORD with ALGORITHM or its Expanded card, open EDIT,
 then play panel keys or Q–I. Harmony and Palette tones pages select/edit its slots.
+
+## Same-track live takeover fix — 0.5.1-hw1 candidate
+
+Adding a previously untouched step used to clear the sounding track's manual
+takeover. Older trigs then resumed their captured values, making the sound revert
+while the draft controls still showed the edits. Stamping now captures the draft
+without releasing takeover. Existing trig locks remain intact. Rejoin, finishing
+a take and Stop still deliberately release overrides. This applies to all five
+tracks; the native regression checks 44.1/48 kHz and browser coverage repeats the
+Chatter EDIT → SEQ → new-hit path using actual mouse and touch input.
+
+The reproduction failed before the fix; five-track native regression and
+native/WASM parity pass after it. The full 0.5.1-hw1 gate/review and preview update
+are pending. Previously recorded 0.5.0 validation and accepted CHORD debt remain
+separate; this fix does not claim the other review findings are resolved.

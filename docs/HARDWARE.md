@@ -191,3 +191,9 @@ leak detection disabled. Image 130448 bytes; data+bss 45044/98304; pool 312908/3
 Firmware identity FM-1_731000500. No physical FM1 access or flashing occurred.
 PR review and publication remain pending; listening and device CPU acceptance
 remain open even after software validation.
+
+## 0.5.1-hw1 candidate — preserve live sound when adding steps
+
+Shared-core takeover correction; no adapter/USB/storage change. Matching package
+FM-1_731000501 passed initial CRC/loader/instruction/memory checks. Full gate
+and review remain pending. No physical FM1 access or flashing was performed.

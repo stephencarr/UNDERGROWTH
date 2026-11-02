@@ -16,4 +16,4 @@ loader: ota.bin 8340 B
 parts    USB audio in, velocity and pressure  (not built in: Bluetooth MIDI, Bluetooth MIDI devices, WiFi, USB audio out, screen mirroring, backup and restore, the second core, USB MIDI host)
 app      /workspace/UNDERGROWTH/firmware/build/undergrowth.bin  130448 B
 loader   /workspace/UNDERGROWTH/firmware/build/loader/ota.bin  8340 B
-package  /workspace/UNDERGROWTH/firmware/build/undergrowth-0.5.0-hw1.fwsc  611496 B, identity FM-1_731000500
+package  /workspace/UNDERGROWTH/firmware/build/undergrowth-0.5.1-hw1.fwsc  611496 B, identity FM-1_731000501

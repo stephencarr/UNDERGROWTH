@@ -10,7 +10,21 @@ static double measure(int rate,int voice,int parameter,float value,int tempo,flo
  for(int t=0;t<rate*4;t+=128){ug_render(128);for(int i=0;i<128;i++){float x=ug_buffer()[i*2];assert(isfinite(x)&&fabsf(x)<=.95001f);energy+=x*x;if(fabsf(x)>.0001f)*last=t+i;}}
  return energy;
 }
+/* Adding a hit is an edit, not an implicit Rejoin of the sounding track. */
+static void same_track_stamp(int rate){
+ for(int voice=0;voice<5;voice++){
+  ug_init(rate);ug_stamp(voice,0);ug_stamp(voice,4);float old[7];for(int p=0;p<7;p++)old[p]=ug_lockvalue(voice,0,p);
+  ug_play(1);render(1);for(int p=0;p<7;p++)ug_setparam(voice,p,.91f);
+  ug_toggle_authored(voice,8);
+  for(int i=0;i<16;i++){
+   for(int p=0;p<7;p++){assert(fabsf(ug_effective(voice,p)-.91f)<.001f);assert(ug_lockvalue(voice,0,p)==old[p]);if(ug_lockmask(voice,8)&(1<<p))assert(fabsf(ug_lockvalue(voice,8,p)-.91f)<.001f);}
+   render(rate/8);
+  }
+  ug_play(0);ug_play(1);render(1);ug_rejoin();assert(ug_effective(voice,0)==old[0]);
+ }
+}
 int main(void){for(int rate=44100;rate<=48000;rate+=3900){
+ same_track_stamp(rate);
  int a,b;double lo,hi;
  measure(rate,1,4,0,110,1,&a);measure(rate,1,4,1,110,1,&b);assert(b>a*3);
  int fast,slow;measure(rate,1,4,1,220,1,&fast);measure(rate,1,4,1,40,1,&slow);assert(slow>fast&&slow<fast*1.2);

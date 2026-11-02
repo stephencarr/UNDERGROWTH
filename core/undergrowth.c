@@ -174,7 +174,7 @@ void ug_stamp(int v,int step){
  ug_begin_edit();Step *st=&score.steps[v][step];st->authored=1;st->on=1;st->velocity=score.velocity[v];st->mask=v==4?61431u:v==2?2039u:127u; /* ROOT sound/character only: sends and ENV need deliberate locks. */
  for(int p=0;p<NPARAM;p++)st->lock[p]=score.base[v][p];
  if(v==2){st->note=score.draft_note.note;st->gate=score.draft_note.gate;st->slide=score.draft_note.slide;}
- record_skip[v]&=~(1u<<step);takeover[v]=0;
+ record_skip[v]&=~(1u<<step); /* Stamping must not implicitly Rejoin this track. */
 }
 void ug_toggle_authored(int v,int step){
  if(!valid_voice(v)||!valid_step(step)||take_active||recording||motion)return;
