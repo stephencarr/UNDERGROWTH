@@ -159,3 +159,11 @@ loader and instruction checks passed. Final full-gate evidence follows below.
 The larger float arena supports 8–96 kHz with no resampler. Device CPU/P/X
 comparison with grains enabled and reverb off/on remains required; host cost
 is not FM1 headroom. No device access or physical flashing was performed.
+
+Validation on 2 November 2026: the complete `tools/check_milestone.sh` passed:
+eleven native suites (including impulse response), native/WASM bit parity,
+worklet, mouse/touch panel/workflow/ENV/ROOT/reverb/mixer tests, simulated updater
+safety, platform-host traces, firmware CRC/identity/loader/instruction/memory
+checks and rebuilt-vs-checked-in package/vocabulary comparisons. Reverb tests
+also passed address/undefined-behaviour sanitizers (leak detection off).
+No physical device was accessed. Listening and FM1 CPU acceptance remain open.

@@ -99,3 +99,11 @@ Listen for grain texture dissolving into space, note attacks becoming submerged
 at full send/return, useful shorter settings, stereo motion, resonant ringing,
 level pumping and the usefulness of the Decay travel. These measurements alone
 cannot accept the requested enveloping sound. No listening approval is claimed.
+
+Validation on 2 November 2026: the complete `tools/check_milestone.sh` passed:
+eleven native suites (including impulse response), native/WASM bit parity,
+worklet, mouse/touch panel/workflow/ENV/ROOT/reverb/mixer tests, simulated updater
+safety, platform-host traces, firmware CRC/identity/loader/instruction/memory
+checks and rebuilt-vs-checked-in package/vocabulary comparisons. Reverb tests
+also passed address/undefined-behaviour sanitizers (leak detection off).
+No physical device was accessed. Listening and FM1 CPU acceptance remain open.
