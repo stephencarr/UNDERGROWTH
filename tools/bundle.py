@@ -14,7 +14,7 @@ assert old in js
 js=js.replace(old,new)
 html=html.replace('<link rel="stylesheet" href="fm1-panel.css">','')
 html=html.replace('<link rel="stylesheet" href="style.css">','<style>'+css+'</style>')
-html=html.replace('href="../flash.html"','href="flash.html"')
+html=html.replace('href="../flash.html"','href="flash.html"').replace('href="../docs/','href="docs/')
 html=html.replace('<script type="module" src="device.js"></script>','')
 html=html.replace('<script type="module" src="app.js"></script>','<script type="module">'+js+'</script>')
 assert 'src="app.js"' not in html

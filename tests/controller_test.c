@@ -27,8 +27,31 @@ static void review_regressions(void){
  // Opening lock editing releases manual takeover, so the edit can be heard while playing.
  ug_play(1);ug_render(1);ug_setparam(0,0,.9f);assert(ug_effective(0,0)==.9f);hold(0);assert(!ug_state(6));ug_ui_turn(3,5);assert(ug_effective(0,0)==ug_lockvalue(0,0,0));
 }
+static void hardware_workflow(void){
+ init();assert(ug_ui_state(10)==2);assert(!strcmp(ug_ui_keylabel(1),"KICK"));
+ ug_ui_turn(3,-25);assert(ug_getlevel(0)>.749f&&ug_getlevel(0)<.751f);tap(0);assert(ug_getmute(0)&&!ug_step(0,0));tap(0);assert(!ug_getmute(0));
+ ug_ui_button(9);tap(0);hold(0);ug_ui_edit(0,.81f);ug_ui_edit(7,.6f);ug_ui_button(9);
+ tap(10);assert(ug_clipboard_voice()==0);ug_ui_select(1,4);tap(13);assert(ug_step(0,4)&&ug_lockvalue(0,4,0)==.81f&&ug_getvelocity(0,4)==.6f);
+ tap(15);assert(!ug_step(0,4));tap(15);assert(ug_step(0,4));
+ // Copy/paste, audition, mix and navigation must not steal an authored edit's Undo.
+ ug_ui_select(0,2);ug_ui_select(1,7);tap(13);assert(!ug_step(2,7));ug_ui_select(0,0);assert(ug_ui_state(3)==4);tap(15);assert(!ug_step(0,4));
+ ug_ui_select(0,2);assert(ug_ui_state(3)==7);ug_ui_button(4);ug_ui_turn(0,1);ug_ui_button(5);ug_ui_button(4);assert(ug_ui_state(1)==1);
+ ug_ui_turn(1,-2);assert(ug_ui_state(2)==0);ug_ui_turn(1,2);assert(ug_ui_state(2)==2&&ug_ui_state(1)==1);
+ ug_ui_button(9);ug_ui_select(1,7);hold(12);assert(ug_ui_state(7));ug_ui_edit(0,.91f);ug_ui_edit(8,43);ug_ui_action(5);assert(!ug_step(2,7)&&ug_effective(2,0)==.91f&&ug_state(16)>0);
+ ug_render(256);ug_ui_tick(181);for(int n=0;n<80;n++)ug_render(256);assert(ug_state(16)==0);ug_ui_button(9);ug_ui_action(0);assert(ug_lockmask(2,7)==0);
+ // A mode change starts another take on the original armed track, not the viewed one.
+ ug_ui_button(11);ug_ui_select(0,0);ug_ui_record_mode(3);assert(ug_state(18)&&ug_state(19)==2&&ug_state(17)==3);
+ float draft=ug_getparam(0,0);ug_ui_button(4);ug_ui_turn(3,10);assert(ug_getparam(0,0)==draft);ug_ui_action(4);assert(!ug_step(0,4));
+ ug_ui_select(0,2);ug_ui_button(9);assert(ug_ui_state(10)==0);assert(strcmp(ug_ui_keylabel(1),"KICK"));ug_ui_button(10);tap(1);assert(ug_state(16)==0);ug_ui_button(11);assert(!ug_state(18)&&ug_ui_state(0)==9);ug_ui_button(10);
+ // Mix can silence held ROOT without erasing score or motion/Undo state.
+ ug_ui_button(4);ug_ui_key(7,1,1);ug_render(256);ug_ui_button(6);tap(4);assert(ug_getmute(2));for(int i=0;i<100;i++)ug_render(256);for(int i=0;i<256;i++)assert(ug_buffer()[i]<.000001f&&ug_buffer()[i]>-.000001f);
+ ug_ui_key(7,0,1);ug_ui_action(2);ug_render(128);assert(ug_buffer()[0]==0&&ug_getmute(2));
+ for(int key=0;key<27;key++)assert(strlen(ug_ui_keylabel(key))<64);
+ puts("PASS hardware UX: mix/mutes, typed full-trig copy/paste and Undo, remembered context, actual locked-rest audition, fixed recording owner, mode transition and full-keyboard recording");
+}
 int main(void){
  review_regressions();
+ hardware_workflow();init();
  assert(!strcmp(ug_ui_meter(-1,0,0,0),"CPU -- / FM1 only"));
  assert(!strcmp(ug_ui_meter(42,98,3,0),"CPU 42% P98% X3 EXP"));
  assert(!strcmp(ug_ui_meter(120,120,0,1),"HOST 120% P120% X0"));
@@ -59,8 +82,8 @@ int main(void){
  // Navigation cancels a pending tap, and immediate knob edits promote it to the menu.
  ug_ui_key(2,1,-1);ug_ui_button(2);ug_ui_key(2,0,-1);assert(!ug_step(0,1));
  ug_ui_button(9);ug_ui_key(0,1,-1);ug_ui_turn(3,1);ug_ui_key(0,0,-1);assert(ug_ui_state(7)&&ug_step(0,0));
- ug_ui_button(11);assert(ug_state(18));ug_ui_turn(3,1);assert(!ug_state(18)&&ug_state(17)==2);ug_ui_button(11);ug_ui_button(2);ug_ui_turn(3,10);ug_ui_button(10);ug_render(1);assert(ug_state(18));ug_ui_button(11);assert(!ug_state(18));ug_ui_button(10);
- ug_ui_select(0,2);ug_ui_button(2);ug_ui_turn(0,1);ug_ui_turn(3,7);assert(ug_draftvalue(0)==43);ug_ui_button(1);assert(ug_state(16)==-1);ug_ui_tick(181);assert(ug_state(16)==0);
+ ug_ui_button(11);assert(ug_state(18));ug_ui_turn(3,1);assert(ug_state(18)&&ug_state(17)==2);ug_ui_button(2);ug_ui_turn(3,10);ug_ui_button(10);ug_render(1);assert(ug_state(18));ug_ui_button(11);assert(!ug_state(18));ug_ui_button(10);
+ ug_ui_select(0,2);ug_ui_button(4);ug_ui_turn(0,1);ug_ui_turn(3,7);assert(ug_draftvalue(0)==43);ug_ui_button(1);assert(ug_state(16)==-1);ug_ui_tick(181);assert(ug_state(16)==0);
  ug_ui_refresh();assert(strstr(ug_ui_line(2),"G2"));ug_ui_button(9);ug_ui_key(6,1,-1);ug_ui_key(6,0,-1);assert(ug_step(2,3)&&ug_notevalue(3,0)==43);
  for(int page=0;page<14;page++){if(page==10||page==11||page==1||page>11)continue;ug_ui_button(page);ug_ui_button(10);assert(ug_state(0));ug_ui_button(10);assert(!ug_state(0));}
  ug_ui_button(-1);ug_ui_turn(99,1);ug_ui_key(-1,1,1);ug_ui_key(27,1,1);ug_ui_select(0,999);assert(ug_ui_state(2)==2);

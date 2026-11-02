@@ -63,9 +63,7 @@ void app_render(int32_t *lr,uint32_t n,uint32_t master_q12){
  for(uint32_t off=0;off<n;off+=256){uint32_t frames=n-off;if(frames>256)frames=256;ug_ui_tick(frames*(1000.0f/44100.0f));ug_render((int)frames);float *audio=ug_buffer();for(uint32_t i=0;i<frames*2;i++)lr[off*2+i]=(int32_t)(audio[i]*8388607.0f);}
  if((ug_snapshot_clock++&3u)==0){
   ug_ui_refresh();for(int i=0;i<9;i++){const char *src=ug_ui_line(i);for(int j=0;j<64;j++){ug_screen.lines[i][j]=src[j];if(!src[j])break;}}
-  ug_screen.buttons=(uint32_t)ug_ui_state(6);ug_screen.keys=ug_screen.dimkeys=0;
-  static const uint8_t white[16]=PLAT_WHITE_KEYS;int v=ug_ui_state(2);
-  for(int i=0;i<16;i++){if(ug_step(v,i))ug_screen.keys|=1u<<white[i];if(ug_state(0)&&ug_state(1)==i)ug_screen.dimkeys|=1u<<white[i];}
+  ug_screen.buttons=(uint32_t)ug_ui_state(6);ug_screen.keys=(uint32_t)ug_ui_state(8);ug_screen.dimkeys=(uint32_t)ug_ui_state(9);
  }
 }
 void app_ui_init(void){ug_drawn_valid=ug_meter_valid=0;touch_on(1);lcd_fill(0,0,240,240,RGB(184,208,189));}
@@ -102,6 +100,6 @@ int app_host_cmd(const char *cmd,const char *a,const char *b,const char *c,const
  ug_host_usb_badge=!strcmp(a,"connected");ug_input();return 1;
 }
 int app_expect(const char *what,int *got){
- if(!strcmp(what,"root_gate"))*got=ug_state(16);else if(!strcmp(what,"locks"))*got=ug_ui_state(7);else if(!strcmp(what,"meter_updates"))*got=(int)ug_meter_updates;else if(!strcmp(what,"meter_peak"))*got=(int)ug_cpu_peak;else if(!strcmp(what,"page"))*got=ug_ui_state(0);else if(!strcmp(what,"voice"))*got=ug_ui_state(2);else if(!strcmp(what,"sub"))*got=ug_ui_state(1);else if(!strcmp(what,"step"))*got=ug_ui_state(3);else if(!strcmp(what,"playing"))*got=ug_state(0);else if(!strcmp(what,"armed"))*got=ug_state(18);else if(!strcmp(what,"hit"))*got=ug_step(ug_ui_state(2),ug_ui_state(3));else if(!strcmp(what,"velocity"))*got=(int)(ug_getvelocity(ug_ui_state(2),ug_ui_state(3))*100+.5f);else if(!strcmp(what,"dropped"))*got=(int)ug_dropped;else return 0;return 1;
+ if(!strcmp(what,"muted"))*got=ug_getmute(ug_ui_state(2));else if(!strcmp(what,"level"))*got=(int)(ug_getlevel(ug_ui_state(2))*100+.5f);else if(!strcmp(what,"keymode"))*got=ug_ui_state(10);else if(!strcmp(what,"clipboard"))*got=ug_clipboard_voice();else if(!strcmp(what,"root_gate"))*got=ug_state(16);else if(!strcmp(what,"locks"))*got=ug_ui_state(7);else if(!strcmp(what,"meter_updates"))*got=(int)ug_meter_updates;else if(!strcmp(what,"meter_peak"))*got=(int)ug_cpu_peak;else if(!strcmp(what,"page"))*got=ug_ui_state(0);else if(!strcmp(what,"voice"))*got=ug_ui_state(2);else if(!strcmp(what,"sub"))*got=ug_ui_state(1);else if(!strcmp(what,"step"))*got=ug_ui_state(3);else if(!strcmp(what,"playing"))*got=ug_state(0);else if(!strcmp(what,"armed"))*got=ug_state(18);else if(!strcmp(what,"hit"))*got=ug_step(ug_ui_state(2),ug_ui_state(3));else if(!strcmp(what,"velocity"))*got=(int)(ug_getvelocity(ug_ui_state(2),ug_ui_state(3))*100+.5f);else if(!strcmp(what,"dropped"))*got=(int)ug_dropped;else return 0;return 1;
 }
 #endif

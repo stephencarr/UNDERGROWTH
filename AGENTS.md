@@ -2,7 +2,7 @@
 
 ## Start here
 
-Read [product orientation](docs/PRODUCT.md) for the instrument's purpose, current workflow and limits, then [engineering orientation](docs/ENGINEERING.md) for architecture, setup and validation. Consult [the roadmap](docs/ROADMAP.md) for accepted decisions and [hardware notes](docs/HARDWARE.md) before firmware work. Keep these guides current when behavior or architecture changes; historical research is not an implementation specification.
+Read [product orientation](docs/PRODUCT.md) for the instrument's purpose, current workflow and limits, then [engineering orientation](docs/ENGINEERING.md) for architecture, setup and validation. Read the current [hardware-first workflow and research](docs/UX_DESIGN.md) before changing navigation or key roles. Consult [the roadmap](docs/ROADMAP.md) for accepted decisions and [hardware notes](docs/HARDWARE.md) before firmware work. Keep these guides current when behavior or architecture changes; historical research is not an implementation specification.
 
 Stephen requires every milestone to end with a flashable FM1 build, as well as the browser prototype. This requirement was accepted on 2026-11-01.
 

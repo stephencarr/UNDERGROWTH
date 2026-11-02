@@ -35,13 +35,13 @@ const assert=require('node:assert/strict');
  await press('PLAY');await press('SEQ');await step(3);await page.waitForTimeout(80);s=await state();assert.equal(s.voices[0].steps[2].lock[0],s.voices[0].base[0]);await press('PLAY');
  // Motion take, recorded through EDIT and FX, whole-take undo from HOME recovery.
  const before=(await state()).voices[0].steps;
- await press('REC');await turn('KNOB1');assert.equal((await state()).armed,false);await press('REC');await press('EDIT');await turn('KNOB1','ArrowDown',20);await press('FX');await turn('KNOB1','ArrowUp',25);await press('PLAY');
+ await press('REC');await turn('KNOB1');assert.equal((await state()).armed,true);await press('EDIT');await turn('KNOB1','ArrowDown',20);await press('FX');await turn('KNOB1','ArrowUp',25);await press('PLAY');
  await page.waitForFunction(()=>Math.abs(UG.state.voices[0].steps[0].lock[3]-.25)<.001);
  await press('REC');assert.equal((await state()).motion,false);await press('PLAY');
  await press('HOME');await turn('SELECT');
  await press('SEL');await page.waitForTimeout(80);assert.deepEqual((await state()).voices[0].steps,before);
  // Both records new hits and touched locks; other track remains unrecorded.
- await press('REC');await turn('KNOB1');await press('REC');await press('EDIT');await turn('KNOB2','ArrowUp',10);await press('PLAY');await step(2);await page.waitForTimeout(80);
+ await press('REC');await turn('KNOB1');await press('EDIT');await turn('KNOB2','ArrowUp',10);await press('PLAY');await step(2);await page.waitForTimeout(80);
  assert((await state()).voices[0].steps.some(x=>x.on&&(x.mask&2)));
  await turn('ALGORITHM');assert.equal((await state()).recordTrack,0);await step(1);await page.waitForTimeout(80);assert(!(await state()).voices[1].steps.some(x=>x.on));await press('REC');await press('PLAY');
  // ROOT stamps draft pitch/gate/slide with the same lower keys.

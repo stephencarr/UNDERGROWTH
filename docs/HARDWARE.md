@@ -1,6 +1,6 @@
 # UNDERGROWTH: first FM1 hardware milestone
 
-**Status: the host, browser and pinned FM1 cross-build gate passed. `build/releases/0.2.1-hw1/` contains an experimental firmware package and its validation record. It has not been flashed or physically validated.**
+**Status: the host, browser and pinned FM1 cross-build gate passed. `build/releases/0.3.0-hw1/` contains an experimental firmware package and its validation record. It has not been flashed or physically validated.**
 
 The owner uses macOS and currently runs **Caravel 0.6.0**. Keep it installed while preparing this milestone; returning to stock is not a prerequisite established by the available documentation.
 
@@ -24,10 +24,10 @@ Linux x86-64 is the initial build host. macOS users will receive a prebuilt expe
 python3 tools/prepare_firmware.py
 # Set FM1_BASE, AC79_SDK and JIELI_TOOLCHAIN to the paths printed by setup.
 python3 tools/firmware_build.py --host
-python3 tools/firmware_build.py --release 0.2.1-hw1
+python3 tools/firmware_build.py --release 0.3.0-hw1
 ```
 
-For the complete milestone gate, set ZIG to Zig 0.13, run a local web server for Chromium tests, and run `sh tools/check_milestone.sh`. The browser tests use `TEST_URL` (localhost by default). If any required dependency is unavailable, the gate fails; there is no placeholder firmware or waived hardware target. The successful Linux build used the SHA-256-verified compiler archive from `firmware/dependencies.json`; the resulting `.fwsc` and `SHA256SUMS` are in `build/releases/0.2.1-hw1/`.
+For the complete milestone gate, set ZIG to Zig 0.13, run a local web server for Chromium tests, and run `sh tools/check_milestone.sh`. The browser tests use `TEST_URL` (localhost by default). If any required dependency is unavailable, the gate fails; there is no placeholder firmware or waived hardware target. The successful Linux build used the SHA-256-verified compiler archive from `firmware/dependencies.json`; the resulting `.fwsc` and `SHA256SUMS` are in `build/releases/0.3.0-hw1/`.
 
 A successful cross-build must include:
 
@@ -36,7 +36,7 @@ A successful cross-build must include:
 - Independent package identity, loader marker and UFW/part CRC validation, including corrupted-package rejection.
 - Source/dependency identity, SHA-256 hashes and licence notices. The initial output is explicitly experimental, with `hardware_validated: false`.
 
-The `flash.html` page offers a Chrome/Edge desktop route to the pinned `firmware/releases/undergrowth-0.2.1-hw1.fwsc`. It checks SHA-256, FM1 identity and UFW CRCs before requesting USB MIDI SysEx access. Device identification and backup acknowledgement precede the install command. Its updater is the pinned fm1-base Web MIDI implementation; a port shown under another name can be selected explicitly. The browser gate tests verification and confirmation with simulated MIDI only. The page must be served over HTTPS or localhost; opening it as a local file is not supported. The hosted page is https://stephencarr.github.io/UNDERGROWTH/flash.html; no local server is needed.
+The `flash.html` page offers a Chrome/Edge desktop route to the pinned `firmware/releases/undergrowth-0.3.0-hw1.fwsc`. It checks SHA-256, FM1 identity and UFW CRCs before requesting USB MIDI SysEx access. Device identification and backup acknowledgement precede the install command. Its updater is the pinned fm1-base Web MIDI implementation; a port shown under another name can be selected explicitly. The browser gate tests verification and confirmation with simulated MIDI only. The page must be served over HTTPS or localhost; opening it as a local file is not supported. The hosted page is https://stephencarr.github.io/UNDERGROWTH/flash.html; no local server is needed.
 
 ## Caravel 0.6.0 to UNDERGROWTH: preparation, not an instruction to flash yet
 
@@ -85,3 +85,9 @@ Adds a fourth shared-C organism and independent score lane. Body/Edge blend skin
 ## Backbeat texture revision — 0.2.1-hw1
 
 Replaces the narrow skin/noise blend after the owner’s first audition: Body now blends shaker grains, resonant snares and clustered claps. Edge reaches crushed crackle and metallic fragments; Spread controls internal collision density/spacing and clap flams. Short timbre smoothing applies in shared C without changing authored locks. Static collision/filter state is reset by init and Panic; clouds and tails are bounded. Existing MIDI and recording ownership are unchanged. Native checks cover timbral distinction, extreme corners at 8/96 kHz, finite tails, lock/Undo preservation and dense four-voice output. The full milestone gate passed on this revision: native/WASM parity, mouse/touch browser and simulated-updater checks, platform-host traces, cross-build, package CRC/identity and instruction/memory checks. App image: 103420 bytes; data+bss: 31424/98304 bytes; pool: 99724/344064 bytes. Review remains a publication gate. No physical sound or CPU claim follows from the cross-build.
+
+## Hardware-first workflow — 0.3.0-hw1
+
+The shared controller now owns HOME mixing, upper-key step tools, per-track navigation memory, key-role captions/light masks, and a recorder whose mode changes preserve the armed track. A typed clipboard preserves complete trigs; wrong-organism paste is refused. Explicit step audition hears stored locks/articulation on a rest without writing a trig or moving transport. Session mix levels/mutes use a 5 ms gain ramp, sit outside score Undo and motion, and leave shared delay tails to decay. Browser and hardware wrappers consume the same role/light state. The platform-host UX trace checks mixer state, clipboard/Undo, selected-step memory, REC ownership, help-page inertness, Panic and zero storage writes. See [UX design and research](UX_DESIGN.md). Physical ergonomics, screen reading, listening, CPU and recovery remain unvalidated.
+
+For `0.3.0-hw1`, the full milestone gate passed. App image: 109272 bytes; data+bss: 31948/98304 bytes; pool: 99724/344064 bytes. Package identity `FM-1_731000300`; CRC/loader and instruction checks passed. No physical FM1 access or flashing was performed.

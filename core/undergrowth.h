@@ -24,6 +24,17 @@ void ug_velocity(int voice,int step,float velocity);
 float ug_getvelocity(int voice,int step);
 void ug_tempo(int bpm);
 void ug_master(float gain);
+/* Session performance mix: outside trig locks, motion and authored-score Undo. */
+void ug_level(int voice,float gain);
+float ug_getlevel(int voice);
+void ug_mute(int voice,int enabled);
+int ug_getmute(int voice);
+/* Typed step clipboard. Paste changes data only; caller owns the Undo boundary. */
+int ug_stepcopy(int voice,int step);
+int ug_steppaste(int voice,int step);
+int ug_clipboard_voice(void);
+/* Hear an authored trig (including a rest) without changing score or transport. */
+void ug_audition(int voice,int step);
 void ug_groove(int parameter,float value);
 float ug_getgroove(int parameter);
 void ug_setparam(int voice,int parameter,float value);

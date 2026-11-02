@@ -1,0 +1,62 @@
+wait 150
+expect page 6
+expect keymode 2
+turn K1 -25
+wait 60
+expect level 75
+tapkey 0
+expect muted 1
+tapkey 0
+expect muted 0
+tap SEQ
+expect keymode 1
+tapkey 0
+expect hit 1
+key 0 down
+wait 450
+key 0 up
+turn K2 20
+tap SEQ
+tapkey 10
+expect clipboard 0
+key 7 down
+wait 450
+key 7 up
+expect hit 0
+tapkey 13
+expect hit 1
+tapkey 15
+expect hit 0
+tapkey 15
+expect hit 1
+tapkey 5
+expect voice 2
+tapkey 13
+expect hit 0
+tapkey 1
+expect voice 0
+expect step 4
+tap REC
+expect armed 1
+turn K1 1
+wait 60
+expect armed 1
+tap ENV
+tap REC
+expect armed 0
+expect page 2
+tap HOME
+turn SELECT 2
+wait 60
+expect sub 2
+turn K1 -100
+wait 60
+expect level 75
+tap HOME
+expect sub 0
+press HOME
+wait 750
+release HOME
+expect playing 0
+expect dropped 0
+expect store_writes 0
