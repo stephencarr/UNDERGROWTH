@@ -23,6 +23,7 @@ static int note_page(void){return (page==2&&sub==1)||(lock_menu&&sub==2);}
 void ug_ui_init(void){page=6;sub=voice=selected=octave=action=edited=0;held=gesture=audition_note=-1;lock_menu=0;cancel_presses();value=gesture_age=audition_ms=0;for(int i=0;i<27;i++)notes[i]=-1;}
 void ug_ui_gesture(int reset){if(reset||gesture_age>300)gesture=-1;gesture_age=0;}
 void ug_ui_select(int field,int n){if(field==0&&n>=0&&n<3){voice=n;cancel_presses();edited=lock_menu=0;sub=0;}if(field==1&&n>=0&&n<16){select_step(n);}gesture=-1;}
+static int pending_other(int key){for(int i=0;i<16;i++)if(i!=key&&presses[i]==1&&press_ms[i]<350)return 1;return 0;}
 static void open_locks(void){ug_rejoin();lock_menu=1;if(held>=0)presses[held]=2;sub=0;gesture=-1;edited=0;}
 static void snapshot(void){if(!lock_menu||!edited){ug_begin_edit();if(lock_menu)edited=1;}}
 void ug_ui_edit(int p,float x){
@@ -45,7 +46,7 @@ static void macro(int p,int d){
 }
 void ug_ui_turn(int e,int d){
  if(e<0||e>6||!d)return;ug_ui_gesture(0);
- if(held>=0&&presses[held]==1&&!busy())open_locks();
+ if(held>=0&&presses[held]==1&&!busy()){for(int i=0;i<16;i++)if(i!=held&&presses[i]==1)return;open_locks();}
  if(e==0){if(lock_menu){sub=sub==0?(d>0?3:2):sub==3?(d>0?2:0):(d>0?0:3);gesture=-1;return;}int n=count();sub=(sub+(d>0?1:-1)+n)%n;gesture=-1;return;}
  if(e==1){ug_ui_select(0,(voice+(d>0?1:-1)+3)%3);return;}
  if(e==2){lock_menu=0;cancel_presses();page=14;sub=0;gesture=-1;return;}
@@ -93,7 +94,7 @@ void ug_ui_key(int offset,int down,float velocity){
  if(offset<0||offset>=27)return;int index=-1;for(int i=0;i<16;i++)if(whites[i]==offset)index=i;
  if(down<=0){
   if(index>=0&&presses[index]){
-   if(down==0&&presses[index]==1&&!busy()&&page==9)ug_toggle_authored(voice,index);
+   if(down==0&&presses[index]==1&&press_ms[index]<350&&!busy()&&page==9)ug_toggle_authored(voice,index);
    presses[index]=0;press_ms[index]=0;
    if(index==held)held=-1;
   }
@@ -111,12 +112,12 @@ void ug_ui_key(int offset,int down,float velocity){
 }
 void ug_ui_tick(float ms){
  gesture_age+=ms;
- for(int i=0;i<16;i++)if(presses[i]==1){
-  press_ms[i]+=ms;
-  if(press_ms[i]>=350&&!busy()&&page==9){
-   presses[i]=2;
-   if(!lock_menu){select_step(i);held=i;open_locks();}
-  }
+ int due=-1;
+ for(int i=0;i<16;i++)if(presses[i]==1){press_ms[i]+=ms;if(press_ms[i]>=350&&due<0)due=i;}
+ // Finish all potential short taps before starting a lock-menu Undo transaction.
+ if(due>=0&&!busy()&&page==9&&!pending_other(due)){
+  for(int i=0;i<16;i++)if(presses[i]==1&&press_ms[i]>=350)presses[i]=2;
+  if(!lock_menu){select_step(due);held=due;open_locks();}
  }
  if(audition_note>=0){audition_ms-=ms;if(audition_ms<=0){ug_key(audition_note,0);audition_note=-1;}}
 }

@@ -19,3 +19,66 @@ wait 50
 expect root_gate 0
 expect dropped 0
 expect store_writes 0
+
+# A backlog larger than one render budget must never revive a disconnected USB note.
+test_usb_badge connected
+wait 50
+test_usb_badge disconnected
+midi USB B0 01 01
+midi USB B0 01 01
+midi USB B0 01 01
+midi USB B0 01 01
+midi USB B0 01 01
+midi USB B0 01 01
+midi USB B0 01 01
+midi USB B0 01 01
+midi USB B0 01 01
+midi USB B0 01 01
+midi USB B0 01 01
+midi USB B0 01 01
+midi USB B0 01 01
+midi USB B0 01 01
+midi USB B0 01 01
+midi USB B0 01 01
+midi USB B0 01 01
+midi USB B0 01 01
+midi USB B0 01 01
+midi USB B0 01 01
+midi USB B0 01 01
+midi USB B0 01 01
+midi USB B0 01 01
+midi USB B0 01 01
+midi USB B0 01 01
+midi USB B0 01 01
+midi USB B0 01 01
+midi USB B0 01 01
+midi USB B0 01 01
+midi USB B0 01 01
+midi USB B0 01 01
+midi USB B0 01 01
+midi USB B0 01 01
+midi USB B0 01 01
+midi USB B0 01 01
+midi USB B0 01 01
+midi USB B0 01 01
+midi USB B0 01 01
+midi USB B0 01 01
+midi USB B0 01 01
+midi USB B0 01 01
+midi USB B0 01 01
+midi USB B0 01 01
+midi USB B0 01 01
+midi USB B0 01 01
+midi USB B0 01 01
+midi USB B0 01 01
+midi USB B0 01 01
+midi USB 92 24 64
+wait 100
+expect root_gate 0
+# Non-USB input remains usable while USB is quarantined.
+midi TRS 92 24 64
+wait 50
+expect root_gate -1
+midi TRS 82 24 00
+wait 50
+expect root_gate 0

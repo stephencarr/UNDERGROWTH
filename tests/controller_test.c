@@ -20,6 +20,10 @@ static void review_regressions(void){
  }
  // Reselecting the same target must not replace the whole-menu Undo snapshot.
  init();ug_ui_button(9);tap(0);hold(0);float b=ug_lockvalue(0,0,0),e=ug_lockvalue(0,0,1);ug_ui_edit(0,b+.1f);tap(0);ug_ui_turn(4,20);ug_ui_button(9);ug_undo();assert(ug_lockvalue(0,0,0)==b&&ug_lockvalue(0,0,1)==e);
+ // A tap already pending when another key reaches hold age resolves before menu editing begins.
+ init();ug_ui_button(9);tap(0);float original=ug_lockvalue(0,0,0);
+ ug_ui_key(0,1,-1);ug_ui_tick(260);ug_ui_key(2,1,-1);ug_ui_tick(91);assert(!ug_ui_state(7));
+ ug_ui_key(2,0,-1);ug_ui_tick(1);assert(ug_ui_state(7)&&ug_step(0,1));ug_ui_edit(0,.8f);ug_ui_key(0,0,-1);ug_ui_button(9);ug_undo();assert(ug_lockvalue(0,0,0)==original&&ug_step(0,1));
  // Opening lock editing releases manual takeover, so the edit can be heard while playing.
  ug_play(1);ug_render(1);ug_setparam(0,0,.9f);assert(ug_effective(0,0)==.9f);hold(0);assert(!ug_state(6));ug_ui_turn(3,5);assert(ug_effective(0,0)==ug_lockvalue(0,0,0));
 }

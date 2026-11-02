@@ -5,7 +5,7 @@ import {pairs} from './vendor/fm1-base/fm1ports.js';
 import {ConfirmedUpdater, pairPresent, verifyPair} from './confirmed-updater.js';
 
 const FILE='firmware/releases/undergrowth-0.1.2-hw1.fwsc';
-const SHA='7c0eac45f00e159bfd223f1a3488af0ddf8b81cb0ac12f307dbcf4a24961ca18';
+const SHA='6a37964507f60aa2eb6671aea764f26ed4bdef8a77c2a6f6c56826ba939bb8b7';
 const PRODUCT='FM-1_731000102';
 const $=id=>document.getElementById(id);
 let image=null,access=null,updater=null,device=null,target=null,writing=false,probing=false,transitionPair=null,installApproved=false;

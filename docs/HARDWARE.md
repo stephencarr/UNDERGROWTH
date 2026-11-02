@@ -75,3 +75,5 @@ Step on/off preserves authored sound locks, velocity and ROOT note settings. Onl
 The flasher binds the initial update to the explicitly identified input/output pair and identity. When USB re-enumeration changes ports, the owner must identify and confirm the same physical FM1 again; Web MIDI cannot establish physical identity automatically. Escape and Cancel never authorize a write, including retries.
 
 USB connection loss or host sleep invokes Panic, silencing notes and stopping playback/recording. This uses the pinned platform’s USB-host loss notification and its USB power badge transition for device mode. The host tests simulate the latter transition; physical unplug/recovery tests remain outstanding. Screen-reader vocabulary is published at the firmware’s advertised `words/010e19d6e9.json` path and retained for installed releases.
+
+Pending short taps resolve before the lock-menu transaction starts. On USB loss, the adapter quarantines USB packets across render blocks until the backlog is drained and the connection is ready again; non-USB input remains usable and each render still handles at most 32 MIDI packets.
