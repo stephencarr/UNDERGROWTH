@@ -3,6 +3,7 @@ set -eu
 cd "$(dirname "$0")/.."
 mkdir -p build
 CC=${CC:-cc}
+$CC -std=c99 -O2 -ffp-contract=off -Wall -Wextra -Werror -Wno-misleading-indentation tests/reverb_response_test.c -lm -o build/reverb_response_test
 $CC -std=c99 -O2 -ffp-contract=off -Wall -Wextra -Werror -Wno-misleading-indentation core/undergrowth.c core/controller.c tests/reverb_test.c -lm -o build/reverb_test
 $CC -std=c99 -O2 -ffp-contract=off -Wall -Wextra -Werror -Wno-misleading-indentation core/undergrowth.c core/controller.c tests/root_atmosphere_test.c -lm -o build/root_atmosphere_test
 $CC -std=c99 -O2 -ffp-contract=off -Wall -Wextra -Werror -Wno-misleading-indentation core/undergrowth.c core/controller.c tests/backbeat_test.c -lm -o build/backbeat_test

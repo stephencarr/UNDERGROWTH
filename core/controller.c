@@ -74,7 +74,7 @@ static void macro(int p,int d){
  if(ug_state(18)&&ug_state(19)!=voice)return;
  int target=lock_menu?selected:held>=0?held:page==9&&sub==3?selected:-1,lock=target>=0&&!busy(),key=100+(lock?target+1:0)*32+p;
  int first=gesture!=key;
- if(first){gesture=key;value=lock&&(ug_lockmask(voice,target)&(1<<p))?ug_lockvalue(voice,target,p):ug_state(10)?ug_effective(voice,p):ug_getparam(voice,p);
+ if(first){gesture=key;value=lock&&(ug_lockmask(voice,target)&(1<<p))?ug_lockvalue(voice,target,p):(ug_state(10)||(!lock&&voice==2&&(p==3||p==16)&&ug_state(0)))?ug_effective(voice,p):ug_getparam(voice,p);
   if(lock){if(lock_menu)snapshot();else if(held<0||!edited){ug_begin_edit();if(held>=0)edited=1;}}else if(!ug_state(18)&&!ug_state(10))ug_begin_edit();}
  value=voice==2&&p==17?(d>0?1:0):voice==2&&p==14?bound(((int)(value*36+.5f)+d)/36.0f,0,1):bound(value+d*.01f,0,1);
  if(lock)ug_setlock(voice,target,p,value);else ug_setparam(voice,p,value);
@@ -211,9 +211,9 @@ void ug_ui_refresh(void){
  else if(page==6){add(lines[1],"MIX / knobs: track levels");for(int v=0;v<4;v++){named(lines[v+2],v+1,voices[v],(int)(ug_getlevel(v)*100+.5f),"%");if(ug_getmute(v))add(lines[v+2]," MUTE");}}
  else if(page==5){named(lines[1],1,"Tempo",ug_state(4),"");named(lines[2],2,"Swing",50+(int)(ug_getgroove(0)*100/6+.5f),"%");named(lines[3],3,"Human",(int)(ug_getgroove(1)*100+.5f),"%");}
  else if(voice==2&&(page==2||page==4||(page==0&&!sub)||lock_menu)){
-  int target=lock_menu?selected:-1;add(lines[1],target>=0?"STEP ":ug_state(10)?"MOTION / ":"DRAFT / ");if(target>=0){number(lines[1],target+1);add(lines[1]," / ");}
+  int target=lock_menu?selected:-1;add(lines[1],target>=0?"STEP ":ug_state(10)?"MOTION / ":page==0&&ug_state(0)?"LIVE / ":"DRAFT / ");if(target>=0){number(lines[1],target+1);add(lines[1]," / ");}
   add(lines[1],((lock_menu&&sub==4)||(page==4&&sub==2))?"CHARACTER":((lock_menu&&sub==3)||(page==2&&sub==0))?"ATMOSPHERE":((lock_menu&&sub==5)||(page==2&&sub==1))?"ATM MIX":(page==0||(lock_menu&&sub==6))?"FX SENDS":"SOUND");
-  for(int i=0;i<4;i++){int p=root_param(i);if(p<0)continue;float x=target>=0&&(ug_lockmask(voice,target)&(1<<p))?ug_lockvalue(voice,target,p):ug_state(10)?ug_effective(voice,p):ug_getparam(voice,p);
+  for(int i=0;i<4;i++){int p=root_param(i);if(p<0)continue;float x=target>=0&&(ug_lockmask(voice,target)&(1<<p))?ug_lockvalue(voice,target,p):(ug_state(10)||(target<0&&(p==3||p==16)&&ug_state(0)))?ug_effective(voice,p):ug_getparam(voice,p);
    if(p==17){number(lines[i+2],i+1);add(lines[i+2]," Enabled: ");add(lines[i+2],x>.5f?"ON":"OFF");}
    else if(p==14){const char *nn[12]={"C","C#","D","D#","E","F","F#","G","G#","A","A#","B"};int n=24+(int)(x*36+.5f);number(lines[i+2],i+1);add(lines[i+2]," Pitch: ");add(lines[i+2],nn[n%12]);number(lines[i+2],n/12-1);}
    else named(lines[i+2],i+1,root_names[p],(int)(x*100+.5f),"%");

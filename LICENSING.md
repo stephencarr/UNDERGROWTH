@@ -1,8 +1,8 @@
 # Source provenance and licensing
 
-Except for the explicitly identified fm1-base panel files below, the C musical core, interface, adapters, tests and build scripts were created for UNDERGROWTH. No public source licence has been selected for these original files. Publication alone must not be described as an open-source licence grant. A licence decision remains with the project owner.
+Except for the explicitly identified fm1-base files and Clouds-derived reverb below, the C musical core, interface, adapters, tests and build scripts were created for UNDERGROWTH. No public source licence has been selected for these original files. Publication alone must not be described as an open-source licence grant. A licence decision remains with the project owner.
 
-No JIANT, Felucca-Engines, SLOOP or proprietary M-Vave DSP was copied into the musical core. There are no bundled third-party DSP libraries, fonts, images or remote assets. The device view includes the panel UI code identified below. WebAssembly and Web Audio are browser platform APIs. Zig 0.13.0 and GCC were used as build tools, not redistributed executables.
+No JIANT, Felucca-Engines, SLOOP or proprietary M-Vave DSP was copied into the musical core. The Clouds-derived reverb identified below is the only incorporated third-party DSP. There are no bundled fonts, images or remote assets in the browser instrument. The device view includes the panel UI code identified below. WebAssembly and Web Audio are browser platform APIs. Zig 0.13.0 and GCC were used as build tools, not redistributed executables.
 
 The separate native-host experiment used fm1-base, pinned to commit 02f422c7d9de121ca099bb2fdebe5c035f59e8ad:
 https://github.com/charlesvestal/fm1-base/tree/02f422c7d9de121ca099bb2fdebe5c035f59e8ad
@@ -24,3 +24,19 @@ The hardware build now uses the same pinned fm1-base source above and felucca-bs
 ## Browser firmware installer
 
 `web/vendor/fm1-base/fm1ports.js`, `fm1pkg.js` and `fm1ota.js` are unmodified copies from fm1-base revision `02f422c7d9de121ca099bb2fdebe5c035f59e8ad`, distributed under MPL-2.0 with their original source headers. `flash.html`, `web/flash.js` and `web/flash.css` are original UNDERGROWTH integration code. The `.fwsc` in `firmware/releases/` is the experimental binary from the pinned hardware build; the source and build dependency identities are recorded in its release manifest.
+
+## Mutable Instruments Clouds reverb
+
+`core/room.h` adapts `clouds/dsp/fx/reverb.h` and its `FxEngine` allpass semantics
+from Mutable Instruments eurorack commit
+`f4cfa7697095a28d292bff758beb51deb49b5a86`, Copyright 2014 Emilie Gillet:
+https://github.com/pichenettes/eurorack/tree/f4cfa7697095a28d292bff758beb51deb49b5a86/clouds/dsp/fx
+
+Those portions and adaptations are MIT licensed. The complete upstream notice
+is in `LICENSES/Mutable-Instruments-MIT.txt`, retained in `core/room.h`, embedded
+in the standalone HTML and copied alongside the experimental firmware. Changes
+use explicit C float circular buffers, rate-scaled lengths, tank-delay modulation,
+new bounded decay/damping mappings, aux return/width and instrument lifecycle.
+This is a topology adaptation, not a bit-exact Clouds emulation. No JIANT,
+FM1-DUB, X0X or Plaits implementation is copied. UNDERGROWTH's other original
+files retain their existing undecided licensing status.
