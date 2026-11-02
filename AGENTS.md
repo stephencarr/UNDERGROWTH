@@ -21,3 +21,12 @@ Stephen requires every milestone to end with a flashable FM1 build, as well as t
 - Stephen accepts all noncritical tech debt. Only critical risks block release: unintended flashing/writes, serious loss or corruption of user data, or failures of similar consequence. Assess the concrete impact rather than treating every review severity label as a blocker.
 - Record noncritical findings as accepted/deferred debt. Do not expand implementation, optional testing or cleanup to seek a zero-comment review. Documentation-only changes and accepted debt do not need additional review cycles.
 - Complete the mandatory milestone gate and verify fixes to critical issues, then ship. Never access or flash connected hardware without separate explicit authorization.
+
+## PR previews are part of delivery
+
+- Use a feature branch from current `main`, push it, and open/update a PR. Provide a Railway preview for user audition before treating a functional change as ready to ship. Do not stop at a local commit or give the shared base URL as though it contains the PR.
+- Follow the [PR preview procedure](docs/ENGINEERING.md#railway-browser-previews). Automatic PR environments copy `preview-base` (which follows `main`); each PR gets its own branch, deployment and domain. Branch pushes update that PR's preview. Do not point `preview-base` at a feature branch or manually replace another PR's preview.
+- For a review/preview handoff, use a ready-for-review PR. If a draft has no environment, mark it ready and check again. If PR environments were enabled after the PR was opened and no environment appears, reopen your own PR once to refresh its event. Never merge merely to obtain a preview.
+- Verify Railway deployment `SUCCESS` for the PR's latest commit and use the domain returned for that PR environment. Check `/version.json` and browser audio/input when network access permits. If access is blocked, explicitly report that only deployment metadata was verified; do not claim a live browser pass.
+- Include the PR link and its preview link in the handoff, with the tested commit and any validation limits. Keep experimental firmware and the mandatory milestone gate; preview hosting does not replace firmware validation, PR review, or listening acceptance.
+- Railway previews are for audition. State that GitHub Pages is unchanged until the change is actually released there. Merging, release publication and physical flashing retain the existing review and authorization rules above.

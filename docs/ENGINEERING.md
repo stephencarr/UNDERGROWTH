@@ -104,32 +104,78 @@ is generated once at init, has no external sample licence, and is held in pool
 memory on FM1. The new parameters are included in native/WASM parity.
 ## Railway browser previews
 
-Railway's UNDERGROWTH project uses persistent `preview-base`, sourced from
-`main`, as the base for automatic PR environments. Stephen enabled the project
-setting on 2026-11-02. PR #15 was marked ready and reopened to trigger creation
-for this already-open PR; Railway provisioned `UNDERGROWTH-pr-15` from
-`codex/grain-atmospheres` with its own automatic domain:
-https://undergrowth-preview-undergrowth-pr-15.up.railway.app .
-Verify deployment SUCCESS and the deployed commit on every update. This workspace's
-network policy blocks direct HTTP/browser access to Railway domains; deployment
-metadata is available through the connected Railway tools, but a live browser
-smoke test may require an environment that can reach the preview. GitHub Pages remains
-the accepted instrument. Railway only packages the checked-in browser bundle;
-the normal milestone gate must build matching WASM/firmware before a functional
-change is accepted. Hosting configuration does not replace musical validation.
+Every functional PR should have a Railway preview for Stephen to audition.
+Push the branch and open/update the PR as part of normal delivery; a local commit
+alone does not create a preview. GitHub Pages remains the accepted instrument:
+https://stephencarr.github.io/UNDERGROWTH/ . Previewing does not merge or publish
+the release there, and does not establish listening or physical FM1 acceptance.
+
+### Configuration
+
+Railway project **UNDERGROWTH** (`839a9b25-bfe7-45b0-84c3-f0af370d40f2`) has
+PR Environments enabled, with **preview-base** as the template. Its service is
+**undergrowth-preview** (`0c9eca7b-d3dc-45e8-b67e-2e4129beb664`), sourced from
+`stephencarr/UNDERGROWTH` on `main`. Keep that source on `main`.
+Railway copies the base into a temporary environment for each PR, deploys that
+PR's branch, generates a separate domain, updates it on pushes, and removes it
+when the PR closes or merges. Discover the actual environment/domain rather than
+assuming a URL format or sharing the base environment's URL.
+
+### Delivery procedure
+
+1. Start from current `main`. Build matching browser/WASM and experimental
+   firmware and run `tools/check_milestone.sh` for functional changes. Commit
+   generated `index.html` and `web/core.wasm`; Railway serves the checked-in
+   bundle and does not rebuild the musical engine or validate firmware.
+2. Push the feature branch and open/update its PR. For the audition/review
+   handoff, mark the PR ready for review. Preserve the project's review gate;
+   automated preview availability is not approval to merge or release.
+3. List the project's Railway environments and find the one associated with
+   this PR. Inspect its service source, latest deployment, commit and domains.
+   With connected tools use `list-services`, `describe-service` and
+   `list-deployments`, passing explicit project/environment/service IDs.
+4. Wait for deployment **SUCCESS** on the latest pushed commit. QUEUED,
+   BUILDING or DEPLOYING are not success. For FAILED/CRASHED inspect build/runtime
+   logs and fix the cause. A prior successful commit does not verify a new push.
+5. Read `/version.json` and confirm branch/commit/PR where supplied. Open the
+   preview in a real browser and check Enable audio, empty/silent startup,
+   the changed musical workflow, mouse/touch as relevant, and Stop/Panic.
+   When network policy blocks the domain, report deployment metadata as the
+   evidence and the live HTTP/browser checks as unverified. Never bypass policy.
+6. Hand off the PR URL, the PR-specific preview URL, the verified commit,
+   validation results and remaining listening/hardware limits. State that the
+   public GitHub Pages instrument is unchanged. Continue monitoring PR review
+   findings under `AGENTS.md`; do not merge merely to supply an audition URL.
+
+### If the PR environment is missing
+
+Check that the branch is pushed, the PR targets `main`, its source repository
+matches the base service, and project PR Environments use `preview-base`.
+Use a ready-for-review PR for handoff; mark a draft ready and recheck before
+assuming setup is broken. If the setting was enabled after the PR opened,
+close and reopen your own PR once to refresh the webhook, then check again.
+Do not close unrelated PRs, repeatedly cycle state, repoint the shared base,
+or create a manually named environment and call it automatic PR provisioning.
+If the project-level setting needs correction and connected tools cannot edit
+it, use an authenticated supported CLI/API or ask Stephen for the specific
+dashboard change. Never claim a staged change has already been applied.
+
+Confirmed example on 2026-11-02: PR #15 provisioned `UNDERGROWTH-pr-15`, and a
+subsequent push automatically deployed commit `0bdc7e3` with status SUCCESS:
+https://undergrowth-preview-undergrowth-pr-15.up.railway.app . This environment
+is temporary; its URL is an example, not the default for future PRs. Direct
+HTTP/browser verification was blocked by that workspace's network policy.
+
+### Hosting boundary
 
 `railway.json` builds with `tools/prepare_preview.py` and runs the standard-library
 Python server in `tools/serve_preview.py` on `$PORT`. Only `/`, `/index.html` and
-`/version.json` are public routes; the root bundle embeds its scripts and WASM.
+`/version.json` are public routes; the root bundle embeds scripts and WASM.
 The version badge identifies branch, commit and PR when Railway supplies them.
 There is no repository directory serving, directory listing or preview flasher.
 Unknown paths, including source, credentials and firmware paths, return 404.
-
-Run `python3 tests/preview_server_test.py` to verify the access boundary. PR
-previews update on branch pushes and Railway removes their environments when
-PRs close or merge. A Railway-provided domain on the base service enables
-automatic domains for PR environments. Verify deployment SUCCESS, version.json
-and a real browser audio/ROOT workflow before handing someone a preview URL.
+Run `python3 tests/preview_server_test.py` when changing these hosting helpers;
+documentation-only updates do not require a fresh browser/firmware milestone.
 
 Accepted/deferred preview review debt (PR #9): the bundled UX design guide link
 still points to a path outside the public route allowlist and returns 404. The
