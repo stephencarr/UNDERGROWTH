@@ -112,11 +112,11 @@ Phone/USB capture, stereo grain movement and the other organisms' formant/noise/
 harmonic atmospheres remain roadmap work. Listening and physical CPU acceptance
 remain open; no device access or flashing is part of this work.
 
-### Independent ENV palette — 0.6.0-hw1 (unpublished)
+### Independent ENV palette — 0.6.2-hw1 (unpublished)
 
 Every organism now has an independently enabled continuous atmosphere that runs
-with PLAY, including over an empty score. Kick adds a harmonic drone with
-Harmonics/Texture/Movement/Pitch, Rate and Crunch. Chatter adds coloured noise
+with PLAY, including over an empty score. Kick adds a resonant halo with
+Structure/Texture/Movement/Pitch, Rate and Roughness. Chatter adds coloured noise
 with Colour/Pulse/Movement/Range, Rate and Roughness. Backbeat adds a morphable
 vowel voice with Vowel/Resonance/Movement/Pitch, Rate and Breath. ROOT keeps its
 grain drone. These are original fixed-state synth engines, without samples or
@@ -135,3 +135,16 @@ shared effect tails decay; Panic clears all state. Sessions remain temporary.
 This slice also fixes a reviewed reverse-grain boundary rounding case from PR
 #15. Listening acceptance for the new three atmospheres and physical FM1 CPU
 headroom remain open. No flashing or public GitHub Pages change is implied.
+
+### Kick ENV resonant halo refinement — 0.6.2-hw1 (unpublished)
+
+Stephen found the initial Harmonics dial too subtle and its oscillator drone too
+close to ROOT's grain atmosphere. Kick ENV now models a continuously excited
+resonant material instead: six damped modes, without a sustained oscillator
+carrier or generated notes. Structure stretches harmonic relationships into
+inharmonic metallic ones. Texture moves from filtered air through bowed/friction
+noise to fine crackling excitation. Movement shifts energy between modes; Rate
+controls that movement. Roughness adds bounded excitation drive and damping.
+Pitch sets the material's register. Existing level, enable, send, locks/motion,
+Undo, mix, Stop and Panic remain. Other atmosphere engines and percussion are
+unchanged. This sound should be evaluated dry before adding shared reverb.

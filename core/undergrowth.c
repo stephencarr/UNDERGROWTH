@@ -68,6 +68,9 @@ static int grain_wait;
 static unsigned grain_serial;
 typedef struct {float phase[3],low[2],band[2],held,clock,level,now[9];uint32_t rng;} Ambient;
 static Ambient ambient[NVOICE];
+/* Six damped modes for Kick's continuous resonant material; no note generator. */
+static struct {float low[6],band[6],coefficient[6],target[6],gain[6],gain_target[6],air,friction;int update;} halo;
+
 static void atmosphere_reset(void);
 
 
@@ -496,4 +499,4 @@ void ug_render(int frames){
 }
 float *ug_buffer(void){return output;}
 int ug_state(int key){switch(key){case 0:return playing;case 1:return step_index;case 2:return recording;case 3:return rate;case 4:return tempo;case 5:return saved_valid;case 6:return takeover[0];case 7:return takeover[1];case 8:return trigger_count[0];case 9:return trigger_count[1];case 10:return motion;case 11:return motion_mask[0];case 12:return motion_mask[1];case 13:return takeover[2];case 14:return trigger_count[2];case 15:return motion_mask[2];case 16:return root_gate;case 17:return rec_mode;case 18:return take_active;case 19:return rec_track;case 20:return takeover[3];case 21:return trigger_count[3];case 22:return motion_mask[3];case 23:return NVOICE;default:return 0;}}
-int ug_state_bytes(void){return sizeof(score)+sizeof(saved)+sizeof(voices)+sizeof(delaybuf)+sizeof(output)+sizeof(manual)+sizeof(texture)+sizeof(grains)+sizeof(root_fm)+sizeof(ambient)+sizeof(room_buffer)+sizeof(room)+128;}
+int ug_state_bytes(void){return sizeof(score)+sizeof(saved)+sizeof(voices)+sizeof(delaybuf)+sizeof(output)+sizeof(manual)+sizeof(texture)+sizeof(grains)+sizeof(root_fm)+sizeof(ambient)+sizeof(halo)+sizeof(room_buffer)+sizeof(room)+128;}

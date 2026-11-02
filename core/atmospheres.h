@@ -1,7 +1,7 @@
 /* Original UNDERGROWTH atmosphere voices. Fixed state, no samples or allocation.
  * Parameters 11..19: colour, texture, movement, pitch, level, send, enable, rate, character. */
 static void atmosphere_reset(void){
- zero(ambient,sizeof ambient);
+ zero(ambient,sizeof ambient);zero(&halo,sizeof halo);
  for(int v=0;v<NVOICE;v++){
   ambient[v].rng=0x713b21u+(uint32_t)v*0x1f531u;
   for(int p=0;p<9;p++)ambient[v].now[p]=score.base[v][11+p];
@@ -10,6 +10,48 @@ static void atmosphere_reset(void){
 static float atmosphere_noise(int v){
  uint32_t x=ambient[v].rng;x^=x<<13;x^=x>>17;x^=x<<5;ambient[v].rng=x;
  return (float)(x&65535u)/32767.5f-1;
+}
+/* A continuously excited resonant field: Structure changes modal relationships,
+ * Texture changes the material's excitation, Movement redistributes its energy.
+ * Coefficients/targets refresh in bounded groups and interpolate between them. */
+static float resonant_halo(Ambient *a,float hz,float structure,float texture,float movement,float roughness){
+ static const float harmonic[6]={1,1.5f,2,3,4,6};
+ static const float metallic[6]={1,1.414214f,2.314f,3.73f,5.19f,7.53f};
+ if(halo.update--<=0){
+  halo.update=31;
+  for(int i=0;i<6;i++){
+   float ratio=harmonic[i]+(metallic[i]-harmonic[i])*structure;
+   float frequency=hz*2*ratio;
+   /* Fade modes approaching the low-rate stability limit instead of piling
+    * several resonances onto one clamped frequency. */
+   float audible=clamp((rate*.18f-frequency)/(rate*.05f),0,1);
+   float fc=clamp(frequency,20,rate*.14f);
+   halo.target[i]=2*sine(fc/(2*rate));
+   float phase=a->phase[0]+i*.163f;phase-=(int)phase;
+   float swell=.5f+.5f*sine(phase);swell*=swell;
+   halo.gain_target[i]=audible*(1-movement+movement*(.08f+.92f*swell));
+  }
+ }
+ float n=atmosphere_noise(0);
+ halo.air+=(n-halo.air)*clamp(1800.0f/rate,0,.8f);
+ halo.friction+=(n-halo.friction)*clamp(35.0f/rate,0,.2f);
+ float air=halo.air*.35f;
+ float friction=(n-halo.air)*(.1f+(halo.friction<0?-halo.friction:halo.friction)*3);
+ /* Sparse rough energy is part of a continuous excitation, not a score event. */
+ float crack=clamp((n*n-.72f)*4,0,1)*(n<0?-.5f:.5f);
+ float source=texture<.5f?air+(friction-air)*(texture*2):friction+(crack-friction)*(texture*2-1);
+ float driven=source*(1+roughness*8);source=driven/(1+(driven<0?-driven:driven));
+ float sum=0,smoothing=1.0f/(rate*.01f),damping=.025f+roughness*.07f;
+ for(int i=0;i<6;i++){
+  halo.coefficient[i]+=(halo.target[i]-halo.coefficient[i])*smoothing;
+  halo.gain[i]+=(halo.gain_target[i]-halo.gain[i])*smoothing;
+  float f=halo.coefficient[i];
+  halo.band[i]+=f*(source-halo.low[i]-damping*halo.band[i]);
+  halo.low[i]+=f*halo.band[i];
+  halo.low[i]=clamp(halo.low[i],-4,4);halo.band[i]=clamp(halo.band[i],-4,4);
+  sum+=halo.band[i]*halo.gain[i];
+ }
+ return sum*1.8f;
 }
 static float simple_atmosphere(int v){
  Ambient *a=&ambient[v];float target=playing&&score.base[v][17]>.5f?ug_effective(v,15):0;
@@ -20,7 +62,8 @@ static float simple_atmosphere(int v){
  float hz=note_frequency(24+(int)(a->now[3]*36+.5f));
  a->phase[0]+=(.03f+a->now[7]*a->now[7]*4)/rate;if(a->phase[0]>=1)a->phase[0]-=1;
  float lfo=sine(a->phase[0]),x=0;
- if(v==1){
+ if(v==0){x=resonant_halo(a,hz,colour,texture,motion,character);}
+ else if(v==1){
   /* Coloured noise, with independent timbral motion and pulse depth. */
   float n=atmosphere_noise(v);
   a->clock+=(1-character*.97f)*.45f;if(a->clock>=1){a->clock-=1;a->held=n;}
@@ -33,21 +76,6 @@ static float simple_atmosphere(int v){
  }else{
   a->phase[1]+=hz*(1+motion*lfo*.004f)/rate;if(a->phase[1]>=1)a->phase[1]-=1;
   float phase=a->phase[1],fundamental=sine(phase);
-  if(v==0){
-  for(int h=1;h<=6;h++){
-   float ph=phase*h;ph-=(int)ph;
-   float gain=h==1?1:colour/(float)h;
-   x+=sine(ph)*gain;
-  }
-  x*=.45f;
-   /* Harmonic drone: spectral tilt, a beating fifth and bounded crunch. */
-   a->phase[2]+=hz*1.5f*(1+texture*.006f)/rate;if(a->phase[2]>=1)a->phase[2]-=1;
-   x=x*(1-texture*.45f)+sine(a->phase[2])*texture*.35f;
-   float drive=1+character*12,driven=x*drive;
-   x=(driven/(1+(driven<0?-driven:driven)))*(1+character*.3f);
-   float steps=32+(1-texture)*480;
-   float crushed=(float)(int)(x*steps)/steps;x+=(crushed-x)*character;
-  }else{
    /* Two smoothly morphed vowel resonances; coefficient capped at low rates. */
    static const float vowels[5][2]={{800,1150},{400,2000},{350,2300},{450,800},{325,700}};
    float vowel=clamp(colour*4+motion*lfo*.6f,0,4);int index=(int)vowel;
@@ -68,7 +96,6 @@ static float simple_atmosphere(int v){
     a->band[b]=clamp(a->band[b],-4,4);a->low[b]=clamp(a->low[b],-4,4);
     x+=a->band[b]*(1.4f-texture*.72f);
    }
-  }
  }
  return x*a->level*.3f;
 }

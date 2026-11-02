@@ -203,13 +203,13 @@ The parameter follows existing motion/Undo semantics and does not generate notes
 
 ## Percussion atmosphere layers — 0.6.0-hw1 (unpublished)
 
-Kick ENV owns a harmonic/crunch drone; Chatter ENV owns modulated coloured noise;
+Kick ENV now owns a resonant halo; Chatter ENV owns modulated coloured noise;
 Backbeat ENV owns a morphable formant. ROOT ENV remains grains. Keep existing
 percussion edit gestures: ENV page 1 is the original percussion envelope, page 2
 is velocity. SELECT or repeated ENV reaches page 3 (shape), page 4 (Level, Rate,
-Enabled, ENV send), and page 5 (Crunch / Roughness / Breath on KNOB1).
+Enabled, ENV send), and page 5 (Roughness / Roughness / Breath on KNOB1).
 
-Shape page: Kick Harmonics/Texture/Movement/Pitch; Chatter Colour/Pulse/Movement/
+Shape page: Kick Structure/Texture/Movement/Pitch; Chatter Colour/Pulse/Movement/
 Range; Backbeat Vowel/Resonance/Movement/Pitch. The shaped noise's Range uses the
 same C1–C4 register mapping as pitched atmospheres, without implying a tuned
 noise fundamental. Movement controls timbral motion, and Pulse adds noise amplitude
@@ -228,3 +228,9 @@ Review correction in 0.6.1-hw1: all five percussion trig-menu pages now have
 correct footer labels/page numbers, including Atmosphere and ATM MIX. Expanded
 atmosphere sliders show the selected trig's lock or its draft fallback during
 playback; they never borrow another step's passing playhead value in lock edit.
+
+Kick's former Harmonics and Crunch parameters retain their IDs (11 and 19) but
+now read Structure and Roughness. Structure changes mode frequencies instead of
+merely adding brighter partials; Movement changes modal energy rather than
+vibrato. Texture spans air, friction and fine crackle. Enable plus PLAY is still
+the only start condition. No extra sequencer events or automatic melody appear.

@@ -64,7 +64,7 @@ void ug_ui_edit(int p,float x){
 }
 static const char *root_names[20]={"Tone","Colour","Decay","Synth send","Glide","Weight","Attack","Structure","Intensity","Feedback","Motion","Position","Grain size","Density","Pitch","Level","ENV send","Enabled","Scan","Surprise"};
 static const char *ambient_names[4][9]={
- {"Harmonics","Texture","Movement","Pitch","Level","ENV send","Enabled","Rate","Crunch"},
+ {"Structure","Texture","Movement","Pitch","Level","ENV send","Enabled","Rate","Roughness"},
  {"Colour","Pulse","Movement","Range","Level","ENV send","Enabled","Rate","Roughness"},
  {"Position","Grain size","Density","Pitch","Level","ENV send","Enabled","Scan","Surprise"},
  {"Vowel","Resonance","Movement","Pitch","Level","ENV send","Enabled","Rate","Breath"}};
@@ -226,7 +226,7 @@ void ug_ui_refresh(void){
  else if(page==6){add(lines[1],"MIX / knobs: track levels");for(int v=0;v<4;v++){named(lines[v+2],v+1,voices[v],(int)(ug_getlevel(v)*100+.5f),"%");if(ug_getmute(v))add(lines[v+2]," MUTE");}}
  else if(page==5){named(lines[1],1,"Tempo",ug_state(4),"");named(lines[2],2,"Swing",50+(int)(ug_getgroove(0)*100/6+.5f),"%");named(lines[3],3,"Human",(int)(ug_getgroove(1)*100+.5f),"%");}
  else if(ambient_page()){
-  static const char *kind[4]={"HARMONIC DRONE","MODULATED NOISE","GRAINS","MORPHING FORMANT"};
+  static const char *kind[4]={"RESONANT HALO","MODULATED NOISE","GRAINS","MORPHING FORMANT"};
   add(lines[1],lock_menu?"STEP / ":"DRAFT / ");add(lines[1],kind[voice]);
   for(int i=0;i<4;i++){int p=ambient_param(i);if(p<0)continue;
    float x=lock_menu&&(ug_lockmask(voice,selected)&(1<<p))?ug_lockvalue(voice,selected,p):ug_state(10)?ug_effective(voice,p):ug_getparam(voice,p);

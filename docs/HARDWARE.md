@@ -220,3 +220,17 @@ new native/sanitizer footer navigation and real mouse/touch selected-rest draft
 fallback regressions. Package/vocabulary comparison passed; image 126044 bytes,
 data+bss 40940/98304 and pool 206708/344064. Listening and physical acceptance
 remain outstanding. Public GitHub Pages is unchanged.
+
+### Kick resonant halo — 0.6.2-hw1 (unpublished)
+
+Replaces Kick ENV's additive oscillator drone with six continuously excited,
+damped resonant modes. Cached/interpolated coefficients and modal gains add
+144 bytes to measured ordinary state, with no new pool buffers. Image 126140
+bytes; data+bss 41084/98304; pool 206708/344064. Identity FM-1_731000602.
+The complete milestone gate passed: fourteen native suites, gain-independent
+halo control contrast with reverb off, sample-rate/corner and lifecycle checks,
+all-atmosphere native/WASM parity, worklet, mouse/touch workflows, platform-host
+traces, simulated updater safety, and real package identity/CRC/loader/instruction/
+memory checks plus rebuilt package/vocabulary comparison. Focused halo and
+atmosphere ASan/UBSan checks passed. Physical CPU/P/X and listening remain open.
+No connected device was accessed or flashed; radios/CPU2 remain off.

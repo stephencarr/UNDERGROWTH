@@ -216,3 +216,15 @@ pages expose atmospheres. All start off and need PLAY; they do not create notes.
 This draft fixes the inherited reverse-grain endpoint read and checked-in release
 checksum list. USB capture, stereo grain swirl, additional organisms and broad UI
 redesign remain later work. New atmosphere listening and physical CPU remain open.
+
+### Kick direction revised after audition — resonant halo
+
+Stephen accepted replacing the initial harmonic/crunch oscillator drone after
+finding its Harmonics control weak and its identity too close to ROOT's grains.
+The 0.6.2-hw1 draft uses six continuously excited resonances, morphing from
+harmonic/string-like spacing to stretched metallic relationships. Texture is
+air → friction → fine crackle; Movement shifts energy between modes; Roughness
+adds bounded drive/friction. Keep it useful dry, with shared reverb providing
+space afterward. No new notes, sample source or sequencing mode is implied.
+ROOT remains captured/generated grain texture; Chatter remains modulated noise;
+Backbeat remains formant. Listening acceptance of the revised halo remains open.

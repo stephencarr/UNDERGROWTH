@@ -7,7 +7,7 @@ const {chromium}=require('playwright'),assert=require('node:assert/strict');
  const turn=async(n,d)=>{await btn(n).focus();for(let i=0;i<Math.abs(d);i++)await page.keyboard.press(d>0?'ArrowUp':'ArrowDown');await page.waitForTimeout(80);};
  const peak=()=>page.evaluate(()=>{const a=new Float32Array(atmoAnalyser.fftSize);atmoAnalyser.getFloatTimeDomainData(a);return Math.max(...a.map(Math.abs));});
  await click(page.locator('#device-audio'));await page.waitForFunction(()=>window.UG?.state);assert.equal(await peak(),0);
- for(const [voice,label] of [[0,'Harmonics'],[1,'Colour'],[3,'Vowel']]){
+ for(const [voice,label] of [[0,'Structure'],[1,'Colour'],[3,'Vowel']]){
   await page.evaluate(v=>{UG.command('panic');UG.command('uiSelect',0,v);},voice);await click(btn('ENV'));await turn('SELECT',2);
   await page.waitForFunction(label=>UG.state.panel.knobLabels.includes(label),label);
   await turn('SELECT',1);await turn('KNOB 3',1);await click(btn('PLAY'));await page.waitForTimeout(400);
@@ -28,5 +28,5 @@ const {chromium}=require('playwright'),assert=require('node:assert/strict');
  await page.waitForFunction(()=>UG.state.voices[0].effective[11]>.89);
  assert(Math.abs(Number(await page.locator('#atmo-param-11').inputValue())-.4)<.001);
  await click(page.locator('#view-toggle'));await page.evaluate(()=>UG.command('panic'));
- assert.deepEqual(errors,[]);await page.close();console.log('PASS '+(touch?'touch':'mouse')+' atmospheres: harmonic/noise/formant, explicit enable, empty-score audio, separate send, Expanded edit and Panic');
+ assert.deepEqual(errors,[]);await page.close();console.log('PASS '+(touch?'touch':'mouse')+' atmospheres: halo/noise/formant, explicit enable, empty-score audio, separate send, Expanded edit and Panic');
 }}finally{await browser.close();}})().catch(e=>{console.error(e);process.exitCode=1;});
