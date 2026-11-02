@@ -6,7 +6,7 @@ Read this first for intent, then [engineering orientation](ENGINEERING.md) for i
 
 ## Musical identity
 
-The four current organisms are Kick, Chatter, ROOT and Backbeat. Kick is synthesized percussion; Chatter is synthetic, grain-like noise/resonant fragmentation; ROOT is monophonic harmonic bass. Backbeat combines two skin resonances and filtered wire noise, with clap-like clusters at wider Spread settings. The percussion is synthesised, without samples. Each has a recognisable identity rather than a generic synthesizer editor.
+The four current organisms are Kick, Chatter, ROOT and Backbeat. Kick is synthesized percussion; Chatter is synthetic, grain-like noise/resonant fragmentation; ROOT is monophonic harmonic bass. Backbeat continuously blends shaker collision grains, resonant skin/wire snares and clustered handclaps. Edge reaches crushed crackle and metallic fragments; Spread stretches the internal grains and flams. Intermediate settings mix these textures rather than selecting isolated presets. The percussion is synthesised, without samples. Each has a recognisable identity rather than a generic synthesizer editor.
 
 The accepted direction is **strong intentional controls, subtle hard-wired DNA**. ENV means **Environment**, not a conventional ADSR editor. Its controls must produce useful, pronounced changes. Smaller, bounded and deterministic responses to velocity, tempo or musical context add character without rewriting the musician's score or generating notes. See the organism/control table in [ROADMAP.md](ROADMAP.md).
 
@@ -30,7 +30,7 @@ The default browser view follows the FM1 panel; Expanded view shares the same ru
 | --- | --- |
 | Musical engine | Four 16-step lanes, sound/ENV locks, velocity, ROOT articulation, groove, recording, takeover/Rejoin and Undo. |
 | Browser | Shared C/WASM engine and panel controller, JavaScript IO/drawing, FM1 and Expanded views. |
-| Firmware | Shared C plus FM1 adapter; experimental `0.2.0-hw1` package and validation record are checked in. |
+| Firmware | Shared C plus FM1 adapter; experimental `0.2.1-hw1` package and validation record are checked in. |
 | Device evidence | Cross-build/package and host checks are recorded as passed. No physical flash, playing, CPU-headroom or recovery validation is established. |
 | Persistence | Session-only. Reload/close loses the score. SAVE is unavailable. |
 | Effects | Fixed shared delay with track sends. Track filters, reverb, adjustable global effects and a silent FX automation lane are planned. |

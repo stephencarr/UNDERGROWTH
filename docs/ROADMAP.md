@@ -31,7 +31,7 @@ Stephen's next priority is the remaining organisms, following Kick, Chatter and 
 
 ### Immediate slice — Backbeat
 
-A fourth independent organism: woody knocks and skin-like cracks through wire-noise snare and clap textures. Body controls depth and skin-mode balance; Edge brings in bright wire noise; Length controls decay; Send feeds the existing delay. ENV provides Length, Damping, Spread (bounded clap clusters) and Response (attack firmness). This is original synthesis, without samples. Preserve the existing trig-lock, velocity, motion and Undo workflow. Browser and matching experimental FM1 firmware are required for this slice. No additional sequencing features or noncritical lock cleanup is implied.
+A fourth independent organism. Stephen rejected the first skin/noise version as too narrow after audition. The revised direction covers shakers → snares → claps, with continuous blends and surprising mashed-up, extreme textures in between. Body sweeps those families; Edge opens brightness into crushed crackle and metallic fragments; Length extends grains, skin and diffuse tails; Send feeds the existing delay. ENV provides Length, Damping, Spread (grain density/spacing, rattles and clap flams) and Response (attack firmness). These are bounded components of one authored hit, not generated sequencer events. Timbre transitions smooth inside the DSP without rewriting locks. This is original synthesis, without samples. Preserve trig locks, velocity, motion and Undo. Browser and matching experimental FM1 firmware are required. Further listening approval remains with Stephen; no additional sequencing features or noncritical lock cleanup is implied.
 
 ### Following Backbeat: chord stabs and a flexible FM tone
 
